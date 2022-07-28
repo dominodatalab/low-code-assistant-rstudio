@@ -148,10 +148,99 @@ FilterTransformation$TRANSFORMATIONS <- list(
   NOT_EQUALS   = "!="
 )
 
+TransformationSequence <- R6::R6Class(
+  "TransformationSequence",
+
+  private = list(
+
+    .transformations = NULL,
+    .name_in = NULL,
+    .name_out = NULL,
+
+    add_transformations = function(transformations) {
+      if (is.null(transformations)) {
+        return()
+      }
+      if (inherits(transformations, Transformation$classname)) {
+        transformations <- list(transformations)
+      }
+      if (!is.list(transformations)) {
+        stop("TransformationSequence$add() - Must be called with a list of <Transformation> objects", call. = FALSE)
+      }
+
+      name_in <- private$.name_in
+      for (idx in seq_along(transformations)) {
+        transformation <- transformations[[idx]]
+        if (!inherits(transformation, Transformation$classname)) {
+          stop("TransformationSequence$add() - Must be called with a list of <Transformation> objects", call. = FALSE)
+        }
+        transformation$set_name_in(name_in)
+        private$.transformations <- append(private$.transformations, transformation)
+        name_in <- transformation$get_name_out()
+      }
+      private$.name_out <- name_in
+
+      invisible(self)
+    }
+
+  ),
+
+  public = list(
+
+    initialize = function(transformations = NULL, name_in = NULL) {
+      if (is.null(transformations)) {
+        stop("TransformationSequence$new(): transformations must be provided")
+      }
+      if (is.null(name_in)) {
+        stop("TransformationSequence$new(): name_in must be provided")
+      }
+
+      private$.name_in <- name_in
+      private$add_transformations(transformations)
+      invisible(self)
+    },
+
+    get_code = function() {
+      chunks <- self$get_code_chunks()
+      paste(chunks, collapse = "\n")
+    },
+
+    get_code_chunks = function() {
+      chunks <- lapply(private$.transformations, function(transformation) {
+        transformation$get_code()
+      })
+      chunks <- append(chunks, private$.name_out)
+      chunks
+    },
+
+    apply = function() {
+      # parent_frame <- parent.frame(1)
+      # code <- self$get_code()
+      # new_df <- eval(parse(text = code), envir = parent_frame)
+      # new_df
+      transformations <- private$.transformations
+      for (idx in seq_along(transformations)) {
+        transformation <- transformations[[idx]]
+        result <- transformation$apply()
+      }
+      result
+    }
+
+  )
+)
 
 ##########
 
-df <- mtcars
+dfcar <- mtcars
+
+t1 <- FilterTransformation$new("gear", ">", 4, "postfilter")
+t2 <- SelectTransformation$new(c("wt", "gear", "hp"), "postselect")
+
+actions <- TransformationSequence$new(
+  list(t1, t2), "dfcar"
+)
+actions$apply()
+
 tr <- DropTransformation$new(c("disp", "hp"), "dfnew2")$
   set_name_in("df")
 tr$apply()
