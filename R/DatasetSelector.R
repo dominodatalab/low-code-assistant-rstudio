@@ -1,4 +1,4 @@
-DatasetSelector <- R6Class(
+DatasetSelector <- R6::R6Class(
   "DatasetSelector",
   public = list(
     id = NULL,
@@ -59,14 +59,14 @@ data_sources_section <- function(id) {
 }
 
 
-library(shiny)
-
-ui <- fluidPage(
-  data_sources_section_ui("f")
-)
-
-server <- function(input, output, session) {
-  data_sources_section("f")
-}
-
-shinyApp(ui, server)
+# library(shiny)
+#
+# ui <- fluidPage(
+#   data_sources_section_ui("f")
+# )
+#
+# server <- function(input, output, session) {
+#   data_sources_section("f")
+# }
+#
+# shinyApp(ui, server)

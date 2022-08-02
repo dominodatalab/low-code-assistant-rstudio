@@ -1,0 +1,24 @@
+Package: dominolca
+Title: Low Code Assistant for Domino
+Version: 0.0.0.9000
+Authors@R: c(
+    person("Dean", "Attali",
+        email = "daattali@gmail.com",
+        role = c("aut", "cre")
+    ))
+Description: TODO
+URL: https://github.com/daattali/lca
+BugReports: https://github.com/daattali/lca/issues
+Depends:
+    R (>= 3.1.0)
+Imports:
+    DT,
+    glue,
+    R6,
+    reactable,
+    shiny (>= 1.0.0),
+    utils
+License: MIT + file LICENSE
+Encoding: UTF-8
+RoxygenNote: 7.1.2
+Roxygen: list(markdown = TRUE)
