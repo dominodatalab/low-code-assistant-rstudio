@@ -92,49 +92,101 @@ server <- function(input, output, session) {
 ########
 
 ui <- fluidPage(
-  br(),
-  verbatimTextOutput("code"),
-  br(),
-  wellPanel(fluidRow(
-    column(
-      4,
-      selectInput("action", NULL, c("Remove columns" = "drop",
-                                    "Select columns" = "select",
-                                    "Filter rows" = "filter"))
+  shinyjs::useShinyjs(),
+  div(
+    id = "data_selector",
+    radioButtons("datatype", NULL, inline = FALSE,
+                 list("Upload a dataset" = "upload", "Existing dataset" = "existing")),
+    conditionalPanel(
+      "input.datatype == 'upload'",
+      fileInput("file", NULL)
     ),
-    column(
-      4,
-      actionButton("doit", "Apply")
+    conditionalPanel(
+      "input.datatype == 'existing'",
+      selectInput("data", NULL, c("", names(Filter(function(x) is(x, "data.frame"), mget(envir = .GlobalEnv, ls(envir = .GlobalEnv))))))
     )
   ),
-  conditionalPanel(
-    "input.action == 'drop'",
-    fluidRow(
-      column(4, selectInput("drop_cols", "Columns", names(mtcars), multiple = TRUE)),
-      column(4, textInput("drop_name", "New name", "df"))
-    )
-  ),
-  conditionalPanel(
-    "input.action == 'select'",
-    fluidRow(
-      column(4, selectInput("select_cols", "Columns", names(mtcars), multiple = TRUE)),
-      column(4, textInput("select_name", "New name", "df"))
-    )
-  ),
-  conditionalPanel(
-    "input.action == 'filter'",
-    fluidRow(
-      column(4, selectInput("filter_col", "Column", names(mtcars))),
-      column(2, selectInput("filter_op", "Operation", unname(FilterTransformation$TRANSFORMATIONS))),
-      column(2, textInput("filter_value", "Value", "")),
-      column(4, textInput("filter_name", "New name", "df"))
-    )
-  )),
-  DT::DTOutput("table"),
+  shinyjs::hidden(div(
+    id = "transformation_section",
+    br(),
+    uiOutput("error"),
+    verbatimTextOutput("code"),
+    br(),
+    wellPanel(fluidRow(
+      column(
+        4,
+        selectInput("action", NULL, c("Remove columns" = "drop",
+                                      "Select columns" = "select",
+                                      "Filter rows" = "filter"))
+      ),
+      column(
+        4,
+        actionButton("doit", "Apply")
+      )
+    ),
+    conditionalPanel(
+      "input.action == 'drop'",
+      fluidRow(
+        column(4, selectInput("drop_cols", "Columns", NULL, multiple = TRUE)),
+        column(4, textInput("drop_name", "New name", "df"))
+      )
+    ),
+    conditionalPanel(
+      "input.action == 'select'",
+      fluidRow(
+        column(4, selectInput("select_cols", "Columns", NULL, multiple = TRUE)),
+        column(4, textInput("select_name", "New name", "df"))
+      )
+    ),
+    conditionalPanel(
+      "input.action == 'filter'",
+      fluidRow(
+        column(4, selectInput("filter_col", "Column", NULL)),
+        column(2, selectInput("filter_op", "Operation", unname(FilterTransformation$OPTIONS))),
+        column(2, textInput("filter_value", "Value", "")),
+        column(4, textInput("filter_name", "New name", "df"))
+      )
+    )),
+    DT::DTOutput("table"),
+    verbatimTextOutput("availables")
+  ))
 )
 
 server <- function(input, output, session) {
-  actions <- reactiveVal(TransformationSequence$new(name_in = "mtcars"))
+  dataname <- reactiveVal("mtcars")
+  undo_stack <- reactiveVal(list())
+  redo_stack <- reactiveVal(list())
+
+  main_data <- reactive({
+    req(dataname())
+    get(dataname(), envir = .GlobalEnv)
+  })
+
+  observeEvent(input$file, {
+    data <- read.csv(input$file$datapath)
+    name <- tools::file_path_sans_ext(input$file$name)
+    assign(name, data, envir = .GlobalEnv)
+    dataname(name)
+  })
+  observeEvent(input$data, {
+    req(nzchar(input$data))
+    dataname(input$data)
+  })
+
+
+
+  actions <- reactiveVal()
+  observeEvent(dataname(), {
+    shinyjs::hide("data_selector")
+    shinyjs::show("transformation_section")
+    actions(TransformationSequence$new(name_in = dataname())$run())
+  })
+  observeEvent(main_data(), {
+    updateSelectInput(session, "drop_cols", choices = names(main_data()))
+    updateSelectInput(session, "select_cols", choices = names(main_data()))
+    updateSelectInput(session, "filter_col", choices = names(main_data()))
+  })
+
 
   observeEvent(input$doit, {
     if (input$action == "drop") {
@@ -144,19 +196,38 @@ server <- function(input, output, session) {
     } else if (input$action == "filter") {
       action <- FilterTransformation$new(col = input$filter_col, op = input$filter_op, value = input$filter_value, name_out = input$filter_name)
     }
+
     old_trans <- actions()$get_transformations()
     new_trans <- append(old_trans, action)
-    actions(TransformationSequence$new(new_trans, name_in = "mtcars"))
+    actions(TransformationSequence$new(new_trans, name_in = dataname())$run(.GlobalEnv))
+
+    old_undo <- undo_stack()
+    new_undo <- append(old_undo(), old_trans)
+    undo_stack(new_undo)
+  })
+
+  error <- reactive({
+    actions()$get_error()
+  })
+
+  output$error <- renderUI({
+    req(error())
+    div(class = "alert alert-danger", style="font-size:2rem", icon("exclamation-sign", lib = "glyphicon"), error())
   })
 
   output$table <- DT::renderDT({
     DT::datatable(
-      actions()$apply()
+      actions()$get_result()
     )
   })
 
   output$code <- renderText({
     actions()$get_code()
+  })
+
+  output$availables <- renderText({
+    actions()
+    names(Filter(function(x) is(x, "data.frame"), mget(ls(envir = .GlobalEnv), envir = .GlobalEnv)))
   })
 }
 
