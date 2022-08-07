@@ -1,95 +1,4 @@
-# lca_UI <- function(id) {
-#   ns <- NS(id)
-#   tagList(
-#
-#   )
-# }
-#
-# lca <- function(id) {
-#   moduleServer(
-#     id,
-#     function(input, output, session) {
-#       dataset <- reactiveVal()
-#
-#
-#     }
-#   )
-# }
-#
-#
-# library(shiny)
-#
-# datasel <- DatasetSelector$new("popop")
-#
-# ui <- fluidPage(
-#   #lca_UI("app")
-#   datasel$ui()
-# )
-#
-# server <- function(input, output, session) {
-#   #lca("app")
-#   gg<-datasel$server("tet")
-#   observe(message(gg$num()))
-# }
-#
-# shinyApp(ui, server)
-
-
 library(shiny)
-
-ui <- fluidPage(
-  conditionalPanel(
-    "input.show_table",
-    reactable::reactableOutput("main_data")
-  ),
-  br(),
-  fluidRow(
-    column(4, actionButton("add_transformation", "+ Add Transformation")),
-    column(2, checkboxInput("show_table", "Show table", value = TRUE)),
-    column(2, checkboxInput("show_code", "Show code", value = FALSE))
-  ),
-  conditionalPanel(
-    "input.show_code",
-    verbatimTextOutput("code")
-  )
-)
-
-server <- function(input, output, session) {
-  main_data <- reactive({
-    df <- mtcars
-    row.names(df) <- seq(nrow(df))
-    df[4, 5] <- NA
-    df
-  })
-  output$main_data <- reactable::renderReactable({
-    reactable::reactable(
-      main_data(),
-      showPageSizeOptions = TRUE,
-      defaultPageSize = 10,
-      pageSizeOptions = c(10, 25, 50, 100),
-      pagination = TRUE,
-      highlight = TRUE,
-      rownames = TRUE,
-      defaultColDef = reactable::colDef(
-        align = "left"
-      ),
-      columns = list(
-        .rownames = reactable::colDef(
-          name = "#",
-          width = 50,
-          style = list(`font-style` = "italic"),
-          headerStyle = list(`font-style` = "italic")
-        )
-      )
-    )
-  })
-
-  output$code <- renderText({
-    "df"
-  })
-}
-
-########
 
 ui <- fluidPage(
   shinyjs::useShinyjs(),
@@ -147,8 +56,13 @@ ui <- fluidPage(
         column(4, textInput("filter_name", "New name", "df"))
       )
     )),
+    fluidRow(
+      column(2, actionButton("undo", "undo")),
+      column(2, actionButton("redo", "redo"))
+    ),
     DT::DTOutput("table"),
-    verbatimTextOutput("availables")
+    verbatimTextOutput("availables"),
+    actionButton("done","done")
   ))
 )
 
@@ -197,13 +111,14 @@ server <- function(input, output, session) {
       action <- FilterTransformation$new(col = input$filter_col, op = input$filter_op, value = input$filter_value, name_out = input$filter_name)
     }
 
-    old_trans <- actions()$get_transformations()
-    new_trans <- append(old_trans, action)
-    actions(TransformationSequence$new(new_trans, name_in = dataname())$run(.GlobalEnv))
-
-    old_undo <- undo_stack()
-    new_undo <- append(old_undo(), old_trans)
+    new_undo <- append(undo_stack(), actions())
     undo_stack(new_undo)
+
+    redo_stack(list())
+
+    new_xforms <- actions()$add_transformation(action)
+    new_xforms$run(.GlobalEnv)
+    actions(new_xforms)
   })
 
   error <- reactive({
@@ -229,6 +144,37 @@ server <- function(input, output, session) {
     actions()
     names(Filter(function(x) is(x, "data.frame"), mget(ls(envir = .GlobalEnv), envir = .GlobalEnv)))
   })
+
+  observeEvent(undo_stack(), {
+    shinyjs::toggleState("undo", length(undo_stack()) > 0)
+  })
+  observeEvent(redo_stack(), {
+    shinyjs::toggleState("redo", length(redo_stack()) > 0)
+  })
+
+  observeEvent(input$undo, {
+    new_redo <- append(redo_stack(), actions())
+    redo_stack(new_redo)
+
+    actions(tail(undo_stack(), 1)[[1]])
+    undo_stack(head(undo_stack(), -1))
+  })
+  observeEvent(input$redo, {
+    new_undo <- append(undo_stack(), actions())
+    undo_stack(new_undo)
+
+    actions(tail(redo_stack(), 1)[[1]])
+    redo_stack(head(redo_stack(), -1))
+  })
+
+  observeEvent(input$done, {
+    rstudioapi::insertText(actions()$get_code())
+    stopApp()
+  })
 }
 
 shinyApp(ui, server)
+
+
+ff<-shiny::runGadget(shiny::shinyApp(ui, server), viewer = shiny::dialogViewer("Domino LCA", width = 800, height = 700),
+                 stopOnCancel = FALSE)
