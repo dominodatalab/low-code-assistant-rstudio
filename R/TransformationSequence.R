@@ -15,7 +15,7 @@ TransformationSequence <- R6::R6Class(
         transformations <- list(transformations)
       }
       if (!is.list(transformations)) {
-        stop("TransformationSequence$add() - Must be called with a list of <Transformation> objects", call. = FALSE)
+        stop("TransformationSequence - Must be called with a list of <Transformation> objects", call. = FALSE)
       }
 
       name_in <- private$.name_in
@@ -74,7 +74,7 @@ TransformationSequence <- R6::R6Class(
     },
 
     get_result = function() {
-      if (!private$.ready) self$run()
+      stopifnot(private$.ready)
       self$result
     },
 
@@ -100,18 +100,23 @@ TransformationSequence <- R6::R6Class(
     },
 
     has_error = function() {
-      if (!private$.ready) self$run()
+      stopifnot(private$.ready)
       !is.null(self$error)
     },
 
     get_error = function() {
-      if (!private$.ready) self$run()
+      stopifnot(private$.ready)
       self$error
     },
 
     get_error_line = function() {
-      if (!private$.ready) self$run()
+      stopifnot(private$.ready)
       self$error_chunk
+    },
+
+    add_transformation = function(transformation) {
+      new_xforms <- append(self$get_transformations(), transformation)
+      TransformationSequence$new(transformations = new_xforms, name_in = self$get_name_in())
     }
 
   )

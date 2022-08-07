@@ -1,5 +1,3 @@
-# Groupby and aggregate: Columns to group by, Column to aggregate, Aggregator (size, sum, mean, min, max), New data name
-
 Transformation <- R6::R6Class(
   "Transformation",
 
@@ -92,7 +90,7 @@ FilterTransformation <- R6::R6Class(
   )
 )
 
-FilterTransformation$TRANSFORMATIONS <- list(
+FilterTransformation$OPTIONS <- list(
   LESS_THAN    = "<",
   GREATER_THAN = ">",
   LESS_EQ      = "<=",
