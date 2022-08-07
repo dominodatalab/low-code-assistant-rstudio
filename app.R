@@ -61,13 +61,12 @@ ui <- fluidPage(
       column(2, actionButton("redo", "redo"))
     ),
     DT::DTOutput("table"),
-    verbatimTextOutput("availables"),
-    actionButton("done","done")
+    verbatimTextOutput("availables")
   ))
 )
 
 server <- function(input, output, session) {
-  dataname <- reactiveVal("mtcars")
+  dataname <- reactiveVal()
   undo_stack <- reactiveVal(list())
   redo_stack <- reactiveVal(list())
 
@@ -166,15 +165,7 @@ server <- function(input, output, session) {
     actions(tail(redo_stack(), 1)[[1]])
     redo_stack(head(redo_stack(), -1))
   })
-
-  observeEvent(input$done, {
-    rstudioapi::insertText(actions()$get_code())
-    stopApp()
-  })
 }
 
 shinyApp(ui, server)
 
-
-ff<-shiny::runGadget(shiny::shinyApp(ui, server), viewer = shiny::dialogViewer("Domino LCA", width = 800, height = 700),
-                 stopOnCancel = FALSE)
