@@ -1,13 +1,20 @@
+# TODO add $print()
+# TODO add tests
+
+# TransformationSequence is a data structure that holds an ordered list of
+# transformations. It does not hold the data on which the transformations
+# operate, only the transformations themselves and the name of the initial data.
+
 TransformationSequence <- R6::R6Class(
   "TransformationSequence",
+  cloneable = FALSE,
 
   private = list(
 
-    .ready = FALSE,
-    .transformations = NULL, # list of Transformation objects
+    .transformations = NULL,
     .name_in = NULL,
 
-    add_transformations = function(transformations) {
+    set_transformations = function(transformations) {
       if (is.null(transformations)) {
         return()
       }
@@ -15,37 +22,29 @@ TransformationSequence <- R6::R6Class(
         transformations <- list(transformations)
       }
       if (!is.list(transformations)) {
-        stop("TransformationSequence - Must be called with a list of <Transformation> objects", call. = FALSE)
+        stop("TransformationSequence: Must be called with a list of <Transformation> objects", call. = FALSE)
       }
 
-      name_in <- private$.name_in
       for (idx in seq_along(transformations)) {
         transformation <- transformations[[idx]]
         if (!inherits(transformation, Transformation$classname)) {
-          stop("TransformationSequence$add() - Must be called with a list of <Transformation> objects", call. = FALSE)
+          stop("TransformationSequence: Must be called with a list of <Transformation> objects", call. = FALSE)
         }
       }
       private$.transformations <- transformations
-
-      invisible(self)
     }
 
   ),
 
   public = list(
 
-    result = NULL,  # result data from running the transformations
-    error = NULL,   # error message
-    error_chunk = NULL,  # chunk number that caused error
-
     initialize = function(transformations = NULL, name_in = NULL) {
-      private$.ready <- FALSE
       if (is.null(name_in)) {
-        stop("TransformationSequence$new(): name_in must be provided")
+        stop("TransformationSequence: name_in must be provided")
       }
 
       private$.name_in <- name_in
-      private$add_transformations(transformations)
+      private$set_transformations(transformations)
       invisible(self)
     },
 
@@ -73,50 +72,27 @@ TransformationSequence <- R6::R6Class(
       chunks
     },
 
-    get_result = function() {
-      stopifnot(private$.ready)
-      self$result
+    add_transformation = function(transformation) {
+      if (!inherits(transformation, Transformation$classname)) {
+        stop("add_transformation: Must be called with a <Transformation> objects", call. = FALSE)
+      }
+      new_xforms <- append(self$get_transformations(), transformation)
+      TransformationSequence$new(transformations = new_xforms, name_in = self$get_name_in())
     },
 
     run = function(env = parent.frame()) {
-      self$error_chunk <- NULL
-      self$error <- NULL
-
       chunks <- self$get_code_chunks()
       result <- tryCatch({
+        temp_result <- get(self$get_name_in(), envir = env)
         for (chunk_idx in seq_along(chunks)) {
           chunk <- chunks[[chunk_idx]]
-          result <- eval(parse(text = chunk), envir = env)
+          temp_result <- eval(parse(text = chunk), envir = env)
         }
-        result
+        TransformationsResult$new(result = temp_result)
       }, error = function(err) {
-        self$error_chunk <- chunk_idx
-        self$error <- err$message
-        NULL
+        TransformationsResult$new(error = err$message, error_line = chunk, error_line_num = chunk_idx)
       })
-      self$result <- result
-      private$.ready <- TRUE
-      invisible(self)
-    },
-
-    has_error = function() {
-      stopifnot(private$.ready)
-      !is.null(self$error)
-    },
-
-    get_error = function() {
-      stopifnot(private$.ready)
-      self$error
-    },
-
-    get_error_line = function() {
-      stopifnot(private$.ready)
-      self$error_chunk
-    },
-
-    add_transformation = function(transformation) {
-      new_xforms <- append(self$get_transformations(), transformation)
-      TransformationSequence$new(transformations = new_xforms, name_in = self$get_name_in())
+      result
     }
 
   )

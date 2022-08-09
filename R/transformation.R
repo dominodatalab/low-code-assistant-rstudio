@@ -1,5 +1,10 @@
+# TODO move all public fields to be private
+# TODO add $print()
+# TODO add tests
+
 Transformation <- R6::R6Class(
   "Transformation",
+  cloneable = FALSE,
 
   public = list(
     name_out = NULL,
@@ -98,7 +103,3 @@ FilterTransformation$OPTIONS <- list(
   EQUALS       = "==",
   NOT_EQUALS   = "!="
 )
-
-
-
-
