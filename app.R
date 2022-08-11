@@ -24,31 +24,31 @@ ui <- fluidPage(
     wellPanel(fluidRow(
       column(
         4,
-        selectInput("action", NULL, c("Remove columns" = "drop",
+        selectInput("action_type", NULL, c("Remove columns" = "drop",
                                       "Select columns" = "select",
                                       "Filter rows" = "filter"))
       ),
       column(
         4,
-        actionButton("doit", "Apply")
+        actionButton("apply_xform", "Apply")
       )
     ),
     conditionalPanel(
-      "input.action == 'drop'",
+      "input.action_type == 'drop'",
       fluidRow(
         column(4, selectInput("drop_cols", "Columns", NULL, multiple = TRUE)),
         column(4, textInput("drop_name", "New name", "df"))
       )
     ),
     conditionalPanel(
-      "input.action == 'select'",
+      "input.action_type == 'select'",
       fluidRow(
         column(4, selectInput("select_cols", "Columns", NULL, multiple = TRUE)),
         column(4, textInput("select_name", "New name", "df"))
       )
     ),
     conditionalPanel(
-      "input.action == 'filter'",
+      "input.action_type == 'filter'",
       fluidRow(
         column(4, selectInput("filter_col", "Column", NULL)),
         column(2, selectInput("filter_op", "Operation", unname(FilterTransformation$OPTIONS))),
@@ -67,14 +67,24 @@ ui <- fluidPage(
 
 server <- function(input, output, session) {
   dataname <- reactiveVal()
-  undo_stack <- reactiveVal(list())
-  redo_stack <- reactiveVal(list())
-
   main_data <- reactive({
     req(dataname())
     get(dataname(), envir = .GlobalEnv)
   })
 
+  xforms <- reactiveVal()
+  xforms_result <- reactive({
+    req(xforms())
+    isolate({
+      assign(dataname(), main_data(), envir = .GlobalEnv)
+      xforms()$run(env = .GlobalEnv)
+    })
+  })
+
+  undo_stack <- reactiveVal(list())
+  redo_stack <- reactiveVal(list())
+
+  #--- dataset selection
   observeEvent(input$file, {
     data <- read.csv(input$file$datapath)
     name <- tools::file_path_sans_ext(input$file$name)
@@ -85,43 +95,40 @@ server <- function(input, output, session) {
     req(nzchar(input$data))
     dataname(input$data)
   })
-
-
-
-  actions <- reactiveVal()
   observeEvent(dataname(), {
     shinyjs::hide("data_selector")
     shinyjs::show("transformation_section")
-    actions(TransformationSequence$new(name_in = dataname())$run())
-  })
-  observeEvent(main_data(), {
-    updateSelectInput(session, "drop_cols", choices = names(main_data()))
-    updateSelectInput(session, "select_cols", choices = names(main_data()))
-    updateSelectInput(session, "filter_col", choices = names(main_data()))
+    xforms(TransformationSequence$new(name_in = dataname()))
   })
 
+  #--- update transformations dropdowns with the latest data columns
+  observeEvent(xforms_result(), {
+    updateSelectInput(session, "drop_cols", choices = names(xforms_result()$result))
+    updateSelectInput(session, "select_cols", choices = names(xforms_result()$result))
+    updateSelectInput(session, "filter_col", choices = names(xforms_result()$result))
+  })
 
-  observeEvent(input$doit, {
-    if (input$action == "drop") {
+  #--- New transformation
+  observeEvent(input$apply_xform, {
+    if (input$action_type == "drop") {
       action <- DropTransformation$new(cols = input$drop_cols, name_out = input$drop_name)
-    } else if (input$action == "select") {
+    } else if (input$action_type == "select") {
       action <- SelectTransformation$new(cols = input$select_cols, name_out = input$select_name)
-    } else if (input$action == "filter") {
+    } else if (input$action_type == "filter") {
       action <- FilterTransformation$new(col = input$filter_col, op = input$filter_op, value = input$filter_value, name_out = input$filter_name)
     }
 
-    new_undo <- append(undo_stack(), actions())
+    new_undo <- append(undo_stack(), xforms())
     undo_stack(new_undo)
 
     redo_stack(list())
 
-    new_xforms <- actions()$add_transformation(action)
-    new_xforms$run(.GlobalEnv)
-    actions(new_xforms)
+    new_xforms <- xforms()$add_transformation(action)
+    xforms(new_xforms)
   })
 
   error <- reactive({
-    actions()$get_error()
+    xforms_result()$error
   })
 
   output$error <- renderUI({
@@ -131,19 +138,20 @@ server <- function(input, output, session) {
 
   output$table <- DT::renderDT({
     DT::datatable(
-      actions()$get_result()
+      xforms_result()$result
     )
   })
 
   output$code <- renderText({
-    actions()$get_code()
+    xforms()$get_code()
   })
 
   output$availables <- renderText({
-    actions()
+    xforms_result()
     names(Filter(function(x) is(x, "data.frame"), mget(ls(envir = .GlobalEnv), envir = .GlobalEnv)))
   })
 
+  #--- Undo/redo
   observeEvent(undo_stack(), {
     shinyjs::toggleState("undo", length(undo_stack()) > 0)
   })
@@ -152,17 +160,17 @@ server <- function(input, output, session) {
   })
 
   observeEvent(input$undo, {
-    new_redo <- append(redo_stack(), actions())
+    new_redo <- append(redo_stack(), xforms())
     redo_stack(new_redo)
 
-    actions(tail(undo_stack(), 1)[[1]])
+    xforms(tail(undo_stack(), 1)[[1]])
     undo_stack(head(undo_stack(), -1))
   })
   observeEvent(input$redo, {
-    new_undo <- append(undo_stack(), actions())
+    new_undo <- append(undo_stack(), xforms())
     undo_stack(new_undo)
 
-    actions(tail(redo_stack(), 1)[[1]])
+    xforms(tail(redo_stack(), 1)[[1]])
     redo_stack(head(redo_stack(), -1))
   })
 }
