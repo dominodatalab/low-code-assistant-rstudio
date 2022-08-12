@@ -11,7 +11,7 @@ TransformationSequence <- R6::R6Class(
 
   private = list(
 
-    .transformations = NULL,
+    .transformations = list(),
     .name_in = NULL,
 
     set_transformations = function(transformations) {
@@ -38,7 +38,7 @@ TransformationSequence <- R6::R6Class(
 
   public = list(
 
-    initialize = function(transformations = NULL, name_in = NULL) {
+    initialize = function(transformations = list(), name_in = NULL) {
       if (is.null(name_in)) {
         stop("TransformationSequence: name_in must be provided")
       }
