@@ -19,6 +19,7 @@ ui <- fluidPage(
     id = "transformation_section",
     br(),
     uiOutput("error"),
+    div("Code:", style = "font-size: 3rem;"),
     verbatimTextOutput("code"),
     br(),
     wellPanel(
@@ -59,9 +60,11 @@ ui <- fluidPage(
       )
     ),
     fluidRow(
-      column(2, actionButton("undo", "undo")),
-      column(2, actionButton("redo", "redo"))
-    ),
+      column(12,
+             actionButton("undo", NULL, icon = icon("undo")),
+             actionButton("redo", NULL, icon = icon("redo"))
+      )
+    ), br(),
     DT::DTOutput("table")
   ))
 )
@@ -137,7 +140,10 @@ server <- function(input, output, session) {
 
   output$table <- DT::renderDT({
     DT::datatable(
-      xforms_result()$result
+      xforms_result()$result,
+      options = list(
+        dom = "tip"
+      )
     )
   })
 
