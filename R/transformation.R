@@ -75,20 +75,27 @@ FilterTransformation <- R6::R6Class(
     col = NULL,
     op = NULL,
     value = NULL,
+    type = NULL,
 
-    initialize = function(col = NULL, op = NULL, value = NULL, name_out = NULL) {
+    initialize = function(col = NULL, op = NULL, value = NULL, type = NULL, name_out = NULL) {
       super$initialize(name_out)
       self$col <- col
       self$op <- op
       self$value <- value
+      self$type <- type
       invisible(self)
     },
 
     get_code = function(name_in) {
+      value <- self$value
+      if (!is.null(self$type) && self$type %in% c("character", "factor")) {
+        value <- glue::glue('"{value}"')
+      }
+
       glue::glue(
         '{self$name_out} <- ',
         '{name_in}',
-        '[ {name_in}[["{self$col}"]] {self$op} "{self$value}", ]'
+        '[ {name_in}[["{self$col}"]] {self$op} {value}, ]'
       )
     }
 

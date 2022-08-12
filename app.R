@@ -117,7 +117,8 @@ server <- function(input, output, session) {
     } else if (input$action_type == "select") {
       action <- SelectTransformation$new(cols = input$select_cols, name_out = input$select_name)
     } else if (input$action_type == "filter") {
-      action <- FilterTransformation$new(col = input$filter_col, op = input$filter_op, value = input$filter_value, name_out = input$filter_name)
+      col_type <- class(xforms_result()$result[[input$filter_col]])
+      action <- FilterTransformation$new(col = input$filter_col, op = input$filter_op, value = input$filter_value, type = col_type, name_out = input$filter_name)
     }
 
     new_xforms <- xforms()$add_transformation(action)

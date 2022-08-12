@@ -1,7 +1,7 @@
 # lca
 
 ```
-t1 <- FilterTransformation$new("gear", ">", 4, "dfcar")
+t1 <- FilterTransformation$new("gear", ">", 4, "numeric", "dfcar")
 t2 <- SelectTransformation$new(c("wt", "gear", "hp"), "postselect")
 t3 <- DropTransformation$new(c("disp", "hp"), "postdrop")
 
