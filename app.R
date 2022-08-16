@@ -2,10 +2,16 @@ library(shiny)
 
 ui <- fluidPage(
   shinyjs::useShinyjs(),
+  tags$head(
+    tags$style(
+      "pre { background: white; }"
+    )
+  ),
   div(
     id = "data_selector",
+    br(),
     radioButtons("datatype", NULL, inline = FALSE,
-                 list("Upload a dataset" = "upload", "Existing dataset" = "existing")),
+                 list("Upload a dataset" = "upload", "Data from your environment" = "existing")),
     conditionalPanel(
       "input.datatype == 'upload'",
       fileInput("file", NULL)
@@ -18,35 +24,28 @@ ui <- fluidPage(
   shinyjs::hidden(div(
     id = "transformation_section",
     br(),
-    uiOutput("error"),
-    div("Code:", style = "font-size: 3rem;"),
-    verbatimTextOutput("code"),
-    br(),
     wellPanel(
+      div("Transformations", style = "font-size: 3rem; margin-bottom: 10px;"),
       fluidRow(
         column(
-          4,
+          3,
           selectInput("action_type", NULL, c("Select columns" = "select",
                                              "Remove columns" = "drop",
                                              "Filter rows" = "filter"))
-        ),
-        column(
-          4,
-          actionButton("apply_xform", "Apply")
         )
       ),
       conditionalPanel(
         "input.action_type == 'drop'",
         fluidRow(
           column(4, selectInput("drop_cols", "Columns", NULL, multiple = TRUE)),
-          column(4, textInput("drop_name", "New name", "df"))
+          column(2, textInput("drop_name", "New name", "df"))
         )
       ),
       conditionalPanel(
         "input.action_type == 'select'",
         fluidRow(
           column(4, selectInput("select_cols", "Columns", NULL, multiple = TRUE)),
-          column(4, textInput("select_name", "New name", "df"))
+          column(2, textInput("select_name", "New name", "df"))
         )
       ),
       conditionalPanel(
@@ -55,17 +54,22 @@ ui <- fluidPage(
           column(4, selectInput("filter_col", "Column", NULL)),
           column(2, selectInput("filter_op", "Operation", unname(FilterTransformation$OPTIONS))),
           column(2, textInput("filter_value", "Value", "")),
-          column(4, textInput("filter_name", "New name", "df"))
+          column(2, textInput("filter_name", "New name", "df"))
+        )
+      ),
+      fluidRow(
+        column(12,
+          actionButton("apply_xform", "Apply", class = "btn-success", style = "margin-right: 20px"),
+          actionButton("undo", NULL, icon = icon("undo")),
+          actionButton("redo", NULL, icon = icon("redo"))
         )
       )
     ),
-    fluidRow(
-      column(12,
-             actionButton("undo", NULL, icon = icon("undo")),
-             actionButton("redo", NULL, icon = icon("redo"))
-      )
-    ), br(),
-    DT::DTOutput("table")
+    uiOutput("error"),
+    div("Code:", style = "font-size: 3rem;"),
+    verbatimTextOutput("code"),
+    br(),
+    reactable::reactableOutput("table")
   ))
 )
 
@@ -133,16 +137,33 @@ server <- function(input, output, session) {
     xforms_result()$error
   })
 
+  observe({
+    shinyjs::toggleState("apply_xform", condition = is.null(error()))
+  })
+
   output$error <- renderUI({
     req(error())
     div(class = "alert alert-danger", style="font-size:2rem", icon("exclamation-sign", lib = "glyphicon"), error())
   })
 
-  output$table <- DT::renderDT({
-    DT::datatable(
+  output$table <- reactable::renderReactable({
+    req(xforms_result()$result)
+    reactable::reactable(
       xforms_result()$result,
-      options = list(
-        dom = "tip"
+      compact = TRUE,
+      showPageSizeOptions = TRUE,
+      defaultPageSize = 10,
+      pageSizeOptions = c(10, 25, 50, 100),
+      pagination = TRUE,
+      highlight = TRUE,
+      rownames = TRUE,
+      columns = list(
+        .rownames = reactable::colDef(
+          name = "#",
+          width = 50,
+          style = list(`font-style` = "italic"),
+          headerStyle = list(`font-style` = "italic")
+        )
       )
     )
   })
