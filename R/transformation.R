@@ -1,5 +1,4 @@
 # TODO move all public fields to be private
-# TODO add $print()
 # TODO add tests
 
 Transformation <- R6::R6Class(
@@ -30,6 +29,10 @@ DropTransformation <- R6::R6Class(
       invisible(self)
     },
 
+    print = function() {
+      cat0("<Transformation> Drop columns:", paste(self$cols, collapse = ", "), "\n")
+    },
+
     get_code = function(name_in) {
       glue::glue(
         '{self$name_out} <- ',
@@ -53,6 +56,10 @@ SelectTransformation <- R6::R6Class(
       super$initialize(name_out)
       self$cols <- cols
       invisible(self)
+    },
+
+    print = function() {
+      cat0("<Transformation> Select columns:", paste(self$cols, collapse = ", "), "\n")
     },
 
     get_code = function(name_in) {
@@ -84,6 +91,11 @@ FilterTransformation <- R6::R6Class(
       self$value <- value
       self$type <- type
       invisible(self)
+    },
+
+    print = function() {
+      cat0(glue::glue("<Transformation> Filter column: {self$col} {self$op} {self$value}",
+                     if (is.null(self$type)) "" else " ({self$type})"), "\n")
     },
 
     get_code = function(name_in) {

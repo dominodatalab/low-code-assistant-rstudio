@@ -4,7 +4,7 @@ UndoRedoStack <- R6::R6Class(
 
   private = list(
 
-    .type = NULL,
+    .type = NULL,   # class of the objects (can be NULL to allow any object)
     .undo_stack = list(),
     .redo_stack = list(),
     .current = NULL
@@ -31,6 +31,58 @@ UndoRedoStack <- R6::R6Class(
 
     initialize = function(type = NULL) {
       private$.type <- type
+      invisible(self)
+    },
+
+    print = function() {
+      cat("<UndoRedoStack>")
+      if (is.null(private$.type)) {
+        cat(" of arbitrary items")
+      } else {
+        cat0(" of items of type <", private$.type, ">")
+      }
+      cat0(" with ")
+      cat0(self$undo_size, if(self$undo_size == 1) " undo" else " undos", " and ")
+      cat0(self$redo_size, if(self$redo_size == 1) " redo" else " redos", "\n")
+
+      cat("\n#############")
+      cat("\nCurrent item: ")
+      if (is.atomic(private$.current)) {
+        cat(private$.current, "\n")
+      } else {
+        cat("\n")
+        print(private$.current)
+      }
+
+      if (self$undo_size > 0) {
+        cat("\n###########")
+        cat("\nUndo stack:\n")
+        for (idx in seq_len(self$undo_size)) {
+          idx_rev <- (self$undo_size - idx + 1)
+          cat0(idx, ". ")
+          if (is.atomic(private$.undo_stack[[idx_rev]])) {
+            cat(private$.undo_stack[[idx_rev]], "\n")
+          } else {
+            cat("\n")
+            print(private$.undo_stack[[idx_rev]])
+          }
+        }
+      }
+
+      if (self$redo_size > 0) {
+        cat("\n###########")
+        cat("\nRedo stack:\n")
+        for (idx in seq_len(self$redo_size)) {
+          idx_rev <- (self$redo_size - idx + 1)
+          cat0(idx, ". ")
+          if (is.atomic(private$.redo_stack[[idx_rev]])) {
+            cat(private$.redo_stack[[idx_rev]], "\n")
+          } else {
+            cat("\n")
+            print(private$.redo_stack[[idx_rev]])
+          }
+        }
+      }
     },
 
     undo = function() {
@@ -54,8 +106,11 @@ UndoRedoStack <- R6::R6Class(
     },
 
     add = function(item) {
+      if (is.null(item)) {
+        stop("add: item must not be NULL", call. = FALSE)
+      }
       if (!is.null(private$.type) && !inherits(item, private$.type)) {
-        stop("add: The provided item must be of type '", private$.type, "'", call. = FALSE)
+        stop("add: The provided item must have class '", private$.type, "'", call. = FALSE)
       }
 
       if (is.null(private$.current)) {

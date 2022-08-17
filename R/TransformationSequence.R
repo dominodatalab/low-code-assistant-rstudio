@@ -1,4 +1,3 @@
-# TODO add $print()
 # TODO add tests
 
 # TransformationSequence is a data structure that holds an ordered list of
@@ -46,6 +45,14 @@ TransformationSequence <- R6::R6Class(
       private$.name_in <- name_in
       private$set_transformations(transformations)
       invisible(self)
+    },
+
+    print = function() {
+      cat0("<TransformationSequence> with ", length(private$.transformations), " transformations:\n")
+      for (idx in seq_along(private$.transformations)) {
+        cat0("    ", idx, ". ")
+        print(private$.transformations[[idx]])
+      }
     },
 
     get_name_in = function() {

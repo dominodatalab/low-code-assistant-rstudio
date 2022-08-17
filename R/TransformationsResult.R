@@ -5,7 +5,6 @@
 # This could happen if you have a list of TransformationSequence objects, with
 # each one storing its own result.
 
-# TODO add $print()
 # TODO add tests
 
 TransformationsResult <- R6::R6Class(
@@ -41,6 +40,32 @@ TransformationsResult <- R6::R6Class(
       private$.error_line <- error_line
       private$.error_line_num <- error_line_num
       invisible(self)
+    },
+
+    print = function() {
+      cat("<TransformationsResult>\n")
+      if (!is.null(self$error)) {
+        cat("Contains an error:", self$error, "\n")
+      }
+      if (!is.null(self$error_line) || !is.null(self$error_line_num)) {
+        cat("Error from")
+        if (!is.null(self$error_line_num)) {
+          cat(" line", self$error_line_num)
+        }
+        if (!is.null(self$error_line)) {
+          cat(":", self$error_line)
+        }
+      }
+      if (!is.null(self$result)) {
+        cat("\nResult: ")
+        if (is.atomic(self$result)) {
+          cat(self$result)
+        } else if (is.data.frame(self$result)) {
+          str(self$result)
+        } else {
+          print(self$result)
+        }
+      }
     }
   )
 )
