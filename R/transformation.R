@@ -30,7 +30,7 @@ DropTransformation <- R6::R6Class(
     },
 
     print = function() {
-      cat0("<Transformation> Drop columns:", paste(self$cols, collapse = ", "), "\n")
+      cat0("<Transformation> Drop columns: ", paste(self$cols, collapse = ", "), "\n")
     },
 
     get_code = function(name_in) {
@@ -59,7 +59,7 @@ SelectTransformation <- R6::R6Class(
     },
 
     print = function() {
-      cat0("<Transformation> Select columns:", paste(self$cols, collapse = ", "), "\n")
+      cat0("<Transformation> Select columns: ", paste(self$cols, collapse = ", "), "\n")
     },
 
     get_code = function(name_in) {

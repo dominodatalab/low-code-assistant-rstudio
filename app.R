@@ -27,39 +27,8 @@ ui <- fluidPage(
     wellPanel(
       div("Transformations", style = "font-size: 3rem; margin-bottom: 10px;"),
       fluidRow(
-        column(
-          3,
-          selectInput("action_type", NULL, c("Select columns" = "select",
-                                             "Remove columns" = "drop",
-                                             "Filter rows" = "filter"))
-        )
-      ),
-      conditionalPanel(
-        "input.action_type == 'drop'",
-        fluidRow(
-          column(4, selectInput("drop_cols", "Columns", NULL, multiple = TRUE)),
-          column(2, textInput("drop_name", "New name", "df"))
-        )
-      ),
-      conditionalPanel(
-        "input.action_type == 'select'",
-        fluidRow(
-          column(4, selectInput("select_cols", "Columns", NULL, multiple = TRUE)),
-          column(2, textInput("select_name", "New name", "df"))
-        )
-      ),
-      conditionalPanel(
-        "input.action_type == 'filter'",
-        fluidRow(
-          column(4, selectInput("filter_col", "Column", NULL)),
-          column(2, selectInput("filter_op", "Operation", unname(FilterTransformation$OPTIONS))),
-          column(2, textInput("filter_value", "Value", "")),
-          column(2, textInput("filter_name", "New name", "df"))
-        )
-      ),
-      fluidRow(
         column(12,
-          actionButton("apply_xform", "Apply", class = "btn-success", style = "margin-right: 20px"),
+          actionButton("add_xform", "Add Transformation", class = "btn-success", style = "margin-right: 20px"),
           actionButton("undo", NULL, icon = icon("undo")),
           actionButton("redo", NULL, icon = icon("redo"))
         )
@@ -89,6 +58,9 @@ server <- function(input, output, session) {
     })
   })
 
+  xform_modal <- TransformationModal$new("xform_modal")
+  xform_modal_ret <- xform_modal$run()
+
   undo_redo <- UndoRedoStack$new(type = TransformationSequence$classname)
 
   #--- dataset selection
@@ -110,25 +82,13 @@ server <- function(input, output, session) {
     undo_redo$add(initial_xforms)
   })
 
-  #--- update transformations dropdowns with the latest data columns
-  observeEvent(xforms_result(), {
-    updateSelectInput(session, "drop_cols", choices = names(xforms_result()$result))
-    updateSelectInput(session, "select_cols", choices = names(xforms_result()$result))
-    updateSelectInput(session, "filter_col", choices = names(xforms_result()$result))
+  #--- New transformation
+  observeEvent(input$add_xform, {
+    xform_modal$show(data = xforms_result()$result, action = "add")
   })
 
-  #--- New transformation
-  observeEvent(input$apply_xform, {
-    if (input$action_type == "drop") {
-      action <- DropTransformation$new(cols = input$drop_cols, name_out = input$drop_name)
-    } else if (input$action_type == "select") {
-      action <- SelectTransformation$new(cols = input$select_cols, name_out = input$select_name)
-    } else if (input$action_type == "filter") {
-      col_type <- class(xforms_result()$result[[input$filter_col]])
-      action <- FilterTransformation$new(col = input$filter_col, op = input$filter_op, value = input$filter_value, type = col_type, name_out = input$filter_name)
-    }
-
-    new_xforms <- xforms()$add_transformation(action)
+  observeEvent(xform_modal_ret(), {
+    new_xforms <- xforms()$add_transformation(xform_modal_ret())
     xforms(new_xforms)
     undo_redo$add(new_xforms)
   })
@@ -138,7 +98,7 @@ server <- function(input, output, session) {
   })
 
   observe({
-    shinyjs::toggleState("apply_xform", condition = is.null(error()))
+    shinyjs::toggleState("add_xform", condition = is.null(error()))
   })
 
   output$error <- renderUI({
