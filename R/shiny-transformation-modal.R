@@ -11,7 +11,7 @@ TransformationModal <- R6::R6Class(
     .xform = NULL,
 
     dialog = function() {
-      ns = NS(private$.id)
+      ns <- NS(private$.id)
 
       modalDialog(
         easyClose = TRUE,
