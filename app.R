@@ -58,8 +58,7 @@ server <- function(input, output, session) {
     })
   })
 
-  xform_modal <- TransformationModal$new("xform_modal")
-  xform_modal_ret <- xform_modal$run()
+  xform_modal <- transformation_modal("xform_modal")
 
   undo_redo <- UndoRedoStack$new(type = TransformationSequence$classname)
 
@@ -87,8 +86,8 @@ server <- function(input, output, session) {
     xform_modal$show(data = xforms_result()$result, action = "add")
   })
 
-  observeEvent(xform_modal_ret(), {
-    new_xforms <- xforms()$add_transformation(xform_modal_ret())
+  observeEvent(xform_modal$result(), {
+    new_xforms <- xforms()$add_transformation(xform_modal$result())
     xforms(new_xforms)
     undo_redo$add(new_xforms)
   })
