@@ -1,5 +1,3 @@
-# TODO add tests
-
 # TransformationSequence is a data structure that holds an ordered list of
 # transformations. It does not hold the data on which the transformations
 # operate, only the transformations themselves and the name of the initial data.
@@ -10,24 +8,24 @@ TransformationSequence <- R6::R6Class(
 
   private = list(
 
-    .transformations = list(),
+    .transformations = NULL,
     .name_in = NULL,
 
     set_transformations = function(transformations) {
-      if (is.null(transformations)) {
+      if (length(transformations) == 0) {
+        private$.transformations <- list()
         return()
       }
       if (inherits(transformations, Transformation$classname)) {
         transformations <- list(transformations)
       }
       if (!is.list(transformations)) {
-        stop("TransformationSequence: Must be called with a list of <Transformation> objects", call. = FALSE)
+        stop("TransformationSequence: Must be provided a list of <Transformation> objects", call. = FALSE)
       }
 
-      for (idx in seq_along(transformations)) {
-        transformation <- transformations[[idx]]
+      for (transformation in transformations) {
         if (!inherits(transformation, Transformation$classname)) {
-          stop("TransformationSequence: Must be called with a list of <Transformation> objects", call. = FALSE)
+          stop("TransformationSequence: Must be provided a list of <Transformation> objects", call. = FALSE)
         }
       }
       private$.transformations <- transformations
@@ -35,13 +33,19 @@ TransformationSequence <- R6::R6Class(
 
   ),
 
+  active = list(
+    name_in = function() {
+      private$.name_in
+    },
+
+    transformations = function() {
+      private$.transformations
+    }
+  ),
+
   public = list(
 
-    initialize = function(transformations = list(), name_in = NULL) {
-      if (is.null(name_in)) {
-        stop("TransformationSequence: name_in must be provided")
-      }
-
+    initialize = function(transformations = list(), name_in) {
       private$.name_in <- name_in
       private$set_transformations(transformations)
       invisible(self)
@@ -53,14 +57,6 @@ TransformationSequence <- R6::R6Class(
         cat0("    ", idx, ". ")
         print(private$.transformations[[idx]])
       }
-    },
-
-    get_name_in = function() {
-      private$.name_in
-    },
-
-    get_transformations = function() {
-      private$.transformations
     },
 
     get_code = function() {
@@ -79,18 +75,18 @@ TransformationSequence <- R6::R6Class(
       chunks
     },
 
-    add_transformation = function(transformation) {
+    add = function(transformation) {
       if (!inherits(transformation, Transformation$classname)) {
-        stop("add_transformation: Must be called with a <Transformation> objects", call. = FALSE)
+        stop("add: Must be provided a <Transformation> object", call. = FALSE)
       }
-      new_xforms <- append(self$get_transformations(), transformation)
-      TransformationSequence$new(transformations = new_xforms, name_in = self$get_name_in())
+      new_xforms <- append(self$transformations, transformation)
+      TransformationSequence$new(transformations = new_xforms, name_in = self$name_in)
     },
 
     run = function(env = parent.frame()) {
       chunks <- self$get_code_chunks()
       result <- tryCatch({
-        temp_result <- get(self$get_name_in(), envir = env)
+        temp_result <- get(self$name_in, envir = env)
         for (chunk_idx in seq_along(chunks)) {
           chunk <- chunks[[chunk_idx]]
           temp_result <- eval(parse(text = chunk), envir = env)

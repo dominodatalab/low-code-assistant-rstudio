@@ -87,7 +87,7 @@ server <- function(input, output, session) {
   })
 
   observeEvent(xform_modal$result(), {
-    new_xforms <- xforms()$add_transformation(xform_modal$result())
+    new_xforms <- xforms()$add(xform_modal$result())
     xforms(new_xforms)
     undo_redo$add(new_xforms)
   })
