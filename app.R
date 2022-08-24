@@ -32,7 +32,14 @@ ui <- fluidPage(
           actionButton("undo", NULL, icon = icon("undo")),
           actionButton("redo", NULL, icon = icon("redo"))
         )
-      )
+      ),
+      br(), br(), tags$strong("Choose transformation to edit/delete/insert before"),
+      fluidRow(
+        column(2, selectInput("xform_idx", NULL, NULL)),
+        actionButton("edit","edit"),
+        actionButton("insert","insert"),
+        actionButton("delete","delete")
+      ),
     ),
     uiOutput("error"),
     div("Code:", style = "font-size: 3rem;"),
@@ -87,7 +94,15 @@ server <- function(input, output, session) {
   })
 
   observeEvent(xform_modal$result(), {
-    new_xforms <- xforms()$add(xform_modal$result())
+    if (xform_modal$action() == "add") {
+      new_xforms <- xforms()$add(xform_modal$result())
+    } else if (xform_modal$action() == "insert") {
+      new_xforms <- xforms()$insert(xform_modal$result(), xform_modal$meta() - 1)
+    } else if (xform_modal$action() == "edit") {
+      new_xforms <- xforms()$transformations
+      new_xforms[[xform_modal$meta()]] <- xform_modal$result()
+      new_xforms <- TransformationSequence$new(new_xforms, name_in = xforms()$name_in)
+    }
     xforms(new_xforms)
     undo_redo$add(new_xforms)
   })
@@ -144,6 +159,36 @@ server <- function(input, output, session) {
   observeEvent(input$redo, {
     new_xforms <- undo_redo$redo()$value
     xforms(new_xforms)
+  })
+
+  # edit/modify/delete
+  observeEvent(xforms(), {
+    updateSelectInput(session, "xform_idx", choices = seq_len(xforms()$size))
+  })
+  xform_to_modify <- reactive({
+    as.numeric(input$xform_idx)
+  })
+
+  observeEvent(input$edit, {
+    temp_xform <- xforms()$head(xform_to_modify() - 1)
+    new_env <- new.env()
+    assign(dataname(), main_data(), envir = new_env)
+    temp_res <- temp_xform$run(new_env)$result
+    xform_modal$show(data = temp_res, action = "edit", xform = xforms()$transformations[[xform_to_modify()]], meta = xform_to_modify())
+  })
+
+  observeEvent(input$insert, {
+    temp_xform <- xforms()$head(xform_to_modify() - 1)
+    new_env <- new.env()
+    assign(dataname(), main_data(), envir = new_env)
+    temp_res <- temp_xform$run(new_env)$result
+    xform_modal$show(data = temp_res, action = "insert", meta = xform_to_modify())
+  })
+
+  observeEvent(input$delete, {
+    new_xforms <- xforms()$remove(xform_to_modify())
+    xforms(new_xforms)
+    undo_redo$add(new_xforms)
   })
 }
 

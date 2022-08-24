@@ -9,6 +9,7 @@ transformation_modal <- function(id) {
       data <- reactiveVal(NULL)
       action <- reactiveVal(NULL)
       xform <- reactiveVal(NULL)
+      meta <- reactiveVal(NULL)
 
       result_xform <- reactiveVal(NULL)
 
@@ -57,7 +58,7 @@ transformation_modal <- function(id) {
           ),
         )
 
-      show <- function(data, action = c("add", "insert", "edit"), xform = NULL) {
+      show <- function(data, action = c("add", "insert", "edit"), xform = NULL, meta = NULL) {
         action <- match.arg(action)
 
         if (action == "edit" && is.null(xform)) {
@@ -67,6 +68,7 @@ transformation_modal <- function(id) {
         data(data)
         action(action)
         xform(xform)
+        meta(meta)
 
         modal_trigger$trigger()
       }
@@ -147,10 +149,11 @@ transformation_modal <- function(id) {
       return(
         list(
           result = result_xform,
-          show = show
+          show = show,
+          action = action,
+          meta = meta
         )
       )
     }
   )
 }
-
