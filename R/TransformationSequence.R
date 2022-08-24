@@ -40,6 +40,10 @@ TransformationSequence <- R6::R6Class(
 
     transformations = function() {
       private$.transformations
+    },
+
+    size = function() {
+      length(private$.transformations)
     }
   ),
 
@@ -76,10 +80,33 @@ TransformationSequence <- R6::R6Class(
     },
 
     add = function(transformation) {
+      self$insert(transformation, self$size)
+    },
+
+    insert = function(transformation, after) {
       if (!inherits(transformation, Transformation$classname)) {
-        stop("add: Must be provided a <Transformation> object", call. = FALSE)
+        stop("add/insert: Must be provided a <Transformation> object", call. = FALSE)
       }
-      new_xforms <- append(self$transformations, transformation)
+      if (after < 0 || after > self$size) {
+        stop("insert: 'after' must be between 0 and the number of transformations", call. = FALSE)
+      }
+      new_xforms <- append(self$transformations, transformation, after = after)
+      TransformationSequence$new(transformations = new_xforms, name_in = self$name_in)
+    },
+
+    remove = function(n) {
+      if (n < 1 || n > self$size) {
+        stop("remove: 'n' must be between 1 and the number of transformations", call. = FALSE)
+      }
+      new_xforms <- self$transformations[-n]
+      TransformationSequence$new(transformations = new_xforms, name_in = self$name_in)
+    },
+
+    head = function(n) {
+      if (n < 0 || n > self$size) {
+        stop("head: 'n' must be between 1 and the number of transformations", call. = FALSE)
+      }
+      new_xforms <- head(self$transformations, n)
       TransformationSequence$new(transformations = new_xforms, name_in = self$name_in)
     },
 
