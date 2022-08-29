@@ -7,7 +7,8 @@ ui <- fluidPage(
     src = "www/shared/highlight",
     package="shiny",
     script = "highlight.pack.js",
-    stylesheet = "rstudio.css"
+    stylesheet = "rstudio.css",
+    head = '<script>setTimeout(function() {hljs.highlightBlock(document.getElementById("ff"));}, 10)</script>'
   ),
   div(pre(HTML(as.character(tags$div(id="ff",class = "language-r", "library(yy)\nlibrary(hh)"))))),
   HTML(as.character(tags$script(

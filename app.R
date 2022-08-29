@@ -7,20 +7,7 @@ ui <- fluidPage(
       "pre { background: white; }"
     )
   ),
-  div(
-    id = "data_selector",
-    br(),
-    radioButtons("datatype", NULL, inline = FALSE,
-                 list("Upload a dataset" = "upload", "Data from your environment" = "existing")),
-    conditionalPanel(
-      "input.datatype == 'upload'",
-      fileInput("file", NULL)
-    ),
-    conditionalPanel(
-      "input.datatype == 'existing'",
-      selectInput("data", NULL, c("", names(Filter(function(x) is(x, "data.frame"), mget(envir = .GlobalEnv, ls(envir = .GlobalEnv))))))
-    )
-  ),
+  page_data_select_ui("data"),
   shinyjs::hidden(div(
     id = "transformation_section",
     br(),
@@ -50,7 +37,8 @@ ui <- fluidPage(
 )
 
 server <- function(input, output, session) {
-  dataname <- reactiveVal('mtcars')
+  dataname <- page_data_select_server("data")
+
   main_data <- reactive({
     req(dataname())
     get(dataname(), envir = .GlobalEnv)
@@ -70,18 +58,8 @@ server <- function(input, output, session) {
   undo_redo <- UndoRedoStack$new(type = TransformationSequence$classname)
 
   #--- dataset selection
-  observeEvent(input$file, {
-    data <- read.csv(input$file$datapath)
-    name <- tools::file_path_sans_ext(input$file$name)
-    assign(name, data, envir = .GlobalEnv)
-    dataname(name)
-  })
-  observeEvent(input$data, {
-    req(nzchar(input$data))
-    dataname(input$data)
-  })
   observeEvent(dataname(), {
-    shinyjs::hide("data_selector")
+    shinyjs::hide("data_selector_page")
     shinyjs::show("transformation_section")
     initial_xforms <- TransformationSequence$new(name_in = dataname())
     xforms(initial_xforms)
