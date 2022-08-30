@@ -169,3 +169,46 @@ FilterTransformation$OPTIONS <- list(
   EQUALS       = "==",
   NOT_EQUALS   = "!="
 )
+
+MissingValuesTransformation <- R6::R6Class(
+  "MissingValuesTransformation",
+  inherit = Transformation,
+
+  private = list(
+    .col = NULL
+  ),
+
+  active = list(
+    col = function() {
+      private$.col
+    }
+  ),
+
+  public = list(
+
+    initialize = function(col = NULL, name_out = NULL) {
+      if (length(col) == 0) {
+        col <- NULL
+      } else if (length(col) > 1) {
+        stop("You must provide exactly one column", call. = FALSE)
+      }
+      super$initialize(name_out)
+      private$.col <- col
+      invisible(self)
+    },
+
+    get_code = function(name_in) {
+      if (is.null(self$col)) {
+        filter_code <- '[complete.cases({name_in}), ]'
+      } else {
+        filter_code <- '[!is.na({name_in}[["{self$col}"]]), ]'
+      }
+      glue::glue(
+        '{self$name_out} <- ',
+        '{name_in}',
+        filter_code
+      )
+    }
+
+  )
+)
