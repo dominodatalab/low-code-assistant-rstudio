@@ -120,7 +120,7 @@ TransformationSequence <- R6::R6Class(
         }
         TransformationsResult$new(result = temp_result)
       }, error = function(err) {
-        TransformationsResult$new(error = err$message, error_line = chunk, error_line_num = chunk_idx)
+        TransformationsResult$new(result = temp_result, error = err$message, error_line = chunk, error_line_num = chunk_idx)
       })
       result
     }
