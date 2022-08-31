@@ -7,10 +7,11 @@ page_xforms_ui <- function(id) {
       br(),
       wellPanel(
         fluidRow(
-          column(12,
-                 actionButton(ns("add_xform"), "Add Transformation", class = "btn-success", style = "margin-right: 20px"),
-                 actionButton(ns("undo"), NULL, icon = icon("undo")),
-                 actionButton(ns("redo"), NULL, icon = icon("redo"))
+          column(
+            12,
+            actionButton(ns("add_xform"), "Add Transformation", class = "btn-success", style = "margin-right: 20px"),
+            actionButton(ns("undo"), NULL, icon = icon("undo")),
+            actionButton(ns("redo"), NULL, icon = icon("redo"))
           )
         ),
         br(), br(), tags$strong("Choose transformation to edit/delete/insert before"),

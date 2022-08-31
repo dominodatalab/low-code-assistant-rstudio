@@ -26,10 +26,12 @@ transformation_modal <- function(id) {
             column(
               12,
               selectInput(
-                ns("xform_type"), label = NULL,
-                choices = c("Select columns" = "select",
-                            "Remove columns" = "drop",
-                            "Filter rows" = "filter")
+                ns("xform_type"), label = NULL, choices = c(
+                  "Select columns" = "select",
+                  "Remove columns" = "drop",
+                  "Filter rows" = "filter",
+                  "Remove rows with missing values" = "missing"
+                )
               )
             )
           ),
@@ -56,6 +58,20 @@ transformation_modal <- function(id) {
               column(2, textInput(ns("filter_name"), "New name", "df"))
             )
           ),
+          conditionalPanel(
+            "input.xform_type == 'missing'", ns = ns,
+            fluidRow(
+              column(4, selectInput(ns("missing_type"), "Missing values in", choices = c(
+                "A specific column" = "column",
+                "Any column" = "all"
+              ))),
+              conditionalPanel(
+                "input.missing_type == 'column'", ns = ns,
+                column(4, selectInput(ns("missing_col"), "Column", NULL))
+              ),
+              column(2, textInput(ns("missing_name"), "New name", "df"))
+            )
+          )
         )
 
       show <- function(data, action = c("add", "insert", "edit"), xform = NULL, meta = NULL) {
@@ -82,6 +98,7 @@ transformation_modal <- function(id) {
         updateSelectInput(session, "drop_cols", choices = names(data()))
         updateSelectInput(session, "select_cols", choices = names(data()))
         updateSelectInput(session, "filter_col", choices = names(data()))
+        updateSelectInput(session, "missing_col", choices = names(data()))
 
         if (!is.null(xform())) {
           shinyjs::hide("xform_type")
@@ -100,6 +117,15 @@ transformation_modal <- function(id) {
             updateSelectInput(session, "filter_op", selected = xform()$op)
             updateTextInput(session, "filter_value", value = xform()$value)
             updateTextInput(session, "filter_name", value = xform()$name_out)
+          } else if (inherits(xform(), MissingValuesTransformation$classname)) {
+            updateSelectInput(session, "xform_type", selected = "missing")
+            if (is.null(xform()$col)) {
+              updateSelectInput(session, "missing_type", selected = "all")
+            } else {
+              updateSelectInput(session, "missing_type", selected = "column")
+              updateSelectInput(session, "missing_col", selected = xform()$col)
+            }
+            updateTextInput(session, "missing_name", value = xform()$name_out)
           } else {
             stop("Unsupported edit type: ", paste(class(xform()), collapse = ", "), call. = FALSE)
           }
@@ -124,6 +150,11 @@ transformation_modal <- function(id) {
             isValidName(input$filter_name)
           )
         }
+        if (input$xform_type == "missing") {
+          return(
+            isValidName(input$missing_name)
+          )
+        }
         stop("Unsupported type: ", input$xform_type, call. = FALSE)
       })
 
@@ -139,6 +170,9 @@ transformation_modal <- function(id) {
         } else if (input$xform_type == "filter") {
           col_type <- class(data()[[input$filter_col]])
           action <- FilterTransformation$new(col = input$filter_col, op = input$filter_op, value = input$filter_value, type = col_type, name_out = input$filter_name)
+        } else if (input$xform_type == "missing") {
+          col <- if (input$missing_type == "column") input$missing_col else NULL
+          action <- MissingValuesTransformation$new(col = col, name_out = input$missing_name)
         } else {
           stop("Unsupported type: ", input$xform_type, call. = FALSE)
         }
