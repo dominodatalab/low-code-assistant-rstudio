@@ -36,7 +36,7 @@ test_that("DropTransformation works", {
   )
   expect_identical(
     run_xform(dfin, DropTransformation$new(c("a", "b"))),
-    dfin[ , !(names(dfin) %in% c("a", "b"))]
+    dfin[ , !(names(dfin) %in% c("a", "b")), drop = FALSE]
   )
 })
 

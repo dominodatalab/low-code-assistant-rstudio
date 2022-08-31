@@ -53,7 +53,7 @@ DropTransformation <- R6::R6Class(
       glue::glue(
         '{self$name_out} <- ',
         '{name_in}',
-        '[, !(names({name_in}) %in% c("{paste(self$cols, collapse = \'", "\')}"))]'
+        '[, !(names({name_in}) %in% c("{paste(self$cols, collapse = \'", "\')}")), drop = FALSE]'
       )
     }
 
@@ -154,7 +154,7 @@ FilterTransformation <- R6::R6Class(
       glue::glue(
         '{self$name_out} <- ',
         '{name_in}',
-        '[ {name_in}[["{self$col}"]] {self$op} {value}, ]'
+        '[ {name_in}[["{self$col}"]] {self$op} {value}, , drop = FALSE]'
       )
     }
 
@@ -199,9 +199,9 @@ MissingValuesTransformation <- R6::R6Class(
 
     get_code = function(name_in) {
       if (is.null(self$col)) {
-        filter_code <- '[complete.cases({name_in}), ]'
+        filter_code <- '[complete.cases({name_in}), , drop = FALSE]'
       } else {
-        filter_code <- '[!is.na({name_in}[["{self$col}"]]), ]'
+        filter_code <- '[!is.na({name_in}[["{self$col}"]]), , drop = FALSE]'
       }
       glue::glue(
         '{self$name_out} <- ',
