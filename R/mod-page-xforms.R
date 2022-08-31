@@ -4,6 +4,12 @@ page_xforms_ui <- function(id) {
   shinyjs::hidden(
     div(
       id = ns("transformation_section"),
+      fontawesome::fa_html_dependency(),
+      tags$style(
+        ".cell-filter-btn, .col-drop-btn { opacity: 0; cursor: pointer; transition: opacity 0.4s; }
+     .rt-td:hover .cell-filter-btn, .rt-th:hover .col-drop-btn { display: inline-block; opacity: 0.5; }
+     .rt-td .cell-filter-btn:hover, .rt-th .col-drop-btn:hover { opacity: 1; } "
+      ),
       br(),
       wellPanel(
         fluidRow(
@@ -133,6 +139,36 @@ page_xforms_server <- function(id, data_name) {
               style = list(`font-style` = "italic"),
               headerStyle = list(`font-style` = "italic")
             )
+          ),
+          defaultColDef = reactable::colDef(
+            align = "left",
+            na = "<span style='font-style: italic; opacity: 0.5;'>–</span>",
+            cell = function(value, index, col) {
+              if (col == ".rownames") {
+                value
+              } else {
+                tags$div(value, " ", icon("filter", class = "cell-filter-btn", title = "Filter values like this"))
+              }
+            },
+            header = function(value, col) {
+              if (col == ".rownames") {
+                value
+              } else {
+                tags$div(value, " ", icon("trash-alt", class = "col-drop-btn", title = "Drop this column", `data-col-name` = value, onclick = "event.stopPropagation(); alert(`drop ${event.target.dataset.colName}`);"))
+              }
+            },
+            html = TRUE
+          ),
+          onClick = reactable::JS("function(rowInfo, column) {
+          if (!event.target.classList.contains('cell-filter-btn')) {
+            return;
+          }
+          let value = rowInfo.row[column.name];
+          if (value === null || (value === 'NA' && column.type === 'numeric')) {
+            value = 'MISSING';
+          }
+          alert(`filter ${column.name} ${value}`);
+        }"
           )
         )
       })
