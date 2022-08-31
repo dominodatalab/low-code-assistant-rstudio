@@ -143,13 +143,14 @@ page_xforms_server <- function(id, data_name) {
           defaultColDef = reactable::colDef(
             align = "left",
             na = "<span style='font-style: italic; opacity: 0.5;'>–</span>",
-            cell = function(value, index, col) {
-              if (col == ".rownames") {
-                value
-              } else {
-                tags$div(value, " ", icon("filter", class = "cell-filter-btn", title = "Filter values like this"))
-              }
-            },
+            cell = reactable::JS(
+             "function(cellInfo) {
+               if (cellInfo.column.name == '#') {
+                 return cellInfo.value;
+               }
+               return '<div>' + cellInfo.value + ' <i title=\"Filter values like this\" class=\"fa fa-filter cell-filter-btn\"></i></div>';
+              }"
+            ),
             header = function(value, col) {
               if (col == ".rownames") {
                 value
