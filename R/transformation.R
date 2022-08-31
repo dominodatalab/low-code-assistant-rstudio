@@ -148,7 +148,7 @@ FilterTransformation <- R6::R6Class(
     get_code = function(name_in) {
       value <- self$value
       if (!is.null(private$.type) && private$.type %in% c("character", "factor")) {
-        value <- glue::glue('"{value}"')
+        value <- glue::glue('{shQuote(value, type = "cmd")}')
       }
 
       glue::glue(
