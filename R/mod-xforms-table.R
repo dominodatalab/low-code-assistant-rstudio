@@ -20,6 +20,10 @@ xforms_table_server <- function(id, data) {
       output$table <- reactable::renderReactable({
         req(data())
 
+        if (ncol(data()) == 0) {
+          return(reactable::reactable(data.frame("." = "Data has no columns")))
+        }
+
         reactable::reactable(
           data(),
           compact = TRUE,
