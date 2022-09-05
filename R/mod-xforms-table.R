@@ -12,6 +12,11 @@ xforms_table_ui <- function(id) {
   )
 }
 
+#' @param data (reactive) Data to show in the table
+#' @return List:
+#'   - drop: (reactive) A drop transformation that the user selected
+#'   - missing: (reactive) A missing values transformation that the user selected
+#'   - filter: (reactive) A filter transformation that the user selected (the 'type' isn't set correctly)
 xforms_table_server <- function(id, data) {
   moduleServer(
     id,
@@ -90,27 +95,27 @@ xforms_table_server <- function(id, data) {
         )
       })
 
+      drop <- reactive({
+        req(input$drop)
+        DropTransformation$new(cols = input$drop)
+      })
+      missing <- reactive({
+        req(input$missing)
+        MissingValuesTransformation$new(col = input$missing)
+      })
+      filter <- reactive({
+        req(input$filter)
+        FilterTransformation$new(
+          col = input$filter$col,
+          op = FilterTransformation$OPTIONS$EQUALS,
+          value = input$filter$val
+        )
+      })
+
       return(list(
-
-        drop = reactive({
-          req(input$drop)
-          DropTransformation$new(cols = input$drop)
-        }),
-
-        missing = reactive({
-          req(input$missing)
-          MissingValuesTransformation$new(col = input$missing)
-        }),
-
-        filter = reactive({
-          req(input$filter)
-          FilterTransformation$new(
-            col = input$filter$col,
-            op = FilterTransformation$OPTIONS$EQUALS,
-            value = input$filter$val
-          )
-        })
-
+        drop = drop,
+        missing = missing,
+        filter = filter
       ))
 
     }
