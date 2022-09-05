@@ -197,6 +197,14 @@ MissingValuesTransformation <- R6::R6Class(
       invisible(self)
     },
 
+    print = function() {
+      if (is.null(self$col)) {
+        cat0("<Transformation> Missing values: Any rows with missing values")
+      } else {
+        cat0("<Transformation> Missing values: Rows where column is missing: ", self$col)
+      }
+    },
+
     get_code = function(name_in) {
       if (is.null(self$col)) {
         filter_code <- '[complete.cases({name_in}), , drop = FALSE]'
