@@ -21,12 +21,18 @@ page_xforms_ui <- function(id) {
           actionButton(ns("insert"),"insert"),
           actionButton(ns("delete"),"delete")
         ),
+        fluidRow(
+          column(2, checkboxInput(ns("show_code"), "Show code", TRUE)),
+          column(2, checkboxInput(ns("show_table"), "Show data", TRUE))
+        )
       ),
       uiOutput(ns("error")),
-      div("Code:", style = "font-size: 3rem;"),
-      verbatimTextOutput(ns("code")),
-      br(),
-      checkboxInput(ns("show_table"), "Show data", TRUE),
+      conditionalPanel(
+        "input.show_code", ns = ns,
+        div("Code:", style = "font-size: 3rem;"),
+        verbatimTextOutput(ns("code")),
+        br()
+      ),
       conditionalPanel(
         "input.show_table", ns = ns,
         xforms_table_ui(ns("table"))
