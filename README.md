@@ -11,4 +11,6 @@ res1 <- TransformationSequence$new(list(t1, t2, t3), "dfcar")$run()
 dfcar <- mtcars
 res2 <- TransformationSequence$new(list(t1, t3, t2), "dfcar")$run()
 
+t4 <- AggregateTransformation$new(c("carb", "cyl"), list("hp" = "mean", "wt" = "sum", "hp" = "sum"), "test")$get_code("mtcars")
+
 ```

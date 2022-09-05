@@ -199,9 +199,9 @@ MissingValuesTransformation <- R6::R6Class(
 
     print = function() {
       if (is.null(self$col)) {
-        cat0("<Transformation> Missing values: Any rows with missing values")
+        cat0("<Transformation> Missing values: Any rows with missing values", "\n")
       } else {
-        cat0("<Transformation> Missing values: Rows where column is missing: ", self$col)
+        cat0("<Transformation> Missing values: Rows where column is missing: ", self$col, "\n")
       }
     },
 
@@ -219,4 +219,105 @@ MissingValuesTransformation <- R6::R6Class(
     }
 
   )
+)
+
+AggregateTransformation <- R6::R6Class(
+  "AggregateTransformation",
+  inherit = Transformation,
+
+  private = list(
+
+    .cols = NULL,
+    .aggregations = NULL,  # named list
+
+    get_code_for_aggregator = function(type, aggr_cols, name_in) {
+      if (type == "size") {
+        fxn <- "length"
+      } else {
+        fxn <- type
+      }
+      glue::glue(
+        "aggregate(",
+        "cbind(",
+        glue::glue_collapse(paste(paste(aggr_cols, type, sep = '_'), aggr_cols, sep = ' = '), sep = ', '),
+        ")",
+        " ~ ",
+        "{glue::glue_collapse(self$cols, sep = ' + ')}, ",
+        "{name_in}, ",
+        "FUN = {fxn})"
+      )
+    }
+
+  ),
+
+  active = list(
+    cols = function() {
+      private$.cols
+    },
+    aggregations = function() {
+      private$.aggregations
+    }
+  ),
+
+  public = list(
+
+    initialize = function(cols, aggregations, name_out = NULL) {
+      if (length(cols) == 0) {
+        stop("You must provide at least one column to group by", call. = FALSE)
+      }
+      if (length(aggregations) == 0) {
+        stop("You must provide at least one aggregation", call. = FALSE)
+      }
+      super$initialize(name_out)
+      private$.cols <- cols
+      private$.aggregations <- aggregations
+      invisible(self)
+    },
+
+    print = function() {
+      cat0(
+        "<Transformation> Group/Aggregate:\n",
+        "    Group by: ",
+        paste(self$cols, collapse = ", "), "\n",
+        "    Aggregate by: ",
+        paste(names(self$aggregations), unname(self$aggregations), sep = "=", collapse = ", "), "\n"
+      )
+    },
+
+    get_code = function(name_in) {
+      aggr_types <- unique(self$aggregations)
+      aggregations <- lapply(aggr_types, function(type) {
+        if (! type %in% AggregateTransformation$OPTIONS) {
+          stop("The aggregator must be one of: ", paste(AggregateTransformation$OPTIONS, collapse = " "), " (given: ", type, ")", call. = FALSE)
+        }
+        aggr_cols <- names(self$aggregations[self$aggregations == type])
+        private$get_code_for_aggregator(type, aggr_cols, name_in)
+      })
+
+      if (length(aggregations) == 1) {
+        glue::glue(
+          '{self$name_out} <- ',
+          '{aggregations[[1]]}'
+        )
+      } else {
+        glue::glue(
+          '{self$name_out} <- Reduce(',
+          '  merge,',
+          '  list(',
+          glue::glue_collapse(paste0("    ", aggregations), sep = ",\n"),
+          '  )',
+          ')',
+          .sep = '\n'
+        )
+      }
+    }
+  )
+)
+
+AggregateTransformation$OPTIONS <- list(
+  LENGTH = "size",
+  SUM    = "sum",
+  MEAN   = "mean",
+  MIN    = "min",
+  MAX    = "max"
 )
