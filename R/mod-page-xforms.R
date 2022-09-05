@@ -185,6 +185,9 @@ page_xforms_server <- function(id, data_name) {
         xforms(new_xforms)
         undo_redo$add(new_xforms)
       })
+      observeEvent(table$missing(), {
+        xform_modal$show(data = result(), action = "add", xform = table$missing())
+      })
       observeEvent(table$filter(), {
         xform_modal$show(data = result(), action = "add", xform = table$filter())
       })

@@ -78,9 +78,10 @@ xforms_table_server <- function(id, data) {
                  }
                  let value = rowInfo.row[column.name];
                  if (value === null || (value === 'NA' && column.type === 'numeric')) {
-                   value = 'MISSING';
+                   Shiny.setInputValue('{{session$ns('missing')}}', `${column.name}`, {priority: 'event'});
+                 } else {
+                   Shiny.setInputValue('{{session$ns('filter')}}', { col: `${column.name}`, val: `${value}`, missing: true }, {priority: 'event'});
                  }
-                 Shiny.setInputValue('{{session$ns('filter')}}', { col: `${column.name}`, val: `${value}` }, {priority: 'event'});
                }",
               .open = "{{",
               .close = "}}"
@@ -93,7 +94,12 @@ xforms_table_server <- function(id, data) {
 
         drop = reactive({
           req(input$drop)
-          DropTransformation$new(cols = input$drop, name_out = "df")
+          DropTransformation$new(cols = input$drop)
+        }),
+
+        missing = reactive({
+          req(input$missing)
+          MissingValuesTransformation$new(col = input$missing)
         }),
 
         filter = reactive({
@@ -101,8 +107,7 @@ xforms_table_server <- function(id, data) {
           FilterTransformation$new(
             col = input$filter$col,
             op = FilterTransformation$OPTIONS$EQUALS,
-            value = input$filter$val,
-            name_out = "df"
+            value = input$filter$val
           )
         })
 
