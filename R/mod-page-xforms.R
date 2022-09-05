@@ -4,12 +4,6 @@ page_xforms_ui <- function(id) {
   shinyjs::hidden(
     div(
       id = ns("transformation_section"),
-      fontawesome::fa_html_dependency(),
-      tags$style(
-        ".cell-filter-btn, .col-drop-btn { opacity: 0; cursor: pointer; transition: opacity 0.4s; }
-     .rt-td:hover .cell-filter-btn, .rt-th:hover .col-drop-btn { display: inline-block; opacity: 0.5; }
-     .rt-td .cell-filter-btn:hover, .rt-th .col-drop-btn:hover { opacity: 1; } "
-      ),
       br(),
       wellPanel(
         fluidRow(
@@ -32,7 +26,11 @@ page_xforms_ui <- function(id) {
       div("Code:", style = "font-size: 3rem;"),
       verbatimTextOutput(ns("code")),
       br(),
-      reactable::reactableOutput(ns("table"))
+      checkboxInput(ns("show_table"), "Show data", TRUE),
+      conditionalPanel(
+        "input.show_table", ns = ns,
+        xforms_table_ui(ns("table"))
+      )
     )
   )
 }
@@ -41,6 +39,8 @@ page_xforms_server <- function(id, data_name) {
   moduleServer(
     id,
     function(input, output, session) {
+
+      #--- Hide/show this module
 
       # The show/hide code can't be placed inside a function and is instead
       # in an observer because of https://github.com/rstudio/shiny/issues/2706
@@ -62,9 +62,17 @@ page_xforms_server <- function(id, data_name) {
         })
       })
 
+      #--- Dealing with the dataset and TransformationsSequence
+
       main_data <- reactive({
         req(data_name())
         get(data_name(), envir = .GlobalEnv)
+      })
+
+      observeEvent(data_name(), {
+        initial_xforms <- TransformationSequence$new(name_in = data_name())
+        xforms(initial_xforms)
+        undo_redo$add(initial_xforms)
       })
 
       xforms <- reactiveVal()
@@ -75,23 +83,22 @@ page_xforms_server <- function(id, data_name) {
           xforms()$run(env = .GlobalEnv)
         })
       })
+      error <- reactive({
+        xforms_result()$error
+      })
+      result <- reactive({
+        xforms_result()$result
+      })
 
       xform_modal <- transformation_modal("xform_modal")
 
-      undo_redo <- UndoRedoStack$new(type = TransformationSequence$classname)
+      table <- xforms_table_server("table", result)
 
-      #--- dataset selection
-      observeEvent(data_name(), {
-        shinyjs::hide("data_selector_page")
-        shinyjs::show("transformation_section")
-        initial_xforms <- TransformationSequence$new(name_in = data_name())
-        xforms(initial_xforms)
-        undo_redo$add(initial_xforms)
-      })
+      undo_redo <- UndoRedoStack$new(type = TransformationSequence$classname)
 
       #--- New transformation
       observeEvent(input$add_xform, {
-        xform_modal$show(data = xforms_result()$result, action = "add")
+        xform_modal$show(data = result(), action = "add")
       })
 
       observeEvent(xform_modal$result(), {
@@ -108,10 +115,6 @@ page_xforms_server <- function(id, data_name) {
         undo_redo$add(new_xforms)
       })
 
-      error <- reactive({
-        xforms_result()$error
-      })
-
       observe({
         shinyjs::toggleState("add_xform", condition = is.null(error()))
       })
@@ -119,59 +122,6 @@ page_xforms_server <- function(id, data_name) {
       output$error <- renderUI({
         req(error())
         div(class = "alert alert-danger", style="font-size:2rem", icon("exclamation-sign", lib = "glyphicon"), error())
-      })
-
-      output$table <- reactable::renderReactable({
-        req(xforms_result()$result)
-        reactable::reactable(
-          xforms_result()$result,
-          compact = TRUE,
-          showPageSizeOptions = TRUE,
-          defaultPageSize = 10,
-          pageSizeOptions = c(10, 25, 50, 100),
-          pagination = TRUE,
-          highlight = TRUE,
-          rownames = TRUE,
-          columns = list(
-            .rownames = reactable::colDef(
-              name = "#",
-              width = 50,
-              style = list(`font-style` = "italic"),
-              headerStyle = list(`font-style` = "italic")
-            )
-          ),
-          defaultColDef = reactable::colDef(
-            align = "left",
-            na = "<span style='font-style: italic; opacity: 0.5;'>–</span>",
-            cell = reactable::JS(
-             "function(cellInfo) {
-               if (cellInfo.column.name == '#') {
-                 return cellInfo.value;
-               }
-               return '<div>' + cellInfo.value + ' <i title=\"Filter values like this\" class=\"fa fa-filter cell-filter-btn\"></i></div>';
-              }"
-            ),
-            header = function(value, col) {
-              if (col == ".rownames") {
-                value
-              } else {
-                tags$div(value, " ", icon("trash-alt", class = "col-drop-btn", title = "Drop this column", `data-col-name` = value, onclick = "event.stopPropagation(); alert(`drop ${event.target.dataset.colName}`);"))
-              }
-            },
-            html = TRUE
-          ),
-          onClick = reactable::JS("function(rowInfo, column) {
-          if (!event.target.classList.contains('cell-filter-btn')) {
-            return;
-          }
-          let value = rowInfo.row[column.name];
-          if (value === null || (value === 'NA' && column.type === 'numeric')) {
-            value = 'MISSING';
-          }
-          alert(`filter ${column.name} ${value}`);
-        }"
-          )
-        )
       })
 
       output$code <- renderText({
@@ -221,6 +171,16 @@ page_xforms_server <- function(id, data_name) {
         new_xforms <- xforms()$remove(xform_to_modify())
         xforms(new_xforms)
         undo_redo$add(new_xforms)
+      })
+
+      #--- Actions were taken in the table
+      observeEvent(table$drop(), {
+        new_xforms <- xforms()$add(table$drop())
+        xforms(new_xforms)
+        undo_redo$add(new_xforms)
+      })
+      observeEvent(table$filter(), {
+        xform_modal$show(data = result(), action = "add", xform = table$filter())
       })
 
       return(list(
