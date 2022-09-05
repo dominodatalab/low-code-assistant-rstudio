@@ -9,9 +9,11 @@ page_xforms_ui <- function(id) {
         fluidRow(
           column(
             12,
-            actionButton(ns("add_xform"), "Add Transformation", class = "btn-success", style = "margin-right: 20px"),
             actionButton(ns("undo"), NULL, icon = icon("undo")),
-            actionButton(ns("redo"), NULL, icon = icon("redo"))
+            actionButton(ns("redo"), NULL, icon = icon("redo")),
+            actionButton(ns("add_xform"), "Add Transformation", class = "btn-success", style = "margin: 0 20px"),
+            inelineUI(checkboxInput(ns("show_code"), "Show code", TRUE, width = 110)),
+            inelineUI(checkboxInput(ns("show_table"), "Show data", TRUE))
           )
         ),
         br(), br(), tags$strong("Choose transformation to edit/delete/insert before"),
@@ -20,10 +22,6 @@ page_xforms_ui <- function(id) {
           actionButton(ns("edit"),"edit"),
           actionButton(ns("insert"),"insert"),
           actionButton(ns("delete"),"delete")
-        ),
-        fluidRow(
-          column(2, checkboxInput(ns("show_code"), "Show code", TRUE)),
-          column(2, checkboxInput(ns("show_table"), "Show data", TRUE))
         )
       ),
       uiOutput(ns("error")),

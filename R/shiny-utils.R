@@ -9,3 +9,7 @@ reactive_trigger <- function() {
     }
   )
 }
+
+inelineUI <- function(tag) {
+  htmltools::tagAppendAttributes(tag, style = "display: inline-block")
+}
