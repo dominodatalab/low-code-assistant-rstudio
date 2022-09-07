@@ -20,6 +20,7 @@ transformation_modal <- function(id) {
             modalButton("Cancel")
           ),
           shinyjs::useShinyjs(),
+          shiny::singleton(tags$head(tags$style(".ggg {position: relative; margin-bottom: 3px;} .ggg:hover .hhh { display: flex !important; }"))),
           h2(div(id = ns("title"))),
           fluidRow(
             column(
@@ -29,7 +30,8 @@ transformation_modal <- function(id) {
                   "Select columns" = "select",
                   "Remove columns" = "drop",
                   "Filter rows" = "filter",
-                  "Remove rows with missing values" = "missing"
+                  "Remove rows with missing values" = "missing",
+                  "Group & aggregate" = "aggregate"
                 )
               )
             )
@@ -74,6 +76,19 @@ transformation_modal <- function(id) {
               ),
               column(2, textInput(ns("missing_name"), "New name", "df"))
             )
+          ),
+          conditionalPanel(
+            "input.xform_type == 'aggregate'", ns = ns,
+            fluidRow(
+              column(3, selectInput(ns("aggregate_cols"), "Group by", NULL, multiple = TRUE)),
+              column(3, selectInput(ns("aggregate_col_agg"), "Aggregate on", "")),
+              column(3, selectInput(ns("aggregate_aggregator"), "Aggregator", c("", unname(AggregateTransformation$OPTIONS)))),
+              column(3, textInput(ns("aggregate_name"), "New name", "dfg"))
+            ),
+            fluidRow(
+              column(6, offset = 3, uiOutput(ns("aggregate_existing_ui")))
+            ),
+            shinyjs::hidden(textInput(ns("aggregate_existing"), "", "[]"))
           )
         )
 
@@ -97,6 +112,8 @@ transformation_modal <- function(id) {
         updateSelectInput(session, "select_cols", choices = names(data()))
         updateSelectInput(session, "filter_col", choices = names(data()))
         updateSelectInput(session, "missing_col", choices = names(data()))
+        updateSelectInput(session, "aggregate_cols", choices = names(data()))
+        updateSelectInput(session, "aggregate_col_agg", choices = c("", names(data())))
       })
 
       observeEvent(action(), {
@@ -130,6 +147,14 @@ transformation_modal <- function(id) {
               updateSelectInput(session, "missing_col", selected = xform()$col)
             }
             updateTextInput(session, "missing_name", value = xform()$name_out)
+          } else if (inherits(xform(), AggregateTransformation$classname)) {
+            aggs <- lapply(seq_along(xform()$aggregations), function(idx) {
+              as.list(xform()$aggregations[idx])
+            })
+            updateSelectInput(session, "xform_type", selected = "aggregate")
+            updateSelectInput(session, "aggregate_cols", selected = xform()$cols)
+            updateTextInput(session, "aggregate_existing", value = as.character(jsonlite::toJSON(aggs)))
+            updateTextInput(session, "aggregate_name", value = xform()$name_out)
           } else {
             stop("Unsupported edit type: ", paste(class(xform()), collapse = ", "), call. = FALSE)
           }
@@ -159,6 +184,12 @@ transformation_modal <- function(id) {
             isValidName(input$missing_name)
           )
         }
+        if (input$xform_type == "aggregate") {
+          return(
+            length(input$aggregate_cols) > 0 && isValidName(input$aggregate_name) &&
+              length(existing_aggregations() > 0)
+          )
+        }
         stop("Unsupported type: ", input$xform_type, call. = FALSE)
       })
 
@@ -177,11 +208,45 @@ transformation_modal <- function(id) {
         } else if (input$xform_type == "missing") {
           col <- if (input$missing_type == "column") input$missing_col else NULL
           action <- MissingValuesTransformation$new(col = col, name_out = input$missing_name)
+        } else if (input$xform_type == "aggregate") {
+          action <- AggregateTransformation$new(cols = input$aggregate_cols, aggregations = unlist(existing_aggregations()), name_out = input$aggregate_name)
         } else {
           stop("Unsupported type: ", input$xform_type, call. = FALSE)
         }
         result_xform(action)
         removeModal()
+      })
+
+      #--- Logic for groupby/aggregate having multiple groupings
+      observeEvent(c(input$aggregate_col_agg, input$aggregate_aggregator), {
+        req(input$aggregate_col_agg, input$aggregate_aggregator)
+        updateSelectInput(session, "aggregate_col_agg", selected = "")
+        updateSelectInput(session, "aggregate_aggregator", selected = "")
+
+        new_aggregation <- as.list(setNames(input$aggregate_aggregator, input$aggregate_col_agg))
+        new_aggregations <- append(existing_aggregations(), list(new_aggregation))
+        updateTextInput(session, "aggregate_existing", value = as.character(jsonlite::toJSON(new_aggregations)))
+      })
+
+      existing_aggregations <- reactive({
+        jsonlite::fromJSON(input$aggregate_existing, simplifyDataFrame = FALSE)
+      })
+      output$aggregate_existing_ui <- renderUI({
+        lapply(seq_along(existing_aggregations()), function(idx) {
+          fluidRow(
+            class = "ggg",
+            div("Remove", class="hhh",
+                onclick = glue::glue("Shiny.setInputValue('{{ns('aggregate_remove')}}', {{idx}}, {priority: 'event'})", .open = "{{", .close = "}}"),
+                style="cursor: pointer; position: absolute; left: 15px; right: 15px; top: 0; bottom: 0; align-items: center; justify-content: center; z-index: 1; background: #fbe9e9; font-weight: bold; display: none;"),
+            column(6, tags$input(type = "text", value = names(existing_aggregations()[[idx]][1]), disabled=NA, class="form-control")),
+            column(6, tags$input(type = "text", value = existing_aggregations()[[idx]][[1]], disabled=NA, class="form-control"))
+          )
+        })
+      })
+      observeEvent(input$aggregate_remove, {
+        aggs <- existing_aggregations()
+        aggs[input$aggregate_remove] <- NULL
+        updateTextInput(session, "aggregate_existing", value = as.character(jsonlite::toJSON(aggs)))
       })
 
       return(
