@@ -223,8 +223,11 @@ transformation_modal <- function(id) {
         updateSelectInput(session, "aggregate_col_agg", selected = "")
         updateSelectInput(session, "aggregate_aggregator", selected = "")
 
-        new_aggregation <- as.list(setNames(input$aggregate_aggregator, input$aggregate_col_agg))
-        new_aggregations <- append(existing_aggregations(), list(new_aggregation))
+        new_aggregation <- list(as.list(setNames(input$aggregate_aggregator, input$aggregate_col_agg)))
+        if (new_aggregation %in% existing_aggregations()) {
+          return()
+        }
+        new_aggregations <- append(existing_aggregations(), new_aggregation)
         updateTextInput(session, "aggregate_existing", value = as.character(jsonlite::toJSON(new_aggregations)))
       })
 
