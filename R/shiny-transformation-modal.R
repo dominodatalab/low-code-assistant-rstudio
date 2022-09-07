@@ -20,7 +20,11 @@ transformation_modal <- function(id) {
             modalButton("Cancel")
           ),
           shinyjs::useShinyjs(),
-          shiny::singleton(tags$head(tags$style(".ggg {position: relative; margin-bottom: 3px;} .ggg:hover .hhh { display: flex !important; }"))),
+          shiny::singleton(tags$head(tags$style(
+            ".aggregate_existing_ui .row {position: relative; margin-bottom: 3px;}
+             .aggregate_existing_ui .row .remove-btn { cursor: pointer; position: absolute; left: 15px; right: 15px; top: 0; bottom: 0; align-items: center; justify-content: center; z-index: 1; background: #fbe9e9; font-weight: bold; display: none; }
+             .aggregate_existing_ui .row:hover .remove-btn { display: flex !important; }"
+          ))),
           h2(div(id = ns("title"))),
           fluidRow(
             column(
@@ -86,7 +90,7 @@ transformation_modal <- function(id) {
               column(3, textInput(ns("aggregate_name"), "New name", "dfg"))
             ),
             fluidRow(
-              column(6, offset = 3, uiOutput(ns("aggregate_existing_ui")))
+              column(6, offset = 3, uiOutput(ns("aggregate_existing_ui"), class = "aggregate_existing_ui"))
             ),
             shinyjs::hidden(textInput(ns("aggregate_existing"), "", "[]"))
           )
@@ -218,6 +222,9 @@ transformation_modal <- function(id) {
       })
 
       #--- Logic for groupby/aggregate having multiple groupings
+      # A hidden text field saves the existing aggregations as a JSON list-of-lists
+      # Note that in JavaScript a dictionary cannot have duplicate keys, which is why
+      # we have to use a list-of-lists instead of a single list
       observeEvent(c(input$aggregate_col_agg, input$aggregate_aggregator), {
         req(input$aggregate_col_agg, input$aggregate_aggregator)
         updateSelectInput(session, "aggregate_col_agg", selected = "")
@@ -237,12 +244,24 @@ transformation_modal <- function(id) {
       output$aggregate_existing_ui <- renderUI({
         lapply(seq_along(existing_aggregations()), function(idx) {
           fluidRow(
-            class = "ggg",
-            div("Remove", class="hhh",
-                onclick = glue::glue("Shiny.setInputValue('{{ns('aggregate_remove')}}', {{idx}}, {priority: 'event'})", .open = "{{", .close = "}}"),
-                style="cursor: pointer; position: absolute; left: 15px; right: 15px; top: 0; bottom: 0; align-items: center; justify-content: center; z-index: 1; background: #fbe9e9; font-weight: bold; display: none;"),
-            column(6, tags$input(type = "text", value = names(existing_aggregations()[[idx]][1]), disabled=NA, class="form-control")),
-            column(6, tags$input(type = "text", value = existing_aggregations()[[idx]][[1]], disabled=NA, class="form-control"))
+            div(
+              "Remove", class="remove-btn",
+              onclick = glue::glue("Shiny.setInputValue('{{ns('aggregate_remove')}}', {{idx}}, {priority: 'event'})", .open = "{{", .close = "}}")
+            ),
+            column(
+              6,
+              tags$input(
+                value = names(existing_aggregations()[[idx]][1]),
+                type="text", disabled=NA, class="form-control"
+              )
+            ),
+            column(
+              6,
+              tags$input(
+                value = existing_aggregations()[[idx]][[1]],
+                type="text", disabled=NA, class="form-control"
+              )
+            )
           )
         })
       })
