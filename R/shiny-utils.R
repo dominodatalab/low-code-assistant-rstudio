@@ -12,11 +12,13 @@ reactive_trigger <- function() {
 
 reactiveValEvent <- function(data = NULL) {
   rv <- shiny::reactiveVal(data)
+  rv_trigger <- shiny::reactiveVal(FALSE)
   function(data) {
     if (missing(data)) {
+      rv_trigger() # Take a reactive dependency on rv_trigger
       rv()
     } else {
-      attr(rv, ".impl")$private$dependents$invalidate()
+      rv_trigger(isolate(!rv_trigger())) # This should always result in rv_trigger invalidation
       rv(data)
     }
   }
