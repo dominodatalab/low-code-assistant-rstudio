@@ -5,11 +5,10 @@ transformation_modal <- function(id) {
 
       ns <- session$ns
 
-      modal_trigger <- reactive_trigger()
-      data <- reactiveVal(NULL)
-      action <- reactiveVal(NULL)
-      xform <- reactiveVal(NULL)
-      meta <- reactiveVal(NULL)
+      data <- reactiveValEvent(NULL)
+      action <- reactiveValEvent(NULL)
+      xform <- reactiveValEvent(NULL)
+      meta <- reactiveValEvent(NULL)
 
       result_xform <- reactiveVal(NULL)
 
@@ -69,6 +68,10 @@ transformation_modal <- function(id) {
                 "input.missing_type == 'column'", ns = ns,
                 column(4, selectInput(ns("missing_col"), "Column", NULL))
               ),
+              conditionalPanel(
+                "input.missing_type != 'column'", ns = ns,
+                column(4, ""),
+              ),
               column(2, textInput(ns("missing_name"), "New name", "df"))
             )
           )
@@ -81,25 +84,26 @@ transformation_modal <- function(id) {
           stop("Must provide a transformation for edit", call. = FALSE)
         }
 
+        showModal(dialog)
+
         data(data)
         action(action)
         xform(xform)
         meta(meta)
-
-        modal_trigger$trigger()
       }
 
-      observe({
-        req(modal_trigger$depend() > 0)
-        showModal(dialog)
-
-        shinyjs::html("title", paste0(firstup(action()), " transformation"))
-
+      observeEvent(data(), {
         updateSelectInput(session, "drop_cols", choices = names(data()))
         updateSelectInput(session, "select_cols", choices = names(data()))
         updateSelectInput(session, "filter_col", choices = names(data()))
         updateSelectInput(session, "missing_col", choices = names(data()))
+      })
 
+      observeEvent(action(), {
+        shinyjs::html("title", paste0(firstup(action()), " transformation"))
+      })
+
+      observeEvent(xform(), {
         if (!is.null(xform())) {
           shinyjs::hide("xform_type")
 
