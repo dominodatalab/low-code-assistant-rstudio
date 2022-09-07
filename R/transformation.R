@@ -291,6 +291,7 @@ AggregateTransformation <- R6::R6Class(
           stop("The aggregator must be one of: ", paste(AggregateTransformation$OPTIONS, collapse = " "), " (given: ", type, ")", call. = FALSE)
         }
         aggr_cols <- names(self$aggregations[self$aggregations == type])
+        aggr_cols <- unique(aggr_cols)
         private$get_code_for_aggregator(type, aggr_cols, name_in)
       })
 
