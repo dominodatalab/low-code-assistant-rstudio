@@ -5,30 +5,20 @@ page_xforms_ui <- function(id) {
     div(
       id = ns("transformation_section"),
       br(),
-      wellPanel(
-        fluidRow(
-          column(
-            12,
-            actionButton(ns("undo"), NULL, icon = icon("undo")),
-            actionButton(ns("redo"), NULL, icon = icon("redo")),
-            actionButton(ns("add_xform"), "Add Transformation", class = "btn-success", style = "margin: 0 20px"),
-            inelineUI(checkboxInput(ns("show_code"), "Show code", TRUE, width = 110)),
-            inelineUI(checkboxInput(ns("show_table"), "Show data", TRUE))
-          )
-        ),
-        br(), br(), tags$strong("Choose transformation to edit/delete/insert before"),
-        fluidRow(
-          column(2, selectInput(ns("xform_idx"), NULL, "")),
-          actionButton(ns("edit"),"edit"),
-          actionButton(ns("insert"),"insert"),
-          actionButton(ns("delete"),"delete")
+      fluidRow(
+        column(
+          12,
+          actionButton(ns("undo"), NULL, icon = icon("undo")),
+          actionButton(ns("redo"), NULL, icon = icon("redo")),
+          actionButton(ns("add_xform"), "Add Transformation", class = "btn-success", style = "margin: 0 20px"),
+          inelineUI(checkboxInput(ns("show_code"), "Show code", TRUE, width = 110)),
+          inelineUI(checkboxInput(ns("show_table"), "Show data", TRUE))
         )
       ),
       uiOutput(ns("error")),
       conditionalPanel(
         "input.show_code", ns = ns,
-        div("Code:", style = "font-size: 3rem;"),
-        verbatimTextOutput(ns("code")),
+        xforms_code_chunk_ui(ns("code")),
         br()
       ),
       conditionalPanel(
@@ -90,6 +80,9 @@ page_xforms_server <- function(id, data_name) {
       error <- reactive({
         xforms_result()$error
       })
+      error_line_num <- reactive({
+        xforms_result()$error_line_num
+      })
       result <- reactive({
         xforms_result()$result
       })
@@ -97,6 +90,8 @@ page_xforms_server <- function(id, data_name) {
       xform_modal <- transformation_modal("xform_modal")
 
       table <- xforms_table_server("table", result)
+
+      code_section <- xforms_code_chunk_server("code", chunks = reactive(xforms()$get_code_chunks()), error_line = error_line_num)
 
       undo_redo <- UndoRedoStack$new(type = TransformationSequence$classname)
 
@@ -128,10 +123,6 @@ page_xforms_server <- function(id, data_name) {
         div(class = "alert alert-danger", style="font-size:2rem", icon("exclamation-sign", lib = "glyphicon"), error())
       })
 
-      output$code <- renderText({
-        xforms()$get_code()
-      })
-
       #--- Undo/redo
       observeEvent(xforms(), {
         shinyjs::toggleState("undo", undo_redo$undo_size > 0)
@@ -148,31 +139,24 @@ page_xforms_server <- function(id, data_name) {
       })
 
       # edit/modify/delete
-      observeEvent(xforms(), {
-        updateSelectInput(session, "xform_idx", choices = seq_len(xforms()$size))
-      })
-      xform_to_modify <- reactive({
-        as.numeric(input$xform_idx)
-      })
-
-      observeEvent(input$edit, {
-        temp_xform <- xforms()$head(xform_to_modify() - 1)
+      observeEvent(code_section$modify(), {
+        temp_xform <- xforms()$head(code_section$modify() - 1)
         new_env <- new.env()
         assign(data_name(), main_data(), envir = new_env)
         temp_res <- temp_xform$run(new_env)$result
-        xform_modal$show(data = temp_res, action = "edit", xform = xforms()$transformations[[xform_to_modify()]], meta = xform_to_modify())
+        xform_modal$show(data = temp_res, action = "edit", xform = xforms()$transformations[[code_section$modify()]], meta = code_section$modify())
       })
 
-      observeEvent(input$insert, {
-        temp_xform <- xforms()$head(xform_to_modify() - 1)
+      observeEvent(code_section$insert(), {
+        temp_xform <- xforms()$head(code_section$insert() - 1)
         new_env <- new.env()
         assign(data_name(), main_data(), envir = new_env)
         temp_res <- temp_xform$run(new_env)$result
-        xform_modal$show(data = temp_res, action = "insert", meta = xform_to_modify())
+        xform_modal$show(data = temp_res, action = "insert", meta = code_section$insert())
       })
 
-      observeEvent(input$delete, {
-        new_xforms <- xforms()$remove(xform_to_modify())
+      observeEvent(code_section$delete(), {
+        new_xforms <- xforms()$remove(code_section$delete())
         xforms(new_xforms)
         undo_redo$add(new_xforms)
       })

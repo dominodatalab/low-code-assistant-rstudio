@@ -3,12 +3,7 @@ lca_main_ui <- function(id) {
 
   tagList(
     shinyjs::useShinyjs(),
-    tags$head(
-      tags$style(
-        "pre { background: white; }"
-      )
-    ),
-    page_data_select_ui(ns("data")),
+     page_data_select_ui(ns("data")),
     page_xforms_ui(ns("xforms"))
   )
 }
