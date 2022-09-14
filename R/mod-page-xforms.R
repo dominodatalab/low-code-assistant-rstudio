@@ -5,6 +5,11 @@ page_xforms_ui <- function(id) {
     div(
       id = ns("transformation_section"),
       br(),
+      conditionalPanel(
+        "input.show_table", ns = ns,
+        xforms_table_ui(ns("table")),
+        br()
+      ),
       fluidRow(
         column(
           12,
@@ -18,12 +23,7 @@ page_xforms_ui <- function(id) {
       uiOutput(ns("error")),
       conditionalPanel(
         "input.show_code", ns = ns,
-        xforms_code_chunk_ui(ns("code")),
-        br()
-      ),
-      conditionalPanel(
-        "input.show_table", ns = ns,
-        xforms_table_ui(ns("table"))
+        xforms_code_chunk_ui(ns("code"))
       )
     )
   )
