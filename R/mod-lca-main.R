@@ -14,7 +14,8 @@ lca_main_ui <- function(id) {
       id = ns("main_tabs"),
       type = "hidden",
       tabPanelBody("data", page_data_select_ui(ns("data"))),
-      tabPanelBody("xforms", page_xforms_ui(ns("xforms")))
+      tabPanelBody("xforms", page_xforms_ui(ns("xforms"))),
+      tabPanelBody("viz", page_viz_ui(ns("viz")))
     )
   )
 }
@@ -30,15 +31,20 @@ lca_main_server <- function(id, data_name) {
         } else if (input$main_tabs == "xforms") {
           "Transformations"
         } else {
-          "TODO"
+          "Visualizations"
         }
       })
 
       data_mod <- page_data_select_server("data")
       xforms_mod <- page_xforms_server("xforms", data_mod$name)
+      viz_mode <- page_viz_server("viz", xforms_mod$data, xforms_mod$name)
 
       observeEvent(data_mod$done(), {
         updateTabsetPanel(session, "main_tabs", "xforms")
+      })
+
+      observeEvent(xforms_mod$done(), {
+        updateTabsetPanel(session, "main_tabs", "viz")
       })
 
     }

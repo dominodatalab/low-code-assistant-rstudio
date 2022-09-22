@@ -4,6 +4,7 @@ page_data_select_ui <- function(id) {
   tagList(
     shinyjs::useShinyjs(),
     html_dependency_lca(),
+    br(),
     tabsetPanel(
       id = ns("import_modules"),
       tabPanel(
@@ -44,7 +45,7 @@ page_data_select_ui <- function(id) {
       tabPanel(
         "Project Files",
         value = "project",
-        icon = icon("folder-tree"),
+        icon = icon("folder-open"),
         br(),
         h1("Not implemented")
       ),
