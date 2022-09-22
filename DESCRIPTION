@@ -18,6 +18,7 @@ Imports:
     R6,
     reactable,
     shiny (>= 1.0.0),
+    shinyjs,
     utils
 License: MIT + file LICENSE
 Encoding: UTF-8

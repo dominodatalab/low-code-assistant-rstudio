@@ -17,5 +17,5 @@ run_app <- function() {
 
 #' @export
 run_gadget <- function() {
-  shiny::runGadget(app_ui, app_server, viewer = shiny::dialogViewer("Domino R Assistant", 2000, 1500))
+  shiny::runGadget(app_ui, app_server, viewer = shiny::dialogViewer("Domino R Assistant", 1100, 800))
 }

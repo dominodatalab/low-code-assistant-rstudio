@@ -51,33 +51,33 @@ page_data_select_ui <- function(id) {
       ),
     ),
     tags$script(glue::glue("$('#{ns(\"import_modules\")}').addClass('nav-justified');")),
-    shinyWidgets::prettyCheckbox(
-      ns("custom_name"),
-      "Custom variable name",
-      value = FALSE,
-      shape = "curve",
-      status = "info"
-    ),
-    conditionalPanel(
-      "input.custom_name", ns = ns,
-      textInput(ns("varname"), NULL, "df", placeholder = "Variable name")
-    ),
-    shinyWidgets::prettyCheckbox(
-      ns("show_preview"),
-      "Show Preview",
-      value = TRUE,
-      width = "auto",
-      shape = "curve",
-      status = "info"
-    ),
-    conditionalPanel(
-      "input.show_preview", ns = ns,
-      htmltools::tagAppendAttributes(
-        tableOutput(ns("preview_data")),
-        class = "no-margin small-table"
-      ),
-      br()
-    ),
+    # shinyWidgets::prettyCheckbox(
+    #   ns("custom_name"),
+    #   "Custom variable name",
+    #   value = FALSE,
+    #   shape = "curve",
+    #   status = "info"
+    # ),
+    #conditionalPanel(
+    #  "input.custom_name", ns = ns,
+      textInput(ns("varname"), "Variable Name", "df", placeholder = "Variable name"),
+    #),
+    # shinyWidgets::prettyCheckbox(
+    #   ns("show_preview"),
+    #   "Show Preview",
+    #   value = TRUE,
+    #   width = "auto",
+    #   shape = "curve",
+    #   status = "info"
+    # ),
+    # conditionalPanel(
+    #   "input.show_preview", ns = ns,
+    #   htmltools::tagAppendAttributes(
+    #     tableOutput(ns("preview_data")),
+    #     class = "no-margin small-table"
+    #   ),
+    #   br()
+    # ),
     div(
       class = "no-margin flex flex-gap2",
       actionButton(ns("close"), "Close"),
@@ -138,12 +138,12 @@ page_data_select_server <- function(id) {
       })
 
       name_out <- reactive({
-        req(result$name_in)
-        if (input$custom_name) {
-          make.names(input$varname)
-        } else {
-          result$name_in
-        }
+        # req(result$name_in)
+        # if (input$custom_name) {
+            make.names(input$varname)
+        # } else {
+        #  result$name_in
+        # }
       })
 
       code_out <- reactive({
@@ -166,11 +166,7 @@ page_data_select_server <- function(id) {
 
         if (input$insert_code) {
           if (result$code_in != name_out()) {
-            id <- rstudioapi::getSourceEditorContext()$id
-            if (is.null(id)) {
-              id <- rstudioapi::documentNew("")
-            }
-            rstudioapi::insertText(id = id, text = code_out())
+            insert_text(code_out())
           }
         }
 

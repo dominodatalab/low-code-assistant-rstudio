@@ -194,11 +194,7 @@ page_xforms_server <- function(id, data_name) {
       observeEvent(input$continue, {
         if (input$insert_code) {
           if (xforms()$size > 0) {
-            id <- rstudioapi::getSourceEditorContext()$id
-            if (is.null(id)) {
-              id <- rstudioapi::documentNew("")
-            }
-            rstudioapi::insertText(id = id, text = paste0(xforms()$get_code(), "\n"))
+            insert_text(paste0(xforms()$get_code(), "\n"))
           }
         }
 
