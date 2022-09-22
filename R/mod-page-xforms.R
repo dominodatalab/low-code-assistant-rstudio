@@ -1,7 +1,7 @@
 page_xforms_ui <- function(id) {
   ns <- NS(id)
 
-  shinyjs::hidden(
+  tagList(
     div(
       id = ns("transformation_section"),
       br(),
@@ -16,7 +16,7 @@ page_xforms_ui <- function(id) {
           actionButton(ns("undo"), NULL, icon = icon("undo")),
           actionButton(ns("redo"), NULL, icon = icon("redo")),
           actionButton(ns("add_xform"), " ADD TRANSFORMATION", icon = icon("plus"), class = "btn-primary", style = "margin: 0 20px"),
-          inelineUI(checkboxInput(ns("show_code"), "Show code", TRUE, width = 110)),
+          inelineUI(checkboxInput(ns("show_code"), "Show code", TRUE, width = "auto")),
           inelineUI(checkboxInput(ns("show_table"), "Show data", TRUE))
         )
       ),
@@ -24,7 +24,30 @@ page_xforms_ui <- function(id) {
       conditionalPanel(
         "input.show_code", ns = ns,
         xforms_code_chunk_ui(ns("code"))
-      )
+      ),
+      br(),
+      div(
+        class = "no-margin flex flex-gap2",
+        actionButton(ns("close"), "Close"),
+        htmltools::tagAppendAttributes(
+          shinyWidgets::prettyCheckbox(
+            ns("insert_code"),
+            "Insert Code",
+            value = TRUE,
+            width = "auto",
+            shape = "curve",
+            status = "primary"
+          ),
+          class = "flex-push"
+        ),
+        actionButton(
+          ns("continue"),
+          "Continue",
+          icon = icon("angle-double-right"),
+          class = "btn-primary btn-lg"
+        )
+      ),
+      br()
     )
   )
 }
@@ -34,26 +57,10 @@ page_xforms_server <- function(id, data_name) {
     id,
     function(input, output, session) {
 
-      #--- Hide/show this module
+      result_rv <- reactiveValues(name = NULL, data = NULL)
 
-      # The show/hide code can't be placed inside a function and is instead
-      # in an observer because of https://github.com/rstudio/shiny/issues/2706
-      show_trigger <- reactive_trigger()
-      hide_trigger <- reactive_trigger()
-
-      observe({
-        req(show_trigger$depend() > 0)
-        isolate({
-          shinyjs::show("transformation_section")
-        })
-      })
-
-      observe({
-        req(hide_trigger$depend() > 0)
-        isolate({
-          shinyjs::hide("transformation_section")
-          shinyjs::reset("transformation_section")
-        })
+      observeEvent(input$close, {
+        kill_app()
       })
 
       #--- Dealing with the dataset and TransformationsSequence
@@ -85,6 +92,10 @@ page_xforms_server <- function(id, data_name) {
       })
       result <- reactive({
         xforms_result()$result
+      })
+      name_out <- reactive({
+        req(xforms())
+        tail(unlist(xforms()$get_code_chunks()), 1)
       })
 
       xform_modal <- transformation_modal("xform_modal")
@@ -174,9 +185,31 @@ page_xforms_server <- function(id, data_name) {
         xform_modal$show(data = result(), action = "add", xform = table$filter())
       })
 
+      observe({
+        req(xforms())
+        shinyjs::toggleState("continue", condition = is.null(error()))
+        shinyjs::toggleState("insert_code", condition = (is.null(error()) && xforms()$size > 0))
+      })
+
+      observeEvent(input$continue, {
+        if (input$insert_code) {
+          if (xforms()$size > 0) {
+            id <- rstudioapi::getSourceEditorContext()$id
+            if (is.null(id)) {
+              id <- rstudioapi::documentNew("")
+            }
+            rstudioapi::insertText(id = id, text = paste0(xforms()$get_code(), "\n"))
+          }
+        }
+
+        result_rv$name <- name_out()
+        result_rv$data <- result()
+      })
+
       return(list(
-        show = function() show_trigger$trigger(),
-        hide = function() hide_trigger$trigger()
+        done = reactive(input$continue),
+        name = reactive(result_rv$name),
+        data = reactive(result_rv$data)
       ))
 
     }

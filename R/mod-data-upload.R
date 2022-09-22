@@ -3,12 +3,7 @@ data_upload_ui <- function(id) {
 
   tagList(
     shinyWidgets::alert("Choose a CSV file", status = "info"),
-    fileInput(ns("file"), NULL, multiple = FALSE, accept = c(".csv"), width = 500),
-    shinyWidgets::prettyCheckbox(ns("custom_name"), "Custom variable name", FALSE, shape = "curve", status = "info"),
-    conditionalPanel(
-      "input.custom_name", ns = ns,
-      textInput(ns("varname"), NULL, "", placeholder = "Variable name")
-    )
+    fileInput(ns("file"), NULL, multiple = FALSE, accept = c(".csv"), width = 500)
   )
 }
 
@@ -21,18 +16,13 @@ data_upload_server <- function(id) {
 
       name <- reactive({
         req(input$file)
-
-        if (input$custom_name) {
-          make.names(input$varname)
-        } else {
-          make.names(tools::file_path_sans_ext(input$file$name))
-        }
+        make.names(tools::file_path_sans_ext(input$file$name))
       })
 
       code <- reactive({
         req(input$file)
         url <- gsub('\\\\', '/', input$file$datapath)
-        glue::glue("{name()} <- read.csv({shQuote(url, type = 'cmd')})")
+        glue::glue("read.csv({shQuote(url, type = 'cmd')})")
       })
 
       observeEvent(code(), {
@@ -42,11 +32,11 @@ data_upload_server <- function(id) {
         result$data <- data
       })
 
-      return(reactive(list(
-        name = result$name,
-        data = result$data,
-        code = result$code
-      )))
+      return(list(
+        name = reactive(result$name),
+        data = reactive(result$data),
+        code = reactive(result$code)
+      ))
     }
   )
 }

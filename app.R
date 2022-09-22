@@ -1,6 +1,8 @@
 library(shiny)
 
 ui <- fluidPage(
+  shinyjs::useShinyjs(),
+  html_dependency_lca(),
   lca_main_ui("lca")
 )
 

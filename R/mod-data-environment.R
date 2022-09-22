@@ -3,12 +3,7 @@ data_environment_ui <- function(id) {
 
   tagList(
     shinyWidgets::alert("Select a data.frame from your R workspace", status = "info"),
-    selectInput(ns("dataframes"), NULL, ""),
-    shinyWidgets::prettyCheckbox(ns("custom_name"), "Custom variable name", FALSE, shape = "curve", status = "info"),
-    conditionalPanel(
-      "input.custom_name", ns = ns,
-      textInput(ns("varname"), NULL, "", placeholder = "Variable name")
-    )
+    selectInput(ns("dataframes"), NULL, "")
   )
 }
 
@@ -31,21 +26,12 @@ data_environment_server <- function(id) {
 
       name <- reactive({
         req(input$dataframes)
-
-        if (input$custom_name) {
-          make.names(input$varname)
-        } else {
-          input$dataframes
-        }
+        input$dataframes
       })
 
       code <- reactive({
         req(input$dataframes)
-        if (name() == input$dataframes) {
-          input$dataframes
-        } else {
-          glue::glue("{name()} <- {input$dataframes}")
-        }
+        input$dataframes
       })
 
       observeEvent(code(), {
@@ -55,11 +41,11 @@ data_environment_server <- function(id) {
         result$data <- data
       })
 
-      return(reactive(list(
-        name = result$name,
-        data = result$data,
-        code = result$code
-      )))
+      return(list(
+        name = reactive(result$name),
+        data = reactive(result$data),
+        code = reactive(result$code)
+      ))
     }
   )
 }
