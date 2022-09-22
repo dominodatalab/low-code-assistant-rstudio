@@ -14,3 +14,8 @@ app_server <- function(input, output, session) {
 run_app <- function() {
   shiny::shinyApp(app_ui, app_server, options = list(launch.browser = TRUE))
 }
+
+#' @export
+run_gadget <- function() {
+  shiny::runGadget(app_ui, app_server, viewer = shiny::dialogViewer("Domino R Assistant", 2000, 1500))
+}

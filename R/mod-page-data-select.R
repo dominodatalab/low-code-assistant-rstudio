@@ -26,7 +26,28 @@ page_data_select_ui <- function(id) {
         icon = icon("link"),
         br(),
         data_url_ui(ns("url"))
-      )
+      ),
+      tabPanel(
+        "Data Sources",
+        value = "database",
+        icon = icon("database"),
+        br(),
+        h1("Not implemented")
+      ),
+      tabPanel(
+        "Datasets",
+        value = "datasets",
+        icon = icon("table"),
+        br(),
+        h1("Not implemented")
+      ),
+      tabPanel(
+        "Project Files",
+        value = "project",
+        icon = icon("folder-tree"),
+        br(),
+        h1("Not implemented")
+      ),
     ),
     tags$script(glue::glue("$('#{ns(\"import_modules\")}').addClass('nav-justified');")),
     shinyWidgets::prettyCheckbox(
