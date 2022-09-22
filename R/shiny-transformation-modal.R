@@ -16,6 +16,7 @@ transformation_modal <- function(id) {
       dialog <-
         modalDialog(
           easyClose = TRUE,
+          size = "l",
           footer = tagList(
             actionButton(ns("apply"), "Apply", class = "btn-primary"),
             modalButton("Cancel")

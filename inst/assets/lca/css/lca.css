@@ -1,0 +1,28 @@
+.no-margin .form-group,
+.no-margin .checkbox,
+.no-margin .table {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.flex {
+  display: flex;
+  align-items: center;
+}
+
+.flex-push {
+  margin-left: auto;
+}
+
+.flex-gap1 {
+  gap: 1rem;
+}
+
+.flex-gap2 {
+  gap: 2rem;
+}
+
+.small-table {
+  overflow: auto;
+  white-space: nowrap;
+}

@@ -1,3 +1,14 @@
+html_dependency_lca <- function() {
+  htmltools::htmlDependency(
+    name = "lca",
+    version = packageVersion("dominolca"),
+    src = c(href = "lca-assets/lca"),
+    package = "dominolca",
+    script = c("js/shiny-utils.js"),
+    stylesheet = c("css/lca.css")
+  )
+}
+
 reactive_trigger <- function() {
   rv <- shiny::reactiveVal(0)
   list(
@@ -26,4 +37,9 @@ reactiveValEvent <- function(data = NULL) {
 
 inelineUI <- function(tag) {
   htmltools::tagAppendAttributes(tag, style = "display: inline-block")
+}
+
+kill_app <- function(session = shiny::getDefaultReactiveDomain()) {
+  session$sendCustomMessage("lca-close-window", TRUE)
+  shiny::stopApp()
 }
