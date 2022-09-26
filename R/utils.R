@@ -16,10 +16,20 @@ isValidName <- function(s) {
 }
 
 insert_text <- function(text) {
-  return()
   id <- rstudioapi::getSourceEditorContext()$id
   if (is.null(id)) {
     id <- rstudioapi::documentNew("")
   }
-  rstudioapi::insertText(id = id, text = text)
+
+  tryCatch({
+    rstudioapi::setCursorPosition(Inf, id = id)
+    loc <- rstudioapi::getSourceEditorContext()$selection
+    # if the end of the document is not a new line, add a new line
+    if (loc[[1]]$range$end[[2]] != 1) {
+      text <- paste0("\n", text)
+    }
+  }, finally = {
+    rstudioapi::insertText(id = id, text = text)
+  }, error = function(e) {})
+  invisible(NULL)
 }

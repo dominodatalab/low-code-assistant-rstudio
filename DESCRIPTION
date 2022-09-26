@@ -17,6 +17,7 @@ Imports:
     jsonlite,
     R6,
     reactable,
+    rstudioapi,
     shiny (>= 1.0.0),
     shinyjs,
     utils
