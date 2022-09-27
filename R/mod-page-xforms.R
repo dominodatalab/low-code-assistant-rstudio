@@ -2,57 +2,65 @@ page_xforms_ui <- function(id) {
   ns <- NS(id)
 
   tagList(
-    div(
-      id = ns("transformation_section"),
-      br(),
-      conditionalPanel(
-        "input.show_table", ns = ns,
-        xforms_table_ui(ns("table")),
-        br()
-      ),
-      fluidRow(
-        column(
-          12,
-          actionButton(ns("undo"), NULL, icon = icon("undo")),
-          actionButton(ns("redo"), NULL, icon = icon("redo")),
-          actionButton(ns("add_xform"), " ADD TRANSFORMATION", icon = icon("plus"), class = "btn-primary", style = "margin: 0 20px"),
-          inelineUI(checkboxInput(ns("show_code"), "Show code", TRUE, width = "auto")),
-          inelineUI(checkboxInput(ns("show_table"), "Show data", TRUE))
-        )
-      ),
-      uiOutput(ns("error")),
-      conditionalPanel(
-        "input.show_code", ns = ns,
-        xforms_code_chunk_ui(ns("code"))
-      ),
-      br(),
+    shinyjs::useShinyjs(),
+    shinyjs::hidden(
       div(
-        class = "no-margin flex flex-gap2",
-        actionButton(ns("close"), "Close"),
-        htmltools::tagAppendAttributes(
-          shinyWidgets::prettyCheckbox(
-            ns("insert_code"),
-            "Insert Code",
-            value = TRUE,
-            width = "auto",
-            shape = "curve",
-            status = "primary"
-          ),
-          class = "flex-push"
+        id = ns("data_select"),
+        data_environment_ui(ns("data_select_mod"))
+      )
+    ),
+    shinyjs::hidden(
+      div(
+        id = ns("xforms_main_section"),
+        conditionalPanel(
+          "input.show_table", ns = ns,
+          xforms_table_ui(ns("table")),
+          br()
         ),
-        actionButton(
-          ns("continue"),
-          "Continue",
-          icon = icon("angle-double-right"),
-          class = "btn-primary btn-lg"
+        fluidRow(
+          column(
+            12,
+            actionButton(ns("undo"), NULL, icon = icon("undo")),
+            actionButton(ns("redo"), NULL, icon = icon("redo")),
+            actionButton(ns("add_xform"), " ADD TRANSFORMATION", icon = icon("plus"), class = "btn-primary", style = "margin: 0 20px"),
+            inelineUI(checkboxInput(ns("show_code"), "Show code", TRUE, width = "auto")),
+            inelineUI(checkboxInput(ns("show_table"), "Show data", TRUE))
+          )
+        ),
+        uiOutput(ns("error")),
+        conditionalPanel(
+          "input.show_code", ns = ns,
+          xforms_code_chunk_ui(ns("code"))
+        ),
+        br(),
+        div(
+          class = "no-margin flex flex-gap2",
+          actionButton(ns("close"), "Close"),
+          htmltools::tagAppendAttributes(
+            shinyWidgets::prettyCheckbox(
+              ns("insert_code"),
+              "Insert Code",
+              value = TRUE,
+              width = "auto",
+              shape = "curve",
+              status = "primary"
+            ),
+            class = "flex-push"
+          ),
+          actionButton(
+            ns("continue"),
+            "Continue",
+            icon = icon("angle-double-right"),
+            class = "btn-primary btn-lg"
+          )
         )
-      ),
-      br()
-    )
+      )
+    ),
+    br()
   )
 }
 
-page_xforms_server <- function(id, data_name) {
+page_xforms_server <- function(id, data_name_in = NULL) {
   moduleServer(
     id,
     function(input, output, session) {
@@ -62,6 +70,27 @@ page_xforms_server <- function(id, data_name) {
       observeEvent(input$close, {
         kill_app()
       })
+
+      #--- Dealing with the input dataset
+
+      if (is.null(data_name_in)) {
+        shinyjs::show("data_select")
+
+        data_select_mod <- data_environment_server("data_select_mod")
+        data_name <- reactive({
+          req(data_select_mod$name())
+          shinyjs::hide("data_select")
+          shinyjs::show("xforms_main_section")
+          data_select_mod$name()
+        })
+      } else {
+        shinyjs::show("xforms_main_section")
+
+        data_name <- reactive({
+          req(data_name_in())
+          data_name_in()
+        })
+      }
 
       #--- Dealing with the dataset and TransformationsSequence
 
@@ -211,3 +240,4 @@ page_xforms_server <- function(id, data_name) {
     }
   )
 }
+dfsd <- dfa
