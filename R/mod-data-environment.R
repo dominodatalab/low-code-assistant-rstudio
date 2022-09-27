@@ -2,8 +2,8 @@ data_environment_ui <- function(id) {
   ns <- NS(id)
 
   tagList(
-    shinyWidgets::alert("Select a data.frame from your R workspace", status = "info"),
-    selectInput(ns("dataframes"), NULL, "")
+    shinyWidgets::alert("Select a data.frame from your R workspace", status = "info", style = "width: 500px"),
+    selectInput(ns("dataframes"), NULL, "", width = "500px")
   )
 }
 
