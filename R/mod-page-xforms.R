@@ -1,11 +1,15 @@
-page_xforms_ui <- function(id) {
+page_xforms_ui <- function(id, standalone = TRUE) {
   ns <- NS(id)
 
   tagList(
     shinyjs::useShinyjs(),
+    html_dependency_lca(),
+    if (standalone) title_bar_ui(ns("title"), "Transformations"),
+    shinyjs::hidden(checkboxInput(ns("standalone"), NULL, standalone)),
     shinyjs::hidden(
       div(
         id = ns("data_select"),
+        br(),
         data_environment_ui(ns("data_select_mod"))
       )
     ),
@@ -36,7 +40,9 @@ page_xforms_ui <- function(id) {
         div(
           class = "no-margin flex flex-gap2",
           actionButton(ns("close"), "Close"),
-          htmltools::tagAppendAttributes(
+          div(class = "flex-push"),
+          hide_if_standalone(
+            standalone,
             shinyWidgets::prettyCheckbox(
               ns("insert_code"),
               "Insert Code",
@@ -44,13 +50,12 @@ page_xforms_ui <- function(id) {
               width = "auto",
               shape = "curve",
               status = "primary"
-            ),
-            class = "flex-push"
+            )
           ),
           actionButton(
             ns("continue"),
-            "Continue",
-            icon = icon("angle-double-right"),
+            if (standalone) "Apply" else "Continue",
+            icon = if (standalone) icon("check") else icon("angle-double-right"),
             class = "btn-primary btn-lg"
           )
         )
@@ -229,6 +234,10 @@ page_xforms_server <- function(id, data_name_in = NULL) {
 
         result_rv$name <- name_out()
         result_rv$data <- result()
+
+        if (input$standalone) {
+          kill_app()
+        }
       })
 
       return(list(
@@ -240,4 +249,3 @@ page_xforms_server <- function(id, data_name_in = NULL) {
     }
   )
 }
-dfsd <- dfa
