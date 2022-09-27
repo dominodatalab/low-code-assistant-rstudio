@@ -1,3 +1,13 @@
+.header-bar {
+  margin: 0 -15px;
+  font-size: 2.5rem;
+  text-transform: uppercase;
+  background: #2d71c7;
+  color: #fff;
+  height: 70px;
+  padding: 10px 20px;
+}
+
 .no-margin .form-group,
 .no-margin .checkbox,
 .no-margin .table {
@@ -26,14 +36,3 @@
   overflow: auto;
   white-space: nowrap;
 }
-
-#header-bar {
-  margin: 0 -15px;
-  font-size: 2.5rem;
-  text-transform: uppercase;
-  background: #2d71c7;
-  color: #fff;
-  height: 70px;
-  padding: 10px 20px;
-}
-
