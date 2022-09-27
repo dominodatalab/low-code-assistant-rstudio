@@ -6,6 +6,7 @@ page_xforms_ui <- function(id, standalone = TRUE) {
     html_dependency_lca(),
     if (standalone) title_bar_ui(ns("title"), "Transformations"),
     shinyjs::hidden(checkboxInput(ns("standalone"), NULL, standalone)),
+
     shinyjs::hidden(
       div(
         id = ns("data_select"),
@@ -15,7 +16,7 @@ page_xforms_ui <- function(id, standalone = TRUE) {
     ),
     shinyjs::hidden(
       div(
-        id = ns("xforms_main_section"),
+        id = ns("main_section"),
         conditionalPanel(
           "input.show_table", ns = ns,
           xforms_table_ui(ns("table")),
@@ -82,18 +83,25 @@ page_xforms_server <- function(id, data_name_in = NULL) {
         shinyjs::show("data_select")
 
         data_select_mod <- data_environment_server("data_select_mod")
-        data_name <- reactive({
-          req(data_select_mod$name())
+
+        observeEvent(data_select_mod$name(), {
           shinyjs::hide("data_select")
-          shinyjs::show("xforms_main_section")
+          shinyjs::show("main_section")
+        })
+        data_name <- reactive({
           data_select_mod$name()
         })
       } else {
-        shinyjs::show("xforms_main_section")
+        if (is.reactive(data_name_in)) {
+          data_name_in_r <- data_name_in
+        } else {
+          data_name_in_r <- reactive(data_name_in)
+        }
+        shinyjs::show("main_section")
 
         data_name <- reactive({
-          req(data_name_in())
-          data_name_in()
+          req(data_name_in_r())
+          data_name_in_r()
         })
       }
 

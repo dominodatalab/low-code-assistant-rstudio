@@ -9,7 +9,7 @@ lca_main_ui <- function(id) {
       type = "hidden",
       tabPanelBody("data", page_data_select_ui(ns("data"), standalone = FALSE)),
       tabPanelBody("xforms", br(), page_xforms_ui(ns("xforms"), standalone = FALSE)),
-      tabPanelBody("viz", page_viz_ui(ns("viz")))
+      tabPanelBody("viz", page_viz_ui(ns("viz"), standalone = FALSE))
     )
   )
 }

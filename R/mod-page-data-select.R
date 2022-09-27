@@ -6,6 +6,7 @@ page_data_select_ui <- function(id, standalone = TRUE) {
     html_dependency_lca(),
     if (standalone) title_bar_ui(ns("title"), "Load Data"),
     shinyjs::hidden(checkboxInput(ns("standalone"), NULL, standalone)),
+
     tabsetPanel(
       id = ns("import_modules"),
       tabPanel(
