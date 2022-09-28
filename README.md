@@ -22,10 +22,11 @@ Note that
 
 ## How to run
 
-First, load the package:
+First, load the LCA package and shiny:
 
 ```r
 library(dominolca)
+library(shiny)
 ```
 
 The LCA consists of three modules: a data selection module, a data transformation module, and a visualization module. To invoke any of the modules, run the corresponding function in RStudio: `assist_data()`, `assist_transform()`, or `assist_viz()`.
