@@ -22,8 +22,8 @@ run_gadget <- function() {
 
 #' @export
 assist_data <- function() {
-  app <- shinyApp(
-    ui = fluidPage(page_data_select_ui("app", standalone = TRUE)),
+  app <- shiny::shinyApp(
+    ui = shiny::fluidPage(page_data_select_ui("app", standalone = TRUE)),
     server = function(input, output, session) page_data_select_server("app")
   )
   shiny::runGadget(app, viewer = shiny::dialogViewer("Domino R Assistant", 1100, 800))
@@ -31,8 +31,8 @@ assist_data <- function() {
 
 #' @export
 assist_transform <- function() {
-  app <- shinyApp(
-    ui = fluidPage(page_xforms_ui("app", standalone = TRUE)),
+  app <- shiny::shinyApp(
+    ui = shiny::fluidPage(page_xforms_ui("app", standalone = TRUE)),
     server = function(input, output, session) page_xforms_server("app")
   )
   shiny::runGadget(app, viewer = shiny::dialogViewer("Domino R Assistant", 1100, 800))
@@ -40,8 +40,8 @@ assist_transform <- function() {
 
 #' @export
 assist_viz <- function() {
-  app <- shinyApp(
-    ui = fluidPage(page_viz_ui("app", standalone = TRUE)),
+  app <- shiny::shinyApp(
+    ui = shiny::fluidPage(page_viz_ui("app", standalone = TRUE)),
     server = function(input, output, session) page_viz_server("app")
   )
   shiny::runGadget(app, viewer = shiny::dialogViewer("Domino R Assistant", 1100, 800))
