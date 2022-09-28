@@ -1,16 +1,15 @@
-# lca
+# Domino Low Code Assistant (LCA) for R
 
+Accelerate routine data science tasks and smoothly interface with the Domino API through the LCA point-and-click GUI.
+
+## Installation
+
+Run the following command inside RStudio:
+
+```r
+remotes::install_github("dominodatalab/assist-domino")
 ```
-t1 <- FilterTransformation$new("gear", ">", 4, "numeric", "dfcar")
-t2 <- SelectTransformation$new(c("wt", "gear", "hp"), "postselect")
-t3 <- DropTransformation$new(c("disp", "hp"), "postdrop")
 
-dfcar <- mtcars
-res1 <- TransformationSequence$new(list(t1, t2, t3), "dfcar")$run()
+## How to run
 
-dfcar <- mtcars
-res2 <- TransformationSequence$new(list(t1, t3, t2), "dfcar")$run()
-
-t4 <- AggregateTransformation$new(c("carb", "cyl"), list("hp" = "mean", "wt" = "sum", "hp" = "sum"), "test")$get_code("mtcars")
-
-```
+The LCA consists of three modules: a data selection module, a data transformation module, and a visualization module. To invoke any of the modules, run the corresponding function in RStudio: `assist_data()`, `assist_transform()`, or `assist_viz()`.
