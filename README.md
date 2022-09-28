@@ -4,11 +4,21 @@ Accelerate routine data science tasks and smoothly interface with the Domino API
 
 ## Installation
 
-Run the following command inside RStudio:
+The package is currently hosted in a private GitHub repository, so a GitHub PAT must be used for installation.
+
+If you have a `GITHUB_PAT` environment variable set, run the following command inside RStudio:
 
 ```r
 remotes::install_github("dominodatalab/assist-domino")
 ```
+
+If you don't have the environment variable, then you need to explicitly supply a PAT:
+
+```r
+remotes::install_github("dominodatalab/assist-domino", auth_token = "YOUR_GITHUB_PAT")
+```
+
+Note that 
 
 ## How to run
 
