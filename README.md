@@ -9,13 +9,13 @@ The package is currently hosted in a private GitHub repository, so a GitHub PAT 
 If you have a `GITHUB_PAT` environment variable set, run the following command inside RStudio:
 
 ```r
-remotes::install_github("dominodatalab/assist-domino")
+remotes::install_github("dominodatalab/low-code-assistant-rstudio")
 ```
 
 If you don't have the environment variable, then you need to explicitly supply a PAT:
 
 ```r
-remotes::install_github("dominodatalab/assist-domino", auth_token = "YOUR_GITHUB_PAT")
+remotes::install_github("dominodatalab/low-code-assistant-rstudio", auth_token = "YOUR_GITHUB_PAT")
 ```
 
 Note that 
