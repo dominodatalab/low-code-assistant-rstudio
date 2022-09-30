@@ -51,3 +51,11 @@ kill_app <- function(session = shiny::getDefaultReactiveDomain()) {
   session$sendCustomMessage("lca-close-window", TRUE)
   shiny::stopApp()
 }
+
+make_reactive <- function(x) {
+  if (shiny::is.reactive(x)) {
+    x
+  } else {
+    shiny::reactive(x)
+  }
+}

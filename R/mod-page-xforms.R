@@ -92,11 +92,7 @@ page_xforms_server <- function(id, data_name_in = NULL) {
           data_select_mod$name()
         })
       } else {
-        if (is.reactive(data_name_in)) {
-          data_name_in_r <- data_name_in
-        } else {
-          data_name_in_r <- reactive(data_name_in)
-        }
+        data_name_in_r <- make_reactive(data_name_in)
         shinyjs::show("main_section")
 
         data_name <- reactive({

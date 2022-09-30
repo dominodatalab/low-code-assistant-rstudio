@@ -18,12 +18,7 @@ title_bar_server <- function(id, title = NULL) {
   moduleServer(
     id,
     function(input, output, session) {
-      if (is.reactive(title)) {
-        title_r <- title
-      } else {
-        title_r <- reactive(title)
-      }
-
+      title_r <- make_reactive(title)
       output$page_title <- renderText(title_r())
     }
   )

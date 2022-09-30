@@ -13,7 +13,8 @@ code_chunk_ui <- function(id) {
        .lca-code-chunk:hover .chunk-btns { opacity: 1; }
        .lca-code-chunk .chunk-btn { opacity: 0.5; cursor: pointer; transition: opacity 0.25s; margin: 0 .3rem; }
        .lca-code-chunk .chunk-btn:hover { opacity: 1; }
-       .lca-code-chunk.chunk-error { background: #f2dede !important; }
+       .lca-code-chunk.chunk-error { background: #f2dede; }
+       .lca-code-chunk.chunk-error:hover { background: #f1d0d0; }
        .lca-code-chunk .chunk-error-icon { color: #d2322d; margin-left: 4px; }"
     )))),
 
@@ -21,7 +22,7 @@ code_chunk_ui <- function(id) {
       "highlight.js",
       "6.2",
       src = "www/shared/highlight",
-      package="shiny",
+      package = "shiny",
       script = "highlight.pack.js",
       stylesheet = "rstudio.css"
     ),
@@ -30,20 +31,23 @@ code_chunk_ui <- function(id) {
   )
 }
 
-code_chunk_server <- function(id, chunks, error_line = reactive(NULL)) {
+code_chunk_server <- function(id, chunks = NULL, error_line = NULL) {
   moduleServer(
     id,
     function(input, output, session) {
 
+      chunks_r <- make_reactive(chunks)
+      error_line_r <- make_reactive(error_line)
+
       output$code_section <- renderUI({
-        if (length(chunks()) == 0) {
+        if (length(chunks_r()) == 0 || (length(chunks_r()) == 1 && chunks_r() == "")) {
           return()
         }
 
-        chunks_html <- lapply(seq_along(chunks()), function(chunk_idx) {
-          chunk <- chunks()[[chunk_idx]]
-          edit <- (chunk_idx < length(chunks()))
-          error <- (!is.null(error_line()) && error_line() == chunk_idx)
+        chunks_html <- lapply(seq_along(chunks_r()), function(chunk_idx) {
+          chunk <- chunks_r()[[chunk_idx]]
+          edit <- (chunk_idx < length(chunks_r()))
+          error <- (!is.null(error_line_r()) && error_line_r() == chunk_idx)
 
           if (error) {
             chunk <- paste0(
