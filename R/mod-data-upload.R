@@ -31,7 +31,7 @@ data_upload_server <- function(id, upload_dir = NULL) {
 
       observeEvent(input$file, {
         if (!is.null(upload_dir)) {
-          file.rename(input$file$datapath, new_path())
+          file.copy(input$file$datapath, new_path(), overwrite = TRUE)
         }
       })
 
