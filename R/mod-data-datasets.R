@@ -1,4 +1,4 @@
-data_project_files_ui <- function(id) {
+data_datasets_ui <- function(id) {
   ns <- NS(id)
 
   tagList(
@@ -6,7 +6,7 @@ data_project_files_ui <- function(id) {
   )
 }
 
-data_project_files_server <- function(id) {
+data_datasets_server <- function(id) {
   moduleServer(
     id,
     function(input, output, session) {
