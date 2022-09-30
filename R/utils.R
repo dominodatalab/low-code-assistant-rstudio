@@ -1,3 +1,5 @@
+FILE_READ_EXTENSIONS <- c(".csv")
+
 `%||%` <- function (x, y) {
   if (is.null(x)) y else x
 }
@@ -32,4 +34,8 @@ insert_text <- function(text) {
     rstudioapi::insertText(id = id, text = text)
   }, error = function(e) {})
   invisible(NULL)
+}
+
+get_user_project_dir <- function() {
+  Sys.getenv("DOMINO_WORKING_DIR", getwd())
 }

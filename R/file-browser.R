@@ -23,7 +23,7 @@ file_browser_ui <- function(id, height = NULL) {
   )
 }
 
-file_browser <- function(id, path = getwd(), extensions = NULL, allow_back = FALSE) {
+file_browser_server <- function(id, path = getwd(), extensions = NULL, allow_back = FALSE) {
   moduleServer(
     id,
     function(input, output, session) {

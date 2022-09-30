@@ -49,7 +49,7 @@ page_data_select_ui <- function(id, standalone = TRUE) {
         value = "project",
         icon = icon("folder-open"),
         br(),
-        h1("Not implemented")
+        data_project_files_ui(ns("project_files"))
       ),
     ),
     tags$script(glue::glue("$('#{ns(\"import_modules\")}').addClass('nav-justified');")),
@@ -121,6 +121,7 @@ page_data_select_server <- function(id) {
       data_upload <- data_upload_server("upload")
       data_env <- data_environment_server("environment")
       data_url <- data_url_server("url")
+      data_project_files <- data_project_files_server("project_files")
 
       observeEvent(data_upload$data(), {
         result$name_in <- data_upload$name()
@@ -138,6 +139,12 @@ page_data_select_server <- function(id) {
         result$name_in <- data_url$name()
         result$code_in <- data_url$code()
         result$data <- data_url$data()
+      })
+
+      observeEvent(data_project_files$data(), {
+        result$name_in <- data_project_files$name()
+        result$code_in <- data_project_files$code()
+        result$data <- data_project_files$data()
       })
 
       name_out <- reactive({

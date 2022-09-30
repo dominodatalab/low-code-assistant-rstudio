@@ -2,8 +2,8 @@ data_upload_ui <- function(id) {
   ns <- NS(id)
 
   tagList(
-    shinyWidgets::alert("Choose a CSV file", status = "info"),
-    fileInput(ns("file"), NULL, multiple = FALSE, accept = c(".csv"), width = 500)
+    shinyWidgets::alert("Choose a file", status = "info"),
+    fileInput(ns("file"), NULL, multiple = FALSE, accept = FILE_READ_EXTENSIONS, width = 500)
   )
 }
 

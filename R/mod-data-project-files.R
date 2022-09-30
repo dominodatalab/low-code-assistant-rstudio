@@ -1,27 +1,33 @@
-data_url_ui <- function(id) {
+data_project_files_ui <- function(id) {
   ns <- NS(id)
 
   tagList(
-    shinyWidgets::alert("Enter a URL of a file", status = "info"),
-    textInput(ns("url"), NULL, "", placeholder = "https://path/to/data.csv", width = "500")
+    file_browser_ui(ns("filebrowser")), br()
   )
 }
 
-data_url_server <- function(id) {
+data_project_files_server <- function(id) {
   moduleServer(
     id,
     function(input, output, session) {
 
       result <- reactiveValues(name = NULL, code = NULL, data = NULL)
 
+      browser <- file_browser_server(
+        "filebrowser",
+        path = get_user_project_dir(),
+        extensions = FILE_READ_EXTENSIONS,
+        allow_back = FALSE
+      )
+
       name <- reactive({
-        req(input$url)
-        tools::file_path_sans_ext(basename(input$url))
+        req(browser$selected())
+        make.names(tools::file_path_sans_ext(basename(browser$selected())))
       })
 
       code <- reactive({
-        req(input$url)
-        url <- gsub('\\\\', '/', input$url)
+        req(browser$selected())
+        url <- gsub('\\\\', '/', browser$selected())
         glue::glue("read.csv({shQuote(url, type = 'cmd')})")
       })
 
