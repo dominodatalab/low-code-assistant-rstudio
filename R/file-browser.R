@@ -33,6 +33,7 @@ file_browser_server <- function(
   moduleServer(
     id,
     function(input, output, session) {
+
       ns <- session$ns
 
       wd <- reactiveVal(path)
@@ -102,6 +103,9 @@ file_browser_server <- function(
           }
           create_file_row("file", file, natural_size(size))
         })
+
+        dirs_rows <- drop_null(dirs_rows)
+        files_rows <- drop_null(files_rows)
 
         if (wd() == path && !allow_back) {
           parent_row <- NULL
