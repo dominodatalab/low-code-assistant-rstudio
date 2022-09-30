@@ -1,10 +1,10 @@
-xforms_code_chunk_ui <- function(id) {
+code_chunk_ui <- function(id) {
   ns <- NS(id)
 
   tagList(
     fontawesome::fa_html_dependency(),
 
-    tags$head(tags$style(HTML(
+    singleton(tags$head(tags$style(HTML(
       ".lca-code-chunks { padding: 0.8rem; background: #fafafa; border: 1px solid #ececec; }
        .lca-code-chunks pre { background: inherit; border: 0; padding: 0; margin: 0; }
        .lca-code-chunk { position: relative; padding: 0.2rem; border-radius: 4px; transition: background 0.25s; }
@@ -15,7 +15,7 @@ xforms_code_chunk_ui <- function(id) {
        .lca-code-chunk .chunk-btn:hover { opacity: 1; }
        .lca-code-chunk.chunk-error { background: #f2dede !important; }
        .lca-code-chunk .chunk-error-icon { color: #d2322d; margin-left: 4px; }"
-    ))),
+    )))),
 
     htmltools::htmlDependency(
       "highlight.js",
@@ -30,7 +30,7 @@ xforms_code_chunk_ui <- function(id) {
   )
 }
 
-xforms_code_chunk_server <- function(id, chunks, error_line = reactive(NULL)) {
+code_chunk_server <- function(id, chunks, error_line = reactive(NULL)) {
   moduleServer(
     id,
     function(input, output, session) {

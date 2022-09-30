@@ -184,7 +184,7 @@ page_viz_server <- function(id, data_in = NULL, name_in = NULL) {
 
       observeEvent(input$continue, {
         if (input$insert_code) {
-          insert_text(paste0(code(), "\n"))
+          insert_text(paste0(code()))
         }
 
         kill_app()

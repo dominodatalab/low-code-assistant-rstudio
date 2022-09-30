@@ -21,10 +21,14 @@ isValidName <- function(s) {
   make.names(s) == s
 }
 
-insert_text <- function(text) {
+insert_text <- function(text, newline = TRUE) {
   id <- rstudioapi::getSourceEditorContext()$id
   if (is.null(id)) {
     id <- rstudioapi::documentNew("")
+  }
+
+  if (newline) {
+    text <- paste0(text, "\n")
   }
 
   tryCatch({

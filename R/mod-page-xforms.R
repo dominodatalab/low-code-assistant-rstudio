@@ -35,7 +35,7 @@ page_xforms_ui <- function(id, standalone = TRUE) {
         uiOutput(ns("error")),
         conditionalPanel(
           "input.show_code", ns = ns,
-          xforms_code_chunk_ui(ns("code"))
+          code_chunk_ui(ns("code"))
         ),
         br(),
         div(
@@ -144,7 +144,7 @@ page_xforms_server <- function(id, data_name_in = NULL) {
 
       table <- xforms_table_server("table", result)
 
-      code_section <- xforms_code_chunk_server("code", chunks = reactive(xforms()$get_code_chunks()), error_line = error_line_num)
+      code_section <- code_chunk_server("code", chunks = reactive(xforms()$get_code_chunks()), error_line = error_line_num)
 
       undo_redo <- UndoRedoStack$new(type = TransformationSequence$classname)
 
@@ -173,7 +173,7 @@ page_xforms_server <- function(id, data_name_in = NULL) {
 
       output$error <- renderUI({
         req(error())
-        div(class = "alert alert-danger", style="font-size:2rem", icon("exclamation-sign", lib = "glyphicon"), error())
+        div(class = "alert alert-danger", icon("exclamation-sign", lib = "glyphicon"), error())
       })
 
       #--- Undo/redo
@@ -236,7 +236,7 @@ page_xforms_server <- function(id, data_name_in = NULL) {
       observeEvent(input$continue, {
         if (input$insert_code) {
           if (xforms()$size > 0) {
-            insert_text(paste0(xforms()$get_code(), "\n"))
+            insert_text(paste0(xforms()$get_code()))
           }
         }
 

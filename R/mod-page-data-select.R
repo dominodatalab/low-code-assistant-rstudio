@@ -165,7 +165,7 @@ page_data_select_server <- function(id) {
 
       code_out <- reactive({
         req(result$code_in, name_out())
-        paste0(name_out(), " <- ", result$code_in, "\n")
+        paste0(name_out(), " <- ", result$code_in)
       })
 
       output$preview_data <- renderTable({
