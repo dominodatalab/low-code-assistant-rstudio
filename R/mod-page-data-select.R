@@ -42,7 +42,7 @@ page_data_select_ui <- function(id, standalone = TRUE) {
         value = "datasets",
         icon = icon("table"),
         br(),
-        h1("Not implemented")
+        data_datasets_ui(ns("datasets"))
       ),
       tabPanel(
         "Project Files",
@@ -122,6 +122,7 @@ page_data_select_server <- function(id) {
       data_env <- data_environment_server("environment")
       data_url <- data_url_server("url")
       data_project_files <- data_project_files_server("project_files")
+      data_datasets <- data_datasets_server("datasets")
 
       observeEvent(data_upload$data(), {
         result$name_in <- data_upload$name()
@@ -145,6 +146,12 @@ page_data_select_server <- function(id) {
         result$name_in <- data_project_files$name()
         result$code_in <- data_project_files$code()
         result$data <- data_project_files$data()
+      })
+
+      observeEvent(data_datasets$data(), {
+        result$name_in <- data_datasets$name()
+        result$code_in <- data_datasets$code()
+        result$data <- data_datasets$data()
       })
 
       name_out <- reactive({

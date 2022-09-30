@@ -1,4 +1,4 @@
-FILE_READ_EXTENSIONS <- c(".csv")
+FILE_READ_EXTENSIONS <- c(".csv", ".txt")
 
 `%||%` <- function (x, y) {
   if (is.null(x)) y else x
@@ -38,4 +38,8 @@ insert_text <- function(text) {
 
 get_user_project_dir <- function() {
   Sys.getenv("DOMINO_WORKING_DIR", getwd())
+}
+
+get_user_datasets_dir <- function() {
+  Sys.getenv("DOMINO_DATASETS_DIR", getwd())
 }
