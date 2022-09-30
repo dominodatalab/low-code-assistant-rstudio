@@ -49,6 +49,10 @@ code_chunk_server <- function(id, chunks = NULL, error_line = NULL) {
           edit <- (chunk_idx < length(chunks_r()))
           error <- (!is.null(error_line_r()) && error_line_r() == chunk_idx)
 
+          if (is.null(chunk) || chunk == "") {
+            chunk <- " "
+          }
+
           if (error) {
             chunk <- paste0(
               chunk,
@@ -59,7 +63,7 @@ code_chunk_server <- function(id, chunks = NULL, error_line = NULL) {
 
           onclick_tpl <- function(action) {
             glue::glue(
-              "Shiny.setInputValue('{{session$ns(action)}}', `${event.target.closest('.chunk-btns').dataset.chunkNum}`, {priority: 'event'});",
+              "Shiny.setInputValue('{{ session$ns(action) }}', `${event.target.closest('.chunk-btns').dataset.chunkNum}`, {priority: 'event'});",
               .open = "{{", .close = "}}"
             )
           }
@@ -94,9 +98,10 @@ code_chunk_server <- function(id, chunks = NULL, error_line = NULL) {
         tagList(
           tags$div(class = "lca-code-chunks", chunks_html),
           HTML(as.character(tags$script(
-            'setTimeout(function() {
-               document.querySelectorAll(".lca-code-chunks .hl-me").forEach(function(el) { hljs.highlightBlock(el); })
-            }, 0);'
+            glue::glue(
+              'document.querySelectorAll("#{{ session$ns("code_section") }} .lca-code-chunks .hl-me").forEach(function(el) { hljs.highlightBlock(el); })',
+              .open = "{{", .close = "}}"
+            )
           )))
         )
       })
