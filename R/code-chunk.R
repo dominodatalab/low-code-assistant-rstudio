@@ -8,7 +8,7 @@ code_chunk_ui <- function(id) {
       ".lca-code-chunks { padding: 0.8rem; background: #fafafa; border: 1px solid #ececec; }
        .lca-code-chunks pre { background: inherit; border: 0; padding: 0; margin: 0; }
        .lca-code-chunk { position: relative; padding: 0.2rem; border-radius: 4px; transition: background 0.25s; }
-       .lca-code-chunk.chunk-editable:hover { background: #eee; }
+       .lca-code-chunk:hover { background: #eee; }
        .lca-code-chunk .chunk-btns { position: absolute; top: 0; right: 0.2rem; color: #444; opacity: 0; transition: opacity 0.25s; font-size: 1.2em; }
        .lca-code-chunk:hover .chunk-btns { opacity: 1; }
        .lca-code-chunk .chunk-btn { opacity: 0.5; cursor: pointer; transition: opacity 0.25s; margin: 0 .3rem; }
@@ -31,13 +31,15 @@ code_chunk_ui <- function(id) {
   )
 }
 
-code_chunk_server <- function(id, chunks = NULL, error_line = NULL) {
+#' @param editable - Vector of chunk numbers that are editable, or TRUE to make everything editable
+code_chunk_server <- function(id, chunks = NULL, editable = NULL, error_line = NULL) {
   moduleServer(
     id,
     function(input, output, session) {
 
       chunks_r <- make_reactive(chunks)
       error_line_r <- make_reactive(error_line)
+      editable_r <- make_reactive(editable)
 
       output$code_section <- renderUI({
         if (length(chunks_r()) == 0 || (length(chunks_r()) == 1 && chunks_r() == "")) {
@@ -46,8 +48,13 @@ code_chunk_server <- function(id, chunks = NULL, error_line = NULL) {
 
         chunks_html <- lapply(seq_along(chunks_r()), function(chunk_idx) {
           chunk <- chunks_r()[[chunk_idx]]
-          edit <- (chunk_idx < length(chunks_r()))
           error <- (!is.null(error_line_r()) && error_line_r() == chunk_idx)
+
+          if (!is.null(editable_r()) && isTRUE(editable_r())) {
+            edit <- TRUE
+          } else {
+            edit <- chunk_idx %in% editable_r()
+          }
 
           if (is.null(chunk) || chunk == "") {
             chunk <- " "

@@ -140,7 +140,12 @@ page_xforms_server <- function(id, data_name_in = NULL) {
 
       table <- xforms_table_server("table", result)
 
-      code_section <- code_chunk_server("code", chunks = reactive(xforms()$get_code_chunks()), error_line = error_line_num)
+      code_section <- code_chunk_server(
+        "code",
+        chunks = reactive(xforms()$get_code_chunks()),
+        editable = reactive(seq_len(xforms()$size)),
+        error_line = error_line_num
+      )
 
       undo_redo <- UndoRedoStack$new(type = TransformationSequence$classname)
 
