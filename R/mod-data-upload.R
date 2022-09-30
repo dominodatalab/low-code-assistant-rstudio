@@ -7,7 +7,12 @@ data_upload_ui <- function(id) {
   )
 }
 
-data_upload_server <- function(id) {
+data_upload_server <- function(id, upload_dir = NULL) {
+
+  if (!is.null(upload_dir) && !dir.exists(upload_dir)) {
+    dir.create(upload_dir, recursive = TRUE)
+  }
+
   moduleServer(
     id,
     function(input, output, session) {
@@ -19,9 +24,20 @@ data_upload_server <- function(id) {
         make.names(tools::file_path_sans_ext(input$file$name))
       })
 
+      new_path <- reactive({
+        req(input$file)
+        file.path(upload_dir, input$file$name)
+      })
+
+      observeEvent(input$file, {
+        if (!is.null(upload_dir)) {
+          file.rename(input$file$datapath, new_path())
+        }
+      })
+
       code <- reactive({
         req(input$file)
-        url <- gsub('\\\\', '/', input$file$datapath)
+        url <- gsub('\\\\', '/', new_path())
         glue::glue("read.csv({shQuote(url, type = 'cmd')})")
       })
 

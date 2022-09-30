@@ -118,7 +118,7 @@ page_data_select_server <- function(id) {
         kill_app()
       })
 
-      data_upload <- data_upload_server("upload")
+      data_upload <- data_upload_server("upload", upload_dir = get_user_upload_dir())
       data_env <- data_environment_server("environment")
       data_url <- data_url_server("url")
       data_project_files <- data_project_files_server("project_files")
@@ -201,3 +201,4 @@ page_data_select_server <- function(id) {
     }
   )
 }
+
