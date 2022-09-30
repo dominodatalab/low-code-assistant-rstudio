@@ -23,7 +23,13 @@ file_browser_ui <- function(id, height = NULL) {
   )
 }
 
-file_browser_server <- function(id, path = getwd(), extensions = NULL, allow_back = FALSE) {
+file_browser_server <- function(
+    id,
+    path = getwd(),
+    extensions = NULL,
+    allow_back = FALSE,
+    show_empty = TRUE
+) {
   moduleServer(
     id,
     function(input, output, session) {
@@ -91,7 +97,10 @@ file_browser_server <- function(id, path = getwd(), extensions = NULL, allow_bac
         })
         files_rows <- lapply(files, function(file) {
           size <- file.info(file.path(wd(), file))$size
-          create_file_row("file", file, paste(size, "bytes"))
+          if (size == 0 && !show_empty) {
+            return(NULL)
+          }
+          create_file_row("file", file, natural_size(size))
         })
 
         if (wd() == path && !allow_back) {

@@ -17,7 +17,8 @@ data_project_files_server <- function(id) {
         "filebrowser",
         path = get_user_project_dir(),
         extensions = FILE_READ_EXTENSIONS,
-        allow_back = FALSE
+        allow_back = FALSE,
+        show_empty = FALSE
       )
 
       name <- reactive({
