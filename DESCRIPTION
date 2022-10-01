@@ -1,14 +1,14 @@
 Package: dominolca
-Title: Low Code Assistant for Domino
+Title: Low Code Assistant for RStudio
 Version: 0.0.0.9000
 Authors@R: c(
     person("Dean", "Attali",
         email = "daattali@gmail.com",
         role = c("aut", "cre")
     ))
-Description: TODO
-URL: https://github.com/daattali/lca
-BugReports: https://github.com/daattali/lca/issues
+Description: The Domino Low Code Assistant (LCA) can help generate code for various tasks.
+URL: https://github.com/dominodatalab/low-code-assistant-rstudio
+BugReports: https://github.com/dominodatalab/low-code-assistant-rstudio/issues
 Depends:
     R (>= 3.1.0)
 Imports:
