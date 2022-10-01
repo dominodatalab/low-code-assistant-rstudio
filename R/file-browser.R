@@ -5,7 +5,8 @@ file_browser_ui <- function(id, height = NULL) {
 
   div(
     singleton(tags$head(tags$style(
-      ".shiny-file-browser { overflow: auto; }
+      ".shiny-file-browser { overflow: auto; border: 1px solid #ddd; padding: 0.5rem; }
+      .shiny-file-browser .current-wd { font-family: monospace; }
       .shiny-file-browser .file-list { user-select: none; font-size: 1.1em; padding: 0 0.1rem; margin-top: 0.5rem; }
       .shiny-file-browser .file-row { display: flex; cursor: pointer; transition: background 0.3s; }
       .shiny-file-browser .file-row:hover { background: #f6f6f6; }
