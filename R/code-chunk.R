@@ -1,3 +1,7 @@
+#' Code chunk module
+#'
+#' Display a series of code chunks with syntax highlighting. Each chunk can optionally
+#' have Insert/Modify/Delete buttons. One chunk can be shown as an error/bug.
 #' @import shiny
 code_chunk_ui <- function(id) {
   ns <- NS(id)
@@ -32,7 +36,14 @@ code_chunk_ui <- function(id) {
   )
 }
 
-#' @param editable - Vector of chunk numbers that are editable, or TRUE to make everything editable
+#' @param chunks (reactive or static) List of code chunks, where each code chunk is a string.
+#' A single chunk is also acceptable. A code chunk can consist of multiple lines.
+#' @param editable (reactive or static) Vector of chunk numbers that are editable, or TRUE to make everything editable
+#' @param error_line (reactive or static) Chunk number that should be shown as the error.
+#' @return List with reactive elements corresponding to user interactions:
+#'   - insert: The chunk number the user wants to insert before
+#'   - modify: The chunk number the user wants to modify
+#'   - delete: The chunk number the user wants to delete
 #' @import shiny
 code_chunk_server <- function(id, chunks = NULL, editable = NULL, error_line = NULL) {
   moduleServer(
