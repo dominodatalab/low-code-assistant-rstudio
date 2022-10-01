@@ -1,3 +1,4 @@
+#' @import shiny
 code_chunk_ui <- function(id) {
   ns <- NS(id)
 
@@ -21,10 +22,10 @@ code_chunk_ui <- function(id) {
     htmltools::htmlDependency(
       "highlight.js",
       "6.2",
-      src = "www/shared/highlight",
-      package = "shiny",
+      src = "assets/highlight",
+      package = "dominolca",
       script = "highlight.pack.js",
-      stylesheet = "rstudio.css"
+      stylesheet = "highlight.css"
     ),
 
     uiOutput(ns("code_section"))
@@ -32,6 +33,7 @@ code_chunk_ui <- function(id) {
 }
 
 #' @param editable - Vector of chunk numbers that are editable, or TRUE to make everything editable
+#' @import shiny
 code_chunk_server <- function(id, chunks = NULL, editable = NULL, error_line = NULL) {
   moduleServer(
     id,
