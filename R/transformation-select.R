@@ -69,7 +69,7 @@ SelectTransformation$shiny <- list(
         })
 
         validate <- reactive({
-          length(input$select_cols) > 0 && isValidName(input$select_name)
+          length(input$select_cols) > 0 && is_valid_name(input$select_name)
         })
 
         xform <- reactive({

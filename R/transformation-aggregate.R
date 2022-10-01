@@ -152,7 +152,7 @@ AggregateTransformation$shiny <- list(
         })
 
         validate <- reactive({
-          length(input$aggregate_cols) > 0 && isValidName(input$aggregate_name) &&
+          length(input$aggregate_cols) > 0 && is_valid_name(input$aggregate_name) &&
             length(existing_aggregations() > 0)
         })
 

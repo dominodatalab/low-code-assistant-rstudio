@@ -103,7 +103,7 @@ FilterTransformation$shiny <- list(
         })
 
         validate <- reactive({
-          isValidName(input$filter_name)
+          is_valid_name(input$filter_name)
         })
 
         xform <- reactive({

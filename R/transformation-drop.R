@@ -69,7 +69,7 @@ DropTransformation$shiny <- list(
         })
 
         validate <- reactive({
-          length(input$drop_cols) > 0 && isValidName(input$drop_name)
+          length(input$drop_cols) > 0 && is_valid_name(input$drop_name)
         })
 
         xform <- reactive({

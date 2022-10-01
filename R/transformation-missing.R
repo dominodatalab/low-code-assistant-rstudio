@@ -99,7 +99,7 @@ MissingValuesTransformation$shiny <- list(
         })
 
         validate <- reactive({
-          isValidName(input$missing_name)
+          is_valid_name(input$missing_name)
         })
 
         xform <- reactive({

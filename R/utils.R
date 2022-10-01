@@ -17,7 +17,7 @@ firstup <- function(s) {
   s
 }
 
-isValidName <- function(s) {
+is_valid_name <- function(s) {
   make.names(s) == s
 }
 
