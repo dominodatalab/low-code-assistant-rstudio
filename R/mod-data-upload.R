@@ -3,7 +3,7 @@ data_upload_ui <- function(id) {
 
   tagList(
     shinyWidgets::alert("Choose a file", status = "info"),
-    fileInput(ns("file"), NULL, multiple = FALSE, accept = FILE_READ_EXTENSIONS, width = 500)
+    fileInput(ns("file"), NULL, multiple = FALSE, accept = FILE_READ_EXTENSIONS, width = "100%")
   )
 }
 

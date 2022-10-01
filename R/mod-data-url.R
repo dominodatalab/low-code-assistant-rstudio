@@ -3,7 +3,7 @@ data_url_ui <- function(id) {
 
   tagList(
     shinyWidgets::alert("Enter a URL of a file", status = "info"),
-    textInput(ns("url"), NULL, "", placeholder = "https://path/to/data.csv", width = "500")
+    textInput(ns("url"), NULL, "", placeholder = "https://path/to/data.csv", width = "100%")
   )
 }
 

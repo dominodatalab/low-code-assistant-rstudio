@@ -2,8 +2,8 @@ data_environment_ui <- function(id) {
   ns <- NS(id)
 
   tagList(
-    shinyWidgets::alert("Select a data.frame from your R workspace", status = "info", style = "width: 500px"),
-    selectInput(ns("dataframes"), NULL, "", width = "500px")
+    shinyWidgets::alert("Select a data.frame from your R workspace", status = "info"),
+    selectInput(ns("dataframes"), NULL, "", width = "100%")
   )
 }
 
@@ -67,6 +67,6 @@ get_dataframes <- function() {
 get_df_dimensions <- function(dfs) {
   lapply(dfs, function(df) {
     obj <- get(df, envir = .GlobalEnv)
-    glue::glue("({nrow(obj)} rows x {ncol(obj)} cols)")
+    glue::glue("({ natural_num(nrow(obj)) } rows x { natural_num(ncol(obj)) } cols)")
   })
 }
