@@ -20,6 +20,7 @@ Imports:
     rstudioapi,
     shiny (>= 1.0.0),
     shinyjs,
+    tools,
     utils
 License: MIT + file LICENSE
 Encoding: UTF-8
