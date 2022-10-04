@@ -1,3 +1,9 @@
+FILEBROWSER_TYPE_PARENT <- "parent"
+FILEBROWSER_TYPE_DIR <- "dir"
+FILEBROWSER_TYPE_FILE <- "file"
+FILEBROWSER_TYPES <- c(FILEBROWSER_TYPE_PARENT, FILEBROWSER_TYPE_DIR, FILEBROWSER_TYPE_FILE)
+FILEBROWSER_PARENT_PATH <- ".."
+
 #' File browser
 #'
 #' Display a simple file browser of the server-side file system.
@@ -54,7 +60,7 @@ file_browser_server <- function(
     include_empty = TRUE,
     show_extension = TRUE,
     show_size = TRUE,
-    parent_text = ".."
+    parent_text = FILEBROWSER_PARENT_PATH
 ) {
   moduleServer(
     id,
@@ -69,7 +75,7 @@ file_browser_server <- function(
       selected <- reactiveVal(NULL)
 
       observeEvent(path_r(), {
-        wd(normalizePath(path_r(), winslash = "/"))
+        wd(make_path(path_r()))
         selected(NULL)
       })
 
@@ -77,73 +83,19 @@ file_browser_server <- function(
         wd()
       })
 
-      create_onclick <- function(new_path) {
-        glue::glue(
-          "Shiny.setInputValue('{{ ns('file_clicked') }}', '{{ new_path }}', {priority: 'event'})",
-          .open = "{{", .close = "}}"
-        )
-      }
-
-      create_file_row <- function(type = c("parent", "file", "dir"), name, size = NULL) {
-        type <- match.arg(type)
-
-        if (type == "parent") {
-          name_text <- parent_text
-          name_value <- ".."
-          icon_type <- "arrow-left"
-        } else if (type == "dir") {
-          name_text <- name
-          name_value <- name
-          icon_type <- "folder"
-        } else if (type == "file") {
-          if (show_extension) {
-            name_text <- name
-          } else {
-            name_text <- tools::file_path_sans_ext(name)
-          }
-          name_value <- name
-          icon_type <- "file-alt"
-        }
-
-        if (!is.null(size)) {
-          size <- tagList(
-            "-",
-            span(size, class = "file-meta")
-          )
-        }
-
-        div(
-          class = paste0("file-row file-type-", type),
-          onclick = create_onclick(name_value),
-          div(icon(icon_type, class = "fa-fw"), class = "file-icon"),
-          div(
-            class = "file-contents",
-            span(name_text, class = "file-name"),
-            size
-          )
-        )
-      }
+      at_root <- reactive({
+        req(wd())
+        path_as_root && (wd() == make_path(path_r()))
+      })
 
       output$file_list <- renderUI({
-        wd()
-        extensions_r()
+        files_dirs <- get_files_dirs(path = wd(), extensions = extensions_r(), hidden = include_hidden)
 
-        all_files <- list.files(path = wd(), all.files = include_hidden, full.names = TRUE, recursive = FALSE, no.. = TRUE)
-        dirs <- Filter(function(f) file.info(f)$isdir, all_files)
-        files <- Filter(function(f) !file.info(f)$isdir, all_files)
-        if (!is.null(extensions_r())) {
-          regex <- gsub("\\.", "\\\\.", paste0(extensions_r(), "$", collapse = "|"))
-          files <- files[grepl(regex, files)]
-        }
-
-        dirs <- sort(basename(dirs))
-        files <- sort(basename(files))
-
-        dirs_rows <- lapply(dirs, function(dir) {
-          create_file_row("dir", dir)
+        dirs_rows <- lapply(files_dirs$dirs, function(dir) {
+          create_file_row(FILEBROWSER_TYPE_DIR, dir, ns = ns)
         })
-        files_rows <- lapply(files, function(file) {
-          size <- file.info(file.path(wd(), file))$size
+        files_rows <- lapply(files_dirs$files, function(file) {
+          size <- suppressWarnings(file.info(file.path(wd(), file)))$size
           if (size == 0 && !include_empty) {
             return(NULL)
           }
@@ -153,16 +105,23 @@ file_browser_server <- function(
           } else {
             size <- NULL
           }
-          create_file_row("file", file, size)
+
+          if (show_extension) {
+            file_text <- file
+          } else {
+            file_text <- tools::file_path_sans_ext(file)
+          }
+
+          create_file_row(FILEBROWSER_TYPE_FILE, file, file_text, size, ns = ns)
         })
 
         dirs_rows <- drop_null(dirs_rows)
         files_rows <- drop_null(files_rows)
 
-        if (wd() == normalizePath(path_r(), winslash = "/") && path_as_root) {
+        if (at_root()) {
           parent_row <- NULL
         } else {
-          parent_row <- create_file_row("parent")
+          parent_row <- create_file_row(FILEBROWSER_TYPE_PARENT, FILEBROWSER_PARENT_PATH, parent_text, ns = ns)
         }
 
         tagList(
@@ -174,9 +133,9 @@ file_browser_server <- function(
       })
 
       observeEvent(input$file_clicked, {
-        if (input$file_clicked == "..") {
-          if (wd() != normalizePath(path_r(), winslash = "/") || !path_as_root) {
-            wd( normalizePath(dirname(wd()), winslash = "/") )
+        if (input$file_clicked == FILEBROWSER_PARENT_PATH) {
+          if (!at_root()) {
+            wd( make_path(dirname(wd())) )
           }
           return()
         }
@@ -187,9 +146,9 @@ file_browser_server <- function(
           return()
         }
         if (info$isdir) {
-          wd( normalizePath(file.path(wd(), input$file_clicked), winslash = "/") )
+          wd( make_path(file.path(wd(), input$file_clicked)) )
         } else {
-          selected( normalizePath(file.path(wd(), input$file_clicked), winslash = "/") )
+          selected( make_path(file.path(wd(), input$file_clicked)) )
         }
       })
 
@@ -198,5 +157,60 @@ file_browser_server <- function(
         selected = selected
       ))
     }
+  )
+}
+
+make_path <- function(path) {
+  normalizePath(path, winslash = "/")
+}
+
+get_files_dirs <- function(path, extensions = NULL, hidden = FALSE) {
+  all_files <- list.files(path = path, all.files = hidden, full.names = FALSE, recursive = FALSE, no.. = TRUE)
+  all_dirs <- list.dirs(path = path, full.names = FALSE, recursive = FALSE)
+  files <- sort(setdiff(all_files, all_dirs))
+  dirs <- sort(intersect(all_files, all_dirs))
+
+  if (length(extensions) > 0) {
+    regex <- gsub("\\.", "\\\\.", paste0(extensions, "$", collapse = "|"))
+    files <- files[grepl(regex, files)]
+  }
+
+  list(files = files, dirs = dirs)
+}
+
+create_file_row <- function(type = FILEBROWSER_TYPES, path, text = path, meta = NULL, ns = shiny::NS(NULL)) {
+  type <- match.arg(type)
+
+  if (type == FILEBROWSER_TYPE_PARENT) {
+    icon_type <- "arrow-left"
+  } else if (type == FILEBROWSER_TYPE_DIR) {
+    icon_type <- "folder"
+  } else if (type == FILEBROWSER_TYPE_FILE) {
+    icon_type <- "file-alt"
+  }
+
+  if (!is.null(meta)) {
+    meta <- tagList(
+      "-",
+      span(meta, class = "file-meta")
+    )
+  }
+
+  div(
+    class = paste0("file-row file-type-", type),
+    onclick = create_file_onclick(path, ns = ns),
+    div(icon(icon_type, class = "fa-fw"), class = "file-icon"),
+    div(
+      class = "file-contents",
+      span(text, class = "file-name"),
+      meta
+    )
+  )
+}
+
+create_file_onclick <- function(new_path, ns = shiny::NS(NULL)) {
+  glue::glue(
+    "Shiny.setInputValue('{{ ns('file_clicked') }}', '{{ new_path }}', {priority: 'event'})",
+    .open = "{{", .close = "}}"
   )
 }
