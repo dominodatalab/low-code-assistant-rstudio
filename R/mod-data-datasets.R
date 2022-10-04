@@ -17,7 +17,7 @@ data_datasets_server <- function(id) {
         "filebrowser",
         path = get_user_datasets_dir(),
         extensions = FILE_READ_EXTENSIONS,
-        allow_back = FALSE,
+        path_as_root = TRUE,
         include_empty = FALSE
       )
 
