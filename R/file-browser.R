@@ -38,8 +38,8 @@ file_browser_ui <- function(id, height = NULL) {
 #' @param extensions (reactive or static) List of file extensions that should be shown.
 #' If `NULL`, all file types are shown.
 #' @param root The path that should be considered root, which means that the user cannot
-#' navigate to any parent of this root. Use `NULL` to allow the user to navigate the
-#' entire filesystem.
+#' navigate to any parent of this root. By default, the `path` parameter acts as the root.
+#' Use `NULL` to allow the user to navigate the entire filesystem.
 #' @param include_hidden (boolean) If `TRUE`, show hidden files and folders.
 #' @param include_empty (boolean) If `TRUE`, show empty files (files with size 0 bytes).
 #' @param show_extension (boolean) If `TRUE`, show file extensions in the file names.
@@ -88,7 +88,7 @@ file_browser_server <- function(
       })
 
       output$file_list <- renderUI({
-        files_dirs <- get_files_dirs(path = wd(), extensions = extensions_r(), hidden = include_hidden)
+        files_dirs <- get_files_dirs(path = wd(), extensions = extensions_r(), hidden = include_hidden, root = root_r())
 
         dirs_rows <- lapply(files_dirs$dirs, function(dir) {
           create_file_row(FILEBROWSER_TYPE_DIR, dir, ns = ns)
@@ -166,8 +166,12 @@ is_subdir <- function(parent, child) {
   substr(child, 1, nchar(parent)) == parent
 }
 
-get_files_dirs <- function(path, extensions = NULL, hidden = FALSE) {
+get_files_dirs <- function(path, extensions = NULL, hidden = FALSE, root = NULL) {
   all_files <- list.files(path = path, all.files = hidden, full.names = TRUE, recursive = FALSE, no.. = TRUE)
+
+  if (!is.null(root)) {
+    all_files <- Filter(function(f) is_subdir(root, f), all_files)
+  }
 
   files <- Filter(function(f) suppressWarnings(!file.info(f)$isdir), all_files)
   dirs <- Filter(function(f) suppressWarnings(file.info(f)$isdir), all_files)
