@@ -2,7 +2,6 @@ FILEBROWSER_TYPE_PARENT <- "parent"
 FILEBROWSER_TYPE_DIR <- "dir"
 FILEBROWSER_TYPE_FILE <- "file"
 FILEBROWSER_TYPES <- c(FILEBROWSER_TYPE_PARENT, FILEBROWSER_TYPE_DIR, FILEBROWSER_TYPE_FILE)
-FILEBROWSER_PARENT_PATH <- ".."
 
 #' File browser
 #'
@@ -38,10 +37,9 @@ file_browser_ui <- function(id, height = NULL) {
 #' @param path (reactive or static) The initial path the file browser should show.
 #' @param extensions (reactive or static) List of file extensions that should be shown.
 #' If `NULL`, all file types are shown.
-#' @param path_as_root (boolean) If `TRUE`, the default `path` will act as the filesystem root,
-#' which means the user won't be able to navigate to its parent directory. Note that symbolic
-#' links can get around this parameter, for example if there is a symbolic link that points to
-#' the parent of `path`.
+#' @param root The path that should be considered root, which means that the user cannot
+#' navigate to any parent of this root. Use `NULL` to allow the user to navigate the
+#' entire filesystem.
 #' @param include_hidden (boolean) If `TRUE`, show hidden files and folders.
 #' @param include_empty (boolean) If `TRUE`, show empty files (files with size 0 bytes).
 #' @param show_extension (boolean) If `TRUE`, show file extensions in the file names.
@@ -55,12 +53,12 @@ file_browser_server <- function(
     id,
     path = getwd(),
     extensions = NULL,
-    path_as_root = FALSE,
+    root = path,
     include_hidden = FALSE,
     include_empty = TRUE,
     show_extension = TRUE,
     show_size = TRUE,
-    parent_text = FILEBROWSER_PARENT_PATH
+    parent_text = ".."
 ) {
   moduleServer(
     id,
@@ -70,6 +68,7 @@ file_browser_server <- function(
 
       path_r <- make_reactive(path)
       extensions_r <- make_reactive(extensions)
+      root_r <- make_reactive(root)
 
       wd <- reactiveVal(NULL)
       selected <- reactiveVal(NULL)
@@ -85,7 +84,7 @@ file_browser_server <- function(
 
       at_root <- reactive({
         req(wd())
-        path_as_root && (wd() == make_path(path_r()))
+        !is.null(root_r()) && make_path(wd()) == make_path(root_r())
       })
 
       output$file_list <- renderUI({
@@ -95,7 +94,7 @@ file_browser_server <- function(
           create_file_row(FILEBROWSER_TYPE_DIR, dir, ns = ns)
         })
         files_rows <- lapply(files_dirs$files, function(file) {
-          size <- suppressWarnings(file.info(file.path(wd(), file)))$size
+          size <- suppressWarnings(file.info(file)$size)
           if (size == 0 && !include_empty) {
             return(NULL)
           }
@@ -107,9 +106,9 @@ file_browser_server <- function(
           }
 
           if (show_extension) {
-            file_text <- file
+            file_text <- basename(file)
           } else {
-            file_text <- tools::file_path_sans_ext(file)
+            file_text <- tools::file_path_sans_ext(basename(file))
           }
 
           create_file_row(FILEBROWSER_TYPE_FILE, file, file_text, size, ns = ns)
@@ -121,7 +120,7 @@ file_browser_server <- function(
         if (at_root()) {
           parent_row <- NULL
         } else {
-          parent_row <- create_file_row(FILEBROWSER_TYPE_PARENT, FILEBROWSER_PARENT_PATH, parent_text, ns = ns)
+          parent_row <- create_file_row(FILEBROWSER_TYPE_PARENT, dirname(wd()), parent_text, ns = ns)
         }
 
         tagList(
@@ -133,22 +132,19 @@ file_browser_server <- function(
       })
 
       observeEvent(input$file_clicked, {
-        if (input$file_clicked == FILEBROWSER_PARENT_PATH) {
-          if (!at_root()) {
-            wd( make_path(dirname(wd())) )
-          }
+        if (!is.null(root_r()) && !is_subdir(root_r(), input$file_clicked)) {
           return()
         }
 
-        fullpath <- file.path(wd(), input$file_clicked)
-        info <- file.info(fullpath)
-        if (is.na(info$isdir)) {
+        isdir <- suppressWarnings(file.info(input$file_clicked)$isdir)
+        if (is.na(isdir)) {
           return()
         }
-        if (info$isdir) {
-          wd( make_path(file.path(wd(), input$file_clicked)) )
+
+        if (isdir) {
+          wd( input$file_clicked )
         } else {
-          selected( make_path(file.path(wd(), input$file_clicked)) )
+          selected( input$file_clicked )
         }
       })
 
@@ -161,14 +157,22 @@ file_browser_server <- function(
 }
 
 make_path <- function(path) {
-  normalizePath(path, winslash = "/")
+  suppressWarnings(normalizePath(path, winslash = "/"))
+}
+
+is_subdir <- function(parent, child) {
+  parent <- make_path(parent)
+  child <- make_path(child)
+  substr(child, 1, nchar(parent)) == parent
 }
 
 get_files_dirs <- function(path, extensions = NULL, hidden = FALSE) {
-  all_files <- list.files(path = path, all.files = hidden, full.names = FALSE, recursive = FALSE, no.. = TRUE)
-  all_dirs <- list.dirs(path = path, full.names = FALSE, recursive = FALSE)
-  files <- sort(setdiff(all_files, all_dirs))
-  dirs <- sort(intersect(all_files, all_dirs))
+  all_files <- list.files(path = path, all.files = hidden, full.names = TRUE, recursive = FALSE, no.. = TRUE)
+
+  files <- Filter(function(f) suppressWarnings(!file.info(f)$isdir), all_files)
+  dirs <- Filter(function(f) suppressWarnings(file.info(f)$isdir), all_files)
+  files <- make_path(sort(files))
+  dirs <- make_path(sort(dirs))
 
   if (length(extensions) > 0) {
     regex <- gsub("\\.", "\\\\.", paste0(extensions, "$", collapse = "|"))
@@ -178,7 +182,7 @@ get_files_dirs <- function(path, extensions = NULL, hidden = FALSE) {
   list(files = files, dirs = dirs)
 }
 
-create_file_row <- function(type = FILEBROWSER_TYPES, path, text = path, meta = NULL, ns = shiny::NS(NULL)) {
+create_file_row <- function(type = FILEBROWSER_TYPES, path, text = basename(path), meta = NULL, ns = shiny::NS(NULL)) {
   type <- match.arg(type)
 
   if (type == FILEBROWSER_TYPE_PARENT) {

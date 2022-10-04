@@ -17,7 +17,7 @@ data_project_files_server <- function(id) {
         "filebrowser",
         path = get_user_project_dir(),
         extensions = FILE_READ_EXTENSIONS,
-        path_as_root = TRUE,
+        root = get_user_project_dir(),
         include_empty = FALSE
       )
 
