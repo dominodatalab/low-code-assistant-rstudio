@@ -18,7 +18,7 @@ data_project_files_server <- function(id) {
         path = get_user_project_dir(),
         extensions = FILE_READ_EXTENSIONS,
         allow_back = FALSE,
-        show_empty = FALSE
+        include_empty = FALSE
       )
 
       name <- reactive({
@@ -28,8 +28,7 @@ data_project_files_server <- function(id) {
 
       code <- reactive({
         req(browser$selected())
-        url <- gsub('\\\\', '/', browser$selected())
-        glue::glue("read.csv({shQuote(url, type = 'cmd')})")
+        glue::glue("read.csv({shQuote(browser$selected(), type = 'cmd')})")
       })
 
       observeEvent(code(), {
