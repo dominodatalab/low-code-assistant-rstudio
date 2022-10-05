@@ -15,6 +15,7 @@ Imports:
     DT,
     glue,
     jsonlite,
+    miniUI,
     R6,
     reactable,
     rstudioapi,
