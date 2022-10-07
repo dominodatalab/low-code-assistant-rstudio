@@ -9,32 +9,30 @@ page_data_select_ui <- function(id, standalone = TRUE) {
 
     tabsetPanel(
       id = ns("import_modules"),
+      header = tagList(br(), textInput(ns("varname"), "Variable Name", "df", placeholder = "Variable name")),
+
       tabPanel(
         "Upload",
         value = "upload",
         icon = icon("upload"),
-        br(),
         data_upload_ui(ns("upload"))
       ),
       tabPanel(
         "URL",
         value = "url",
         icon = icon("link"),
-        br(),
         data_url_ui(ns("url"))
       ),
       tabPanel(
         "Datasets",
         value = "datasets",
         icon = icon("table"),
-        br(),
         data_datasets_ui(ns("datasets"))
       ),
       tabPanel(
         "Project Files",
         value = "project",
         icon = icon("folder-open"),
-        br(),
         data_project_files_ui(ns("project_files"))
       ),
     ),
@@ -48,24 +46,28 @@ page_data_select_ui <- function(id, standalone = TRUE) {
     # ),
     #conditionalPanel(
     #  "input.custom_name", ns = ns,
-      textInput(ns("varname"), "Variable Name", "df", placeholder = "Variable name"),
     #),
-    # shinyWidgets::prettyCheckbox(
-    #   ns("show_preview"),
-    #   "Show Preview",
-    #   value = TRUE,
-    #   width = "auto",
-    #   shape = "curve",
-    #   status = "info"
-    # ),
-    # conditionalPanel(
-    #   "input.show_preview", ns = ns,
-    #   htmltools::tagAppendAttributes(
-    #     tableOutput(ns("preview_data")),
-    #     class = "no-margin small-table"
-    #   ),
-    #   br()
-    # ),
+    div(
+      shinyWidgets::prettyCheckbox(
+        ns("show_code"), "Show Code", value = TRUE, width = "auto", shape = "curve", status = "info", inline = TRUE
+      ),
+      shinyWidgets::prettyCheckbox(
+        ns("show_preview"), "Show Preview", value = TRUE, width = "auto", shape = "curve", status = "info", inline = TRUE
+      )
+    ),
+    conditionalPanel(
+      "input.show_preview", ns = ns,
+      htmltools::tagAppendAttributes(
+        tableOutput(ns("preview_data")),
+        class = "no-margin small-table"
+      ),
+      br()
+    ),
+    conditionalPanel(
+      "input.show_code", ns = ns,
+      code_chunk_ui(ns("code")),
+      br()
+    ),
     div(
       class = "no-margin flex flex-gap2",
       actionButton(ns("close"), "Close"),
@@ -136,7 +138,7 @@ page_data_select_server <- function(id) {
       name_out <- reactive({
         # req(result$name_in)
         # if (input$custom_name) {
-            make.names(input$varname)
+        make.names(input$varname)
         # } else {
         #  result$name_in
         # }
@@ -146,6 +148,8 @@ page_data_select_server <- function(id) {
         req(result$code_in, name_out())
         paste0(name_out(), " <- ", result$code_in)
       })
+
+      code_chunk_server("code", code_out)
 
       output$preview_data <- renderTable({
         req(result$data)
