@@ -1,14 +1,14 @@
 Name: LCA Data Selector
 Description: Run the Data Selector wizard of LCA.
-Binding: assist_data
+Binding: assist_data_addin
 Interactive: true
 
 Name: LCA Data Transformation
 Description: Run the Data Transformation wizard of LCA.
-Binding: assist_transform
+Binding: assist_transform_addin
 Interactive: true
 
 Name: LCA Data Visualization
 Description: Run the Data Visualization wizard of LCA.
-Binding: assist_viz
+Binding: assist_viz_addin
 Interactive: true
