@@ -1,3 +1,10 @@
+#' Transformations table
+#'
+#' @param id Unique ID for the module
+#' @name xforms_table
+NULL
+
+#' @rdname xforms_table
 xforms_table_ui <- function(id) {
   ns <- NS(id)
 
@@ -12,6 +19,7 @@ xforms_table_ui <- function(id) {
   )
 }
 
+#' @rdname xforms_table
 #' @param data (reactive) Data to show in the table
 #' @return List:
 #'   - drop: (reactive) A drop transformation that the user selected

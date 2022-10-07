@@ -6,7 +6,14 @@ FILEBROWSER_TYPES <- c(FILEBROWSER_TYPE_PARENT, FILEBROWSER_TYPE_DIR, FILEBROWSE
 #' File browser
 #'
 #' Display a simple file browser of the server-side file system.
+#' @param id Unique ID for the module
 #' @import shiny
+#' @name file_browser
+NULL
+
+#' @rdname file_browser
+#' @param height The height of the file browser. Must be a valid CSS unit (like `"100%"`,
+#' `"400px"`, `"auto"`) or a number which will be the number of pixels.
 file_browser_ui <- function(id, height = NULL) {
   ns <- NS(id)
 
@@ -33,7 +40,7 @@ file_browser_ui <- function(id, height = NULL) {
   )
 }
 
-#' @param id Unique ID for the module
+#' @rdname file_browser
 #' @param path (reactive or static) The initial path the file browser should show.
 #' @param extensions (reactive or static) List of file extensions that should be shown.
 #' If `NULL`, all file types are shown.
@@ -48,7 +55,6 @@ file_browser_ui <- function(id, height = NULL) {
 #' @return List with reactive elements:
 #'   - selected: The full normalized path of the selected file (`NULL` before a file is selected)
 #'   - path: The full normalized path that is currently displayed in the file browser
-#' @import shiny
 file_browser_server <- function(
     id,
     path = getwd(),

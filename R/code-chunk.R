@@ -4,6 +4,10 @@
 #' have Insert/Modify/Delete buttons. One chunk can be shown as an error/bug.
 #' @param id Unique ID for the module
 #' @import shiny
+#' @name code_chunk
+NULL
+
+#' @rdname code_chunk
 code_chunk_ui <- function(id) {
   ns <- NS(id)
 
@@ -37,7 +41,7 @@ code_chunk_ui <- function(id) {
   )
 }
 
-#' @param id Unique ID for the module
+#' @rdname code_chunk
 #' @param chunks (reactive or static) List of code chunks, where each code chunk is a string.
 #' A single chunk is also acceptable. A code chunk can consist of multiple lines.
 #' @param editable (reactive or static) Vector of chunk numbers that are editable, or TRUE to make everything editable
@@ -46,7 +50,6 @@ code_chunk_ui <- function(id) {
 #'   - insert: The chunk number the user wants to insert before
 #'   - modify: The chunk number the user wants to modify
 #'   - delete: The chunk number the user wants to delete
-#' @import shiny
 code_chunk_server <- function(id, chunks = NULL, editable = NULL, error_line = NULL) {
   moduleServer(
     id,
