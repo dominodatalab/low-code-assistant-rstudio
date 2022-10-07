@@ -32,7 +32,7 @@ code_chunk_ui <- function(id) {
       "highlight.js",
       "6.2",
       src = "assets/highlight",
-      package = "assistDomino",
+      package = PACKAGE_NAME,
       script = "highlight.pack.js",
       stylesheet = "highlight.css"
     ),
