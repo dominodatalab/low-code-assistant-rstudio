@@ -14,6 +14,7 @@ Depends:
 Imports:
     DT,
     glue,
+    httr,
     jsonlite,
     miniUI,
     R6,

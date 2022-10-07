@@ -30,3 +30,6 @@ library(assistDomino)
 
 The LCA consists of three modules: a data selection module, a data transformation module, and a visualization module. To invoke any of the modules, run the corresponding function in RStudio: `assist_data()`, `assist_transform()`, or `assist_viz()`.
 
+### Development
+
+When developing/testing, it's useful to add `DOMINO_USER_API_KEY` and `DOMINO_API_HOST` environment variables (eg. using `.Renviron` file).

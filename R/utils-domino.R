@@ -21,3 +21,29 @@ get_user_upload_dir <- function() {
     )
   }
 }
+
+get_api_key <- function() {
+  key <- Sys.getenv("DOMINO_USER_API_KEY", "")
+  if (key == "") {
+    stop("Could not find envvar 'DOMINO_USER_API_KEY'", call. = FALSE)
+  }
+  key
+}
+
+get_api_base <- function() {
+  url <- Sys.getenv("DOMINO_API_HOST", "")
+  if (url == "") {
+    stop("Could not find envvar 'DOMINO_API_HOST'", call. = FALSE)
+  }
+  url
+}
+
+get_domino_version <- function() {
+  resp <- call_api("/version")
+  resp$version %||% ""
+}
+
+get_user_id <- function() {
+  resp <- call_api("/v4/users/self")
+  resp$id %||% ""
+}
