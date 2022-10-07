@@ -25,7 +25,7 @@ Note that
 First, load the LCA package:
 
 ```r
-library(dominolca)
+library(assistDomino)
 ```
 
 The LCA consists of three modules: a data selection module, a data transformation module, and a visualization module. To invoke any of the modules, run the corresponding function in RStudio: `assist_data()`, `assist_transform()`, or `assist_viz()`.

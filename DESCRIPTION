@@ -1,4 +1,4 @@
-Package: dominolca
+Package: assistDomino
 Title: Low Code Assistant for RStudio
 Version: 0.0.0.9000
 Authors@R: c(

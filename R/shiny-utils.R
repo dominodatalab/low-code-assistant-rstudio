@@ -1,9 +1,9 @@
 html_dependency_lca <- function() {
   htmltools::htmlDependency(
     name = "lca",
-    version = packageVersion("dominolca"),
+    version = packageVersion("assistDomino"),
     src = c(href = "lca-assets/lca"),
-    package = "dominolca",
+    package = "assistDomino",
     script = c("js/shiny-utils.js"),
     stylesheet = c("css/lca.css")
   )

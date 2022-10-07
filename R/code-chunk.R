@@ -28,7 +28,7 @@ code_chunk_ui <- function(id) {
       "highlight.js",
       "6.2",
       src = "assets/highlight",
-      package = "dominolca",
+      package = "assistDomino",
       script = "highlight.pack.js",
       stylesheet = "highlight.css"
     ),

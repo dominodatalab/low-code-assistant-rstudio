@@ -1,4 +1,4 @@
 library(testthat)
-library(dominolca)
+library(assistDomino)
 
-test_check("dominolca")
+test_check("assistDomino")

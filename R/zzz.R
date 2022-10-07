@@ -1,5 +1,5 @@
 .onLoad <- function(libname, pkgname) {
-  shiny::addResourcePath(prefix = "lca-assets", directoryPath = system.file("assets", package = "dominolca"))
+  shiny::addResourcePath(prefix = "lca-assets", directoryPath = system.file("assets", package = "assistDomino"))
 }
 
 .onUnload <- function(libname, pkgname) {
