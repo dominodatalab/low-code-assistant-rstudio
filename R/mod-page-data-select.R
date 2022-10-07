@@ -17,25 +17,11 @@ page_data_select_ui <- function(id, standalone = TRUE) {
         data_upload_ui(ns("upload"))
       ),
       tabPanel(
-        "Environment",
-        value = "environment",
-        icon = icon("list"),
-        br(),
-        data_environment_ui(ns("environment"))
-      ),
-      tabPanel(
         "URL",
         value = "url",
         icon = icon("link"),
         br(),
         data_url_ui(ns("url"))
-      ),
-      tabPanel(
-        "Data Sources",
-        value = "database",
-        icon = icon("database"),
-        br(),
-        h1("Not implemented")
       ),
       tabPanel(
         "Datasets",
@@ -119,7 +105,6 @@ page_data_select_server <- function(id) {
       })
 
       data_upload <- data_upload_server("upload", upload_dir = get_user_upload_dir())
-      data_env <- data_environment_server("environment")
       data_url <- data_url_server("url")
       data_project_files <- data_project_files_server("project_files")
       data_datasets <- data_datasets_server("datasets")
@@ -128,12 +113,6 @@ page_data_select_server <- function(id) {
         result$name_in <- data_upload$name()
         result$code_in <- data_upload$code()
         result$data <- data_upload$data()
-      })
-
-      observeEvent(data_env$data(), {
-        result$name_in <- data_env$name()
-        result$code_in <- data_env$code()
-        result$data <- data_env$data()
       })
 
       observeEvent(data_url$data(), {
