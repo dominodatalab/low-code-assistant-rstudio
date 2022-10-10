@@ -2,6 +2,19 @@ page_xforms_ui <- function(id, standalone = TRUE) {
   ns <- NS(id)
 
   tagList(
+    mp_init(
+      token = MIXPANEL_TOKEN,
+      userid = get_user_id(),
+      options = MIXPANEL_CONFIG,
+      default_properties = list(
+        Domino_version = get_domino_version(),
+        LCA_version = as.character(utils::packageVersion(PACKAGE_NAME)),
+        LCA_language = "R"
+      ),
+      default_properties_js = list("domain" = "location.host"),
+      test_token = MIXPANEL_TEST_TOKEN,
+      test_domains = MIXPANEL_TEST_DOMAINS
+    ),
     shinyjs::useShinyjs(),
     html_dependency_lca(),
     if (standalone) title_bar_ui(ns("title"), "Transformations"),
@@ -70,6 +83,13 @@ page_xforms_server <- function(id, data_name_in = NULL) {
   moduleServer(
     id,
     function(input, output, session) {
+
+      mp_track(
+        MIXPANEL_EVENT_INIT,
+        list(
+          section = MIXPANEL_SECTION_XFORM
+        )
+      )
 
       result_rv <- reactiveValues(name = NULL, data = NULL)
 
@@ -239,6 +259,13 @@ page_xforms_server <- function(id, data_name_in = NULL) {
           if (xforms()$size > 0) {
             insert_text(paste0(xforms()$get_code()))
           }
+
+          mp_track(
+            MIXPANEL_EVENT_CODE,
+            list(
+              section = MIXPANEL_SECTION_XFORM
+            )
+          )
         }
 
         result_rv$name <- name_out()
