@@ -24,6 +24,7 @@ Imports:
     shinyjs,
     tools,
     utils
+Remotes: daattali/shinymixpanel
 License: MIT + file LICENSE
 Encoding: UTF-8
 RoxygenNote: 7.1.2
