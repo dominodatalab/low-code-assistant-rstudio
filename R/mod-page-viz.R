@@ -2,7 +2,7 @@ page_viz_ui <- function(id, standalone = TRUE) {
   ns <- NS(id)
 
   tagList(
-    mp_init(
+    shinymixpanel::mp_init(
       token = MIXPANEL_TOKEN,
       userid = get_user_id(),
       options = MIXPANEL_CONFIG,
@@ -93,7 +93,7 @@ page_viz_server <- function(id, data_in = NULL, name_in = NULL) {
     id,
     function(input, output, session) {
 
-      mp_track(
+      shinymixpanel::mp_track(
         MIXPANEL_EVENT_INIT,
         list(
           section = MIXPANEL_SECTION_VIZ
@@ -206,7 +206,7 @@ page_viz_server <- function(id, data_in = NULL, name_in = NULL) {
         if (input$insert_code) {
           insert_text(paste0(code()))
 
-          mp_track(
+          shinymixpanel::mp_track(
             MIXPANEL_EVENT_CODE,
             list(
               section = MIXPANEL_SECTION_VIZ

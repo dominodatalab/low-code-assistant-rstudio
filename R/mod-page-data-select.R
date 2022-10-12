@@ -2,7 +2,7 @@ page_data_select_ui <- function(id, standalone = TRUE) {
   ns <- NS(id)
 
   tagList(
-    mp_init(
+    shinymixpanel::mp_init(
       token = MIXPANEL_TOKEN,
       userid = get_user_id(),
       options = MIXPANEL_CONFIG,
@@ -110,7 +110,7 @@ page_data_select_server <- function(id) {
   moduleServer(
     id,
     function(input, output, session) {
-      mp_track(
+      shinymixpanel::mp_track(
         MIXPANEL_EVENT_INIT,
         list(
           section = MIXPANEL_SECTION_LOAD
@@ -118,7 +118,7 @@ page_data_select_server <- function(id) {
       )
 
       observeEvent(input$import_modules, ignoreInit = TRUE, {
-        mp_track(
+        shinymixpanel::mp_track(
           MIXPANEL_EVENT_INTERACTION,
           list(
             section = MIXPANEL_SECTION_LOAD,
@@ -200,7 +200,7 @@ page_data_select_server <- function(id) {
             insert_text(code_out())
           }
 
-          mp_track(
+          shinymixpanel::mp_track(
             MIXPANEL_EVENT_CODE,
             list(
               section = MIXPANEL_SECTION_LOAD,
