@@ -19,9 +19,9 @@ Imports:
     miniUI,
     R6,
     reactable,
-    remotes,
     rstudioapi,
     shiny (>= 1.0.0),
+    shinymixpanel,
     shinyjs,
     tools,
     utils
