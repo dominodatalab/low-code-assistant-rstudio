@@ -4,31 +4,40 @@ Accelerate routine data science tasks and smoothly interface with the Domino API
 
 ## Installation
 
-The package is currently hosted in a private GitHub repository, so a GitHub PAT must be used for installation.
+### Method 1: Installing in a Domino RStudio workspace
 
-If you have a `GITHUB_PAT` environment variable set, run the following command inside RStudio:
+Run the following command inside RStudio:
 
 ```r
 remotes::install_github("dominodatalab/low-code-assistant-rstudio", upgrade = "never")
 ```
 
-If you don't have the environment variable, then you need to explicitly supply a PAT:
+This will install *LCA for R* in your current workspace, but the tool will not persist once the workspace is stopped. 
 
-```r
-remotes::install_github("dominodatalab/low-code-assistant-rstudio", upgrade = "never", auth_token = "YOUR_GITHUB_PAT")
-```
+### Method 2: Installing in a Domino Compute environment
 
-Note that 
+1. Click on "Environments" on the side navigation bar
+2. Select the environment in which *LCA for R* should be installed
+3. Click the "Edit Definition" button to allow you to make changes
+4. Add the following line to the end of the Dockerfile section (but **before** the last `USER ubuntu` command):
+
+  ```
+  RUN R -e "remotes::install_github('dominodatalab/low-code-assistant-rstudio', upgrade = 'never')"
+  ```
+
+5. Click the "Build" button at the bottom of the page
+
+This will install *LCA for R* in every workspace that uses the given Domino environment.
 
 ## How to run
 
-First, load the LCA package:
+In RStudio, click the "Addins" menu.
 
-```r
-library(assistDomino)
-```
+![addins menu before click](inst/docs/screenshots/rstudio-addins-closed.png)
 
-The LCA consists of three modules: a data selection module, a data transformation module, and a visualization module. To invoke any of the modules, run the corresponding function in RStudio: `assist_data()`, `assist_transform()`, or `assist_viz()`.
+Under the heading of "ASSISTDOMINO" there will be a few buttons, one for each of the LCA modules: "LCA Data Selector", "LCA Data Transformation", "LCA Data Visualization". Click on any of the LCA modules to launch them.
+
+![addins menu after click](inst/docs/screenshots/rstudio-addins-open.png)
 
 ### Development
 
