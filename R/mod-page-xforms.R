@@ -176,10 +176,37 @@ page_xforms_server <- function(id, data_name_in = NULL) {
 
       observeEvent(xform_modal$result(), {
         if (xform_modal$action() == "add") {
+          shinymixpanel::mp_track(
+            MIXPANEL_EVENT_INTERACTION,
+            list(
+              section = MIXPANEL_SECTION_XFORM,
+              type = "add",
+              transformation_type = class(xform_modal$result())[1]
+            )
+          )
+
           new_xforms <- xforms()$add(xform_modal$result())
         } else if (xform_modal$action() == "insert") {
+          shinymixpanel::mp_track(
+            MIXPANEL_EVENT_INTERACTION,
+            list(
+              section = MIXPANEL_SECTION_XFORM,
+              type = "insert",
+              transformation_type = class(xform_modal$result())[1]
+            )
+          )
+
           new_xforms <- xforms()$insert(xform_modal$result(), xform_modal$meta() - 1)
         } else if (xform_modal$action() == "edit") {
+          shinymixpanel::mp_track(
+            MIXPANEL_EVENT_INTERACTION,
+            list(
+              section = MIXPANEL_SECTION_XFORM,
+              type = "edit",
+              transformation_type = class(xform_modal$result())[1]
+            )
+          )
+
           new_xforms <- xforms()$transformations
           new_xforms[[xform_modal$meta()]] <- xform_modal$result()
           new_xforms <- TransformationSequence$new(new_xforms, name_in = xforms()$name_in)
@@ -204,10 +231,26 @@ page_xforms_server <- function(id, data_name_in = NULL) {
       })
 
       observeEvent(input$undo, {
+        shinymixpanel::mp_track(
+          MIXPANEL_EVENT_INTERACTION,
+          list(
+            section = MIXPANEL_SECTION_XFORM,
+            type = "undo"
+          )
+        )
+
         new_xforms <- undo_redo$undo()$value
         xforms(new_xforms)
       })
       observeEvent(input$redo, {
+        shinymixpanel::mp_track(
+          MIXPANEL_EVENT_INTERACTION,
+          list(
+            section = MIXPANEL_SECTION_XFORM,
+            type = "redo"
+          )
+        )
+
         new_xforms <- undo_redo$redo()$value
         xforms(new_xforms)
       })
@@ -230,6 +273,15 @@ page_xforms_server <- function(id, data_name_in = NULL) {
       })
 
       observeEvent(code_section$delete(), {
+        shinymixpanel::mp_track(
+          MIXPANEL_EVENT_INTERACTION,
+          list(
+            section = MIXPANEL_SECTION_XFORM,
+            type = "delete",
+            transformation_type = class(xforms()$transformations[[code_section$delete()]])[1]
+          )
+        )
+
         new_xforms <- xforms()$remove(code_section$delete())
         xforms(new_xforms)
         undo_redo$add(new_xforms)
@@ -237,14 +289,38 @@ page_xforms_server <- function(id, data_name_in = NULL) {
 
       #--- Actions were taken in the table
       observeEvent(table$drop(), {
+        shinymixpanel::mp_track(
+          MIXPANEL_EVENT_INTERACTION,
+          list(
+            section = MIXPANEL_SECTION_XFORM,
+            type = "table_drop"
+          )
+        )
+
         new_xforms <- xforms()$add(table$drop())
         xforms(new_xforms)
         undo_redo$add(new_xforms)
       })
       observeEvent(table$missing(), {
+        shinymixpanel::mp_track(
+          MIXPANEL_EVENT_INTERACTION,
+          list(
+            section = MIXPANEL_SECTION_XFORM,
+            type = "table_missing"
+          )
+        )
+
         xform_modal$show(data = result(), action = "add", xform = table$missing())
       })
       observeEvent(table$filter(), {
+        shinymixpanel::mp_track(
+          MIXPANEL_EVENT_INTERACTION,
+          list(
+            section = MIXPANEL_SECTION_XFORM,
+            type = "table_filter"
+          )
+        )
+
         xform_modal$show(data = result(), action = "add", xform = table$filter())
       })
 
