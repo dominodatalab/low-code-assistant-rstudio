@@ -1,6 +1,6 @@
 Package: assistDomino
 Title: Low Code Assistant for RStudio
-Version: 0.1.0.9000
+Version: 0.1.0
 Authors@R: c(
     person("Dean", "Attali",
         email = "daattali@gmail.com",
@@ -21,9 +21,11 @@ Imports:
     reactable,
     rstudioapi,
     shiny (>= 1.0.0),
+    shinymixpanel,
     shinyjs,
     tools,
     utils
+Remotes: daattali/shinymixpanel
 License: MIT + file LICENSE
 Encoding: UTF-8
 RoxygenNote: 7.1.2

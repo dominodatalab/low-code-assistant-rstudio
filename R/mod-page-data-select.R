@@ -2,6 +2,19 @@ page_data_select_ui <- function(id, standalone = TRUE) {
   ns <- NS(id)
 
   tagList(
+    shinymixpanel::mp_init(
+      token = MIXPANEL_TOKEN,
+      userid = get_user_id(),
+      options = MIXPANEL_CONFIG,
+      default_properties = list(
+        Domino_version = get_domino_version(),
+        LCA_version = as.character(utils::packageVersion(PACKAGE_NAME)),
+        LCA_language = "R"
+      ),
+      default_properties_js = list("domain" = "location.host"),
+      test_token = MIXPANEL_TEST_TOKEN,
+      test_domains = MIXPANEL_TEST_DOMAINS
+    ),
     shinyjs::useShinyjs(),
     html_dependency_lca(),
     if (standalone) title_bar_ui(ns("title"), "Load Data"),
@@ -25,13 +38,13 @@ page_data_select_ui <- function(id, standalone = TRUE) {
       ),
       tabPanel(
         "Datasets",
-        value = "datasets",
+        value = "dataset",
         icon = icon("table"),
         data_datasets_ui(ns("datasets"))
       ),
       tabPanel(
         "Project Files",
-        value = "project",
+        value = "file",
         icon = icon("folder-open"),
         data_project_files_ui(ns("project_files"))
       ),
@@ -97,6 +110,24 @@ page_data_select_server <- function(id) {
   moduleServer(
     id,
     function(input, output, session) {
+      shinymixpanel::mp_track(
+        MIXPANEL_EVENT_INIT,
+        list(
+          section = MIXPANEL_SECTION_LOAD
+        )
+      )
+
+      observeEvent(input$import_modules, ignoreInit = TRUE, {
+        shinymixpanel::mp_track(
+          MIXPANEL_EVENT_INTERACTION,
+          list(
+            section = MIXPANEL_SECTION_LOAD,
+            type = "select tab",
+            tab = input$import_modules
+          )
+        )
+      })
+
       result <- reactiveValues(name_in = NULL,
                                code_in = NULL,
                                data = NULL,
@@ -168,6 +199,14 @@ page_data_select_server <- function(id) {
           if (result$code_in != name_out()) {
             insert_text(code_out())
           }
+
+          shinymixpanel::mp_track(
+            MIXPANEL_EVENT_CODE,
+            list(
+              section = MIXPANEL_SECTION_LOAD,
+              data_type = input$import_modules
+            )
+          )
         }
 
         result$name_out <- name_out()

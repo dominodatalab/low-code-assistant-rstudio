@@ -2,6 +2,19 @@ page_viz_ui <- function(id, standalone = TRUE) {
   ns <- NS(id)
 
   tagList(
+    shinymixpanel::mp_init(
+      token = MIXPANEL_TOKEN,
+      userid = get_user_id(),
+      options = MIXPANEL_CONFIG,
+      default_properties = list(
+        Domino_version = get_domino_version(),
+        LCA_version = as.character(utils::packageVersion(PACKAGE_NAME)),
+        LCA_language = "R"
+      ),
+      default_properties_js = list("domain" = "location.host"),
+      test_token = MIXPANEL_TEST_TOKEN,
+      test_domains = MIXPANEL_TEST_DOMAINS
+    ),
     shinyjs::useShinyjs(),
     html_dependency_lca(),
     if (standalone) title_bar_ui(ns("title"), "Visualizations"),
@@ -79,6 +92,13 @@ page_viz_server <- function(id, data_in = NULL, name_in = NULL) {
   moduleServer(
     id,
     function(input, output, session) {
+
+      shinymixpanel::mp_track(
+        MIXPANEL_EVENT_INIT,
+        list(
+          section = MIXPANEL_SECTION_VIZ
+        )
+      )
 
       observeEvent(input$close, {
         kill_app()
@@ -185,6 +205,13 @@ page_viz_server <- function(id, data_in = NULL, name_in = NULL) {
       observeEvent(input$continue, {
         if (input$insert_code) {
           insert_text(paste0(code()))
+
+          shinymixpanel::mp_track(
+            MIXPANEL_EVENT_CODE,
+            list(
+              section = MIXPANEL_SECTION_VIZ
+            )
+          )
         }
 
         kill_app()
