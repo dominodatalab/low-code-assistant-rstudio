@@ -13,16 +13,21 @@ Depends:
     R (>= 3.1.0)
 Imports:
     DT,
+    fontawesome,
+    ggplot2,
     glue,
+    htmltools,
     httr,
     jsonlite,
     miniUI,
+    plotly,
     R6,
     reactable,
     rstudioapi,
     shiny (>= 1.0.0),
     shinymixpanel,
     shinyjs,
+    shinyWidgets,
     tools,
     utils
 Remotes: daattali/shinymixpanel
