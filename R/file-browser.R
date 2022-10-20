@@ -213,7 +213,7 @@ create_file_row <- function(type = FILEBROWSER_TYPES, path, text = basename(path
   div(
     class = paste0("file-row file-type-", type),
     onclick = create_file_onclick(path, ns = ns),
-    div(icon(icon_type, class = "fa-fw"), class = "file-icon"),
+    div(icon(icon_type, class = "fa-fw", verify_fa = FALSE), class = "file-icon"),
     div(
       class = "file-contents",
       span(text, class = "file-name"),
