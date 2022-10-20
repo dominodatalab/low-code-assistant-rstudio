@@ -22,9 +22,17 @@ is_valid_name <- function(s) {
 }
 
 insert_text <- function(text, newline = TRUE) {
-  id <- rstudioapi::getSourceEditorContext()$id
-  if (is.null(id)) {
+  doc <- rstudioapi::getSourceEditorContext()
+  if (is.null(doc)) {
     id <- rstudioapi::documentNew("")
+    codechunk <- FALSE
+  } else {
+    id <- doc$id
+    codechunk <- grepl("\\.(rmd|qmd|md)$", doc$path, ignore.case = TRUE)
+  }
+
+  if (codechunk) {
+    text <- paste0("\n```{r}\n", text, "\n```")
   }
 
   if (newline) {
