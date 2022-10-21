@@ -38,8 +38,8 @@ page_xforms_ui <- function(id, standalone = TRUE) {
         fluidRow(
           column(
             12,
-            actionButton(ns("undo"), NULL, icon = icon("undo")),
-            actionButton(ns("redo"), NULL, icon = icon("redo")),
+            actionButton(ns("undo"), NULL, icon = icon("undo", verify_fa = FALSE)),
+            actionButton(ns("redo"), NULL, icon = icon("redo", verify_fa = FALSE)),
             actionButton(ns("add_xform"), " ADD TRANSFORMATION", icon = icon("plus"), class = "btn-primary", style = "margin: 0 20px"),
             inelineUI(checkboxInput(ns("show_code"), "Show code", TRUE, width = "auto")),
             inelineUI(checkboxInput(ns("show_table"), "Show data", TRUE))
