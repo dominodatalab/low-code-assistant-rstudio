@@ -3,3 +3,4 @@
 ^\.github$
 ^local$
 ^\.Renviron$
+^LICENSE\.md$

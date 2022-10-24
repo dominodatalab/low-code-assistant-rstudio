@@ -56,7 +56,7 @@ xforms_table_server <- function(id, data) {
           ),
           defaultColDef = reactable::colDef(
             align = "left",
-            na = "<span style='font-style: italic; opacity: 0.5;'>–</span>",
+            na = "<span style='font-style: italic; opacity: 0.5;'>\u2013</span>",
             cell = reactable::JS(
               "function(cellInfo) {
                  if (cellInfo.column.name == '#') {
