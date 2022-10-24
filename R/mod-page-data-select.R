@@ -87,7 +87,7 @@ page_data_select_ui <- function(id) {
       actionButton(
         ns("continue"),
         "Apply",
-        icon = icon("check")
+        icon = icon("check"),
         class = "btn-primary btn-lg"
       )
     )
@@ -185,11 +185,6 @@ page_data_select_server <- function(id) {
 
         kill_app()
       })
-
-      return(list(
-        done = reactive(input$continue),
-        name = reactive(name_out())
-      ))
     }
   )
 }

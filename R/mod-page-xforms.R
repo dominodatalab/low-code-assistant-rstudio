@@ -334,13 +334,6 @@ page_xforms_server <- function(id, data_name_in = NULL) {
 
         kill_app()
       })
-
-      return(list(
-        done = reactive(input$continue),
-        name = reactive(result_rv$name),
-        data = reactive(result_rv$data)
-      ))
-
     }
   )
 }
