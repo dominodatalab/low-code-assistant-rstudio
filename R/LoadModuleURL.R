@@ -11,7 +11,7 @@ LoadModuleURL$shiny <- list(
       shinyWidgets::alert(
         "Enter a URL of a file with one of the following extensions:", br(),
         paste(LoadModuleFile$FILE_READ_EXTENSIONS, collapse = ", "),
-        status = "info"
+        status = "info", dismissible = TRUE
       ),
       textInput(ns("url"), NULL, "", placeholder = "https://path/to/data.csv", width = "100%")
     )
