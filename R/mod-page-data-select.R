@@ -128,42 +128,31 @@ page_data_select_server <- function(id) {
         )
       })
 
-      result <- reactiveValues(name_in = NULL,
-                               code_in = NULL,
-                               data = NULL,
-                               name_out = NULL)
-
       observeEvent(input$close, {
         kill_app()
       })
 
-      data_upload <- data_upload_server("upload", upload_dir = get_user_upload_dir())
-      data_url <- data_url_server("url")
-      data_project_files <- data_project_files_server("project_files")
-      data_datasets <- data_datasets_server("datasets")
+      data_modules <- list(
+        upload = data_upload_server("upload", upload_dir = get_user_upload_dir()),
+        url = data_url_server("url"),
+        dataset = data_datasets_server("datasets"),
+        file = data_project_files_server("project_files")
+      )
 
-      observeEvent(data_upload$data(), {
-        result$name_in <- data_upload$name()
-        result$code_in <- data_upload$code()
-        result$data <- data_upload$data()
+      selected_data_module <- reactive({
+        data_modules[[input$import_modules]]
       })
 
-      observeEvent(data_url$data(), {
-        result$name_in <- data_url$name()
-        result$code_in <- data_url$code()
-        result$data <- data_url$data()
+      name_in <- reactive({
+        selected_data_module()$name()
       })
 
-      observeEvent(data_project_files$data(), {
-        result$name_in <- data_project_files$name()
-        result$code_in <- data_project_files$code()
-        result$data <- data_project_files$data()
+      code_in <- reactive({
+        selected_data_module()$code()
       })
 
-      observeEvent(data_datasets$data(), {
-        result$name_in <- data_datasets$name()
-        result$code_in <- data_datasets$code()
-        result$data <- data_datasets$data()
+      data <- reactive({
+        selected_data_module()$data()
       })
 
       name_out <- reactive({
@@ -176,27 +165,27 @@ page_data_select_server <- function(id) {
       })
 
       code_out <- reactive({
-        req(result$code_in, name_out())
-        paste0(name_out(), " <- ", result$code_in)
+        req(code_in(), name_out())
+        paste0(name_out(), " <- ", code_in())
       })
 
       code_chunk_server("code", code_out)
 
       output$preview_data <- renderTable({
-        req(result$data)
-        head(result$data, 5)
+        req(data())
+        head(data(), 5)
       }, striped = TRUE, bordered = TRUE, spacing = "xs")
 
       observe({
-        shinyjs::toggleState("continue", condition = (!is.null(result$data) && nrow(result$data) > 0))
-        shinyjs::toggleState("insert_code", condition = (!is.null(result$code_in) && !is.null(name_out()) && result$code_in != name_out()))
+        shinyjs::toggleState("continue", condition = (!is.null(data()) && nrow(data()) > 0))
+        shinyjs::toggleState("insert_code", condition = (!is.null(code_in()) && !is.null(name_out()) && code_in() != name_out()))
       })
 
       observeEvent(input$continue, {
-        assign(name_out(), result$data, envir = .GlobalEnv)
+        assign(name_out(), data(), envir = .GlobalEnv)
 
         if (input$insert_code) {
-          if (result$code_in != name_out()) {
+          if (code_in() != name_out()) {
             insert_text(code_out())
           }
 
@@ -209,8 +198,6 @@ page_data_select_server <- function(id) {
           )
         }
 
-        result$name_out <- name_out()
-
         if (input$standalone) {
           kill_app()
         }
@@ -218,7 +205,7 @@ page_data_select_server <- function(id) {
 
       return(list(
         done = reactive(input$continue),
-        name = reactive(result$name_out)
+        name = reactive(name_out())
       ))
     }
   )
