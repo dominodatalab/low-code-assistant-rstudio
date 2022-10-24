@@ -28,7 +28,7 @@ data_project_files_server <- function(id) {
 
       code <- reactive({
         req(browser$selected())
-        glue::glue("read.csv({shQuote(browser$selected(), type = 'cmd')})")
+        get_load_code(browser$selected())
       })
 
       observeEvent(code(), {

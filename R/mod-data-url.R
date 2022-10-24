@@ -3,7 +3,7 @@ data_url_ui <- function(id) {
 
   tagList(
     shinyWidgets::alert(
-      "Enter a URL of a file with one of the following extensions:",
+      "Enter a URL of a file with one of the following extensions:", br(),
       paste(FILE_READ_EXTENSIONS, collapse = ", "),
       status = "info"
     ),
@@ -26,7 +26,7 @@ data_url_server <- function(id) {
       code <- reactive({
         req(input$url)
         url <- gsub('\\\\', '/', input$url)
-        glue::glue("read.csv({shQuote(url, type = 'cmd')})")
+        get_load_code(url)
       })
 
       observeEvent(code(), {

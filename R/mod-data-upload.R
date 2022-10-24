@@ -3,7 +3,7 @@ data_upload_ui <- function(id) {
 
   tagList(
     shinyWidgets::alert(
-      "Choose a file one of the following extensions: ",
+      "Choose a file one of the following extensions:", br(),
       paste(FILE_READ_EXTENSIONS, collapse = ", "),
       status = "info"
     ),
@@ -42,7 +42,7 @@ data_upload_server <- function(id, upload_dir = NULL) {
       code <- reactive({
         req(input$file)
         url <- gsub('\\\\', '/', new_path())
-        glue::glue("read.csv({shQuote(url, type = 'cmd')})")
+        get_load_code(url)
       })
 
       observeEvent(code(), {
