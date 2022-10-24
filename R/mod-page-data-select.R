@@ -59,6 +59,7 @@ page_data_select_ui <- function(id) {
     #conditionalPanel(
     #  "input.custom_name", ns = ns,
     #),
+    uiOutput(ns("error")),
     div(
       shinyWidgets::prettyCheckbox(
         ns("show_code"), "Show Code", value = TRUE, width = "auto", shape = "curve", status = "info", inline = TRUE
@@ -130,17 +131,17 @@ page_data_select_server <- function(id) {
       selected_data_module <- reactive({
         data_modules[[input$import_modules]]
       })
-
       name_in <- reactive({
         selected_data_module()$name()
       })
-
       code_in <- reactive({
         selected_data_module()$code()
       })
-
       data <- reactive({
         selected_data_module()$data()
+      })
+      error <- reactive({
+        selected_data_module()$error()
       })
 
       name_out <- reactive({
@@ -150,6 +151,11 @@ page_data_select_server <- function(id) {
         # } else {
         #  result$name_in
         # }
+      })
+
+      output$error <- renderUI({
+        req(error())
+        div(class = "alert alert-danger", icon("exclamation-sign", lib = "glyphicon"), error())
       })
 
       code_out <- reactive({
@@ -188,4 +194,3 @@ page_data_select_server <- function(id) {
     }
   )
 }
-

@@ -11,7 +11,7 @@ data_datasets_server <- function(id) {
     id,
     function(input, output, session) {
 
-      result <- reactiveValues(name = NULL, code = NULL, data = NULL)
+      result <- reactiveValues(name = NULL, code = NULL, data = NULL, error = NULL)
 
       browser <- file_browser_server(
         "filebrowser",
@@ -32,16 +32,25 @@ data_datasets_server <- function(id) {
       })
 
       observeEvent(code(), {
-        data <- eval(parse(text = code()))
-        result$name <- name()
-        result$code <- code()
-        result$data <- data
+        tryCatch({
+          data <- suppressWarnings(eval(parse(text = code())))
+          result$data <- data
+          result$name <- name()
+          result$code <- code()
+          result$error <- NULL
+        }, error = function(err) {
+          result$data <- NULL
+          result$name <- NULL
+          result$code <- NULL
+          result$error <- glue::glue("Could not read file ({ err$message })")
+        })
       })
 
       return(list(
         name = reactive(result$name),
         data = reactive(result$data),
-        code = reactive(result$code)
+        code = reactive(result$code),
+        error = reactive(result$error)
       ))
     }
   )

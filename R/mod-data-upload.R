@@ -2,7 +2,11 @@ data_upload_ui <- function(id) {
   ns <- NS(id)
 
   tagList(
-    shinyWidgets::alert("Choose a file", status = "info"),
+    shinyWidgets::alert(
+      "Choose a file one of the following extensions: ",
+      paste(FILE_READ_EXTENSIONS, collapse = ", "),
+      status = "info"
+    ),
     fileInput(ns("file"), NULL, multiple = FALSE, accept = FILE_READ_EXTENSIONS, width = "100%")
   )
 }
@@ -17,7 +21,7 @@ data_upload_server <- function(id, upload_dir = NULL) {
     id,
     function(input, output, session) {
 
-      result <- reactiveValues(name = NULL, code = NULL, data = NULL)
+      result <- reactiveValues(name = NULL, code = NULL, data = NULL, error = NULL)
 
       name <- reactive({
         req(input$file)
@@ -42,16 +46,29 @@ data_upload_server <- function(id, upload_dir = NULL) {
       })
 
       observeEvent(code(), {
-        data <- eval(parse(text = code()))
-        result$name <- name()
-        result$code <- code()
-        result$data <- data
+        tryCatch({
+          ext <- paste0(".", tools::file_ext(new_path()))
+          if (!ext %in% FILE_READ_EXTENSIONS) {
+            stop("file type '", ext, "' not supported")
+          }
+          data <- suppressWarnings(eval(parse(text = code())))
+          result$data <- data
+          result$name <- name()
+          result$code <- code()
+          result$error <- NULL
+        }, error = function(err) {
+          result$data <- NULL
+          result$name <- NULL
+          result$code <- NULL
+          result$error <- glue::glue("Could not read file ({ err$message })")
+        })
       })
 
       return(list(
         name = reactive(result$name),
         data = reactive(result$data),
-        code = reactive(result$code)
+        code = reactive(result$code),
+        error = reactive(result$error)
       ))
     }
   )
