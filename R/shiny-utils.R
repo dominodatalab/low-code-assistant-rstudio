@@ -1,7 +1,7 @@
 html_dependency_lca <- function() {
   htmltools::htmlDependency(
     name = "lca",
-    version = packageVersion(PACKAGE_NAME),
+    version = utils::packageVersion(PACKAGE_NAME),
     src = c(href = "lca-assets/lca"),
     package = PACKAGE_NAME,
     script = c("js/shiny-utils.js"),

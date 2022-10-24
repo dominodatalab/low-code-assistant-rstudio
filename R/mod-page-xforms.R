@@ -141,7 +141,7 @@ page_xforms_server <- function(id, data_name_in = NULL) {
       })
       name_out <- reactive({
         req(xforms())
-        tail(unlist(xforms()$get_code_chunks()), 1)
+        utils::tail(unlist(xforms()$get_code_chunks()), 1)
       })
 
       xform_modal <- transformation_modal("xform_modal")

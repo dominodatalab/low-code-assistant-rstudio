@@ -10,6 +10,9 @@ assist_data <- function() {
   shiny::runGadget(app, viewer = shiny::dialogViewer("Domino R Assistant", 1100, 800))
 }
 
+#' Low Code Assistant - Data selection
+#'
+#' Run the data selection LCA wizard.
 #' @export
 assist_data_addin <- function() {
   assist_data()
@@ -27,6 +30,9 @@ assist_transform <- function() {
   shiny::runGadget(app, viewer = shiny::dialogViewer("Domino R Assistant", 1100, 800))
 }
 
+#' Low Code Assistant - Transformations
+#'
+#' Run the data transformation LCA wizard.
 #' @export
 assist_transform_addin <- function() {
   assist_transform()
@@ -44,6 +50,9 @@ assist_viz <- function() {
   shiny::runGadget(app, viewer = shiny::dialogViewer("Domino R Assistant", 1100, 800))
 }
 
+#' Low Code Assistant - Visualizations
+#'
+#' Run the data visualizations LCA wizard.
 #' @export
 assist_viz_addin <- function() {
   assist_viz()

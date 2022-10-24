@@ -6,7 +6,7 @@ transformation_modal <- function(id) {
 
       ns <- session$ns
 
-      data <- reactiveValEvent(NULL)
+      dataset <- reactiveValEvent(NULL)
       action <- reactiveValEvent(NULL)
       xform <- reactiveValEvent(NULL)
       meta <- reactiveValEvent(NULL)
@@ -28,7 +28,7 @@ transformation_modal <- function(id) {
               12,
               selectInput(
                 ns("xform_type"), label = NULL,
-                choices = setNames(
+                choices = stats::setNames(
                   lapply(ALL_XFORMS, function(x) x$name_short),
                   lapply(ALL_XFORMS, function(x) x$name_long)
                 )
@@ -45,9 +45,9 @@ transformation_modal <- function(id) {
         )
 
       xform_modules <- lapply(ALL_XFORMS, function(x) {
-        x$shiny$server(x$name_short, data = data, old_xform = xform)
+        x$shiny$server(x$name_short, data = dataset, old_xform = xform)
       })
-      xform_modules <- setNames(xform_modules, lapply(ALL_XFORMS, .subset2, "name_short"))
+      xform_modules <- stats::setNames(xform_modules, lapply(ALL_XFORMS, .subset2, "name_short"))
 
       show <- function(data, action = c("add", "insert", "edit"), xform = NULL, meta = NULL) {
         action <- match.arg(action)
@@ -58,7 +58,7 @@ transformation_modal <- function(id) {
 
         showModal(dialog)
 
-        data(data)
+        dataset(data)
         action(action)
         xform(xform)
         meta(meta)

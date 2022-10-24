@@ -169,7 +169,7 @@ AggregateTransformation$shiny <- list(
           updateSelectInput(session, "aggregate_col_agg", selected = "")
           updateSelectInput(session, "aggregate_aggregator", selected = "")
 
-          new_aggregation <- list(as.list(setNames(input$aggregate_aggregator, input$aggregate_col_agg)))
+          new_aggregation <- list(as.list(stats::setNames(input$aggregate_aggregator, input$aggregate_col_agg)))
           if (new_aggregation %in% existing_aggregations()) {
             return()
           }

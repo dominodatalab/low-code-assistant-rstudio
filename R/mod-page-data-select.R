@@ -175,7 +175,7 @@ page_data_select_server <- function(id) {
 
       output$preview_data <- renderTable({
         req(data())
-        head(data(), 5)
+        utils::head(data(), 5)
       }, striped = TRUE, bordered = TRUE, spacing = "xs")
 
       observe({

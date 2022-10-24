@@ -9,3 +9,13 @@ PACKAGE_NAME <- "assistDomino"
     shiny::removeResourcePath("lca-assets")
   }
 }
+
+# Empty imports to get rid of CRAN check warnings
+#' @import R6
+#' @import datasets
+#' @import gapminder
+#' @import ggplot2
+#' @import haven
+#' @import miniUI
+#' @import readxl
+NULL

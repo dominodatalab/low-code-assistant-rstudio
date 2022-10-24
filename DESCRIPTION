@@ -13,7 +13,6 @@ Depends:
     R (>= 3.1.0)
 Imports:
     datasets,
-    DT,
     fontawesome,
     gapminder,
     ggplot2,
@@ -22,6 +21,7 @@ Imports:
     htmltools,
     httr,
     jsonlite,
+    methods,
     miniUI,
     plotly,
     R6,
@@ -32,6 +32,7 @@ Imports:
     shinymixpanel,
     shinyjs,
     shinyWidgets,
+    stats,
     tools,
     utils
 Remotes: daattali/shinymixpanel

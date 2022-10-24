@@ -20,7 +20,7 @@ data_environment_server <- function(id) {
         df_choices <- c("There are no data.frames" = "")
       } else {
         df_choices <- c("List of data.frames" = "",
-                        setNames(dataframes, paste(dataframes, df_dims)))
+                        stats::setNames(dataframes, paste(dataframes, df_dims)))
       }
       updateSelectInput(session, "dataframes", choices = df_choices)
 
@@ -54,7 +54,7 @@ get_dataframes <- function() {
   all_obj_names <- ls(envir = .GlobalEnv)
   dfs <- lapply(all_obj_names, function(x) {
     obj <- get(x, envir = .GlobalEnv)
-    if (is(obj, "data.frame")) {
+    if (methods::is(obj, "data.frame")) {
       x
     } else {
       NULL
