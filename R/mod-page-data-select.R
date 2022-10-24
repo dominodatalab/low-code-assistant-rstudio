@@ -27,25 +27,25 @@ page_data_select_ui <- function(id) {
         "Upload",
         value = "upload",
         icon = icon("upload"),
-        data_upload_ui(ns("upload"))
+        LoadModuleUpload$shiny$ui(ns("upload"))
       ),
       tabPanel(
         "URL",
         value = "url",
         icon = icon("link"),
-        data_url_ui(ns("url"))
+        LoadModuleURL$shiny$ui(ns("url"))
       ),
       tabPanel(
         "Datasets",
         value = "dataset",
         icon = icon("table"),
-        data_datasets_ui(ns("datasets"))
+        LoadModuleDatasets$shiny$ui(ns("datasets"))
       ),
       tabPanel(
         "Project Files",
         value = "file",
         icon = icon("folder-open"),
-        data_project_files_ui(ns("project_files"))
+        LoadModuleProjectFile$shiny$ui(ns("project_files"))
       ),
     ),
     tags$script(glue::glue("$('#{ns(\"import_modules\")}').addClass('nav-justified');")),
@@ -91,7 +91,8 @@ page_data_select_ui <- function(id) {
         icon = icon("check"),
         class = "btn-primary btn-lg"
       )
-    )
+    ),
+    br()
   )
 }
 
@@ -122,10 +123,10 @@ page_data_select_server <- function(id) {
       })
 
       data_modules <- list(
-        upload = data_upload_server("upload", upload_dir = get_user_upload_dir()),
-        url = data_url_server("url"),
-        dataset = data_datasets_server("datasets"),
-        file = data_project_files_server("project_files")
+        upload = LoadModuleUpload$shiny$server("upload", upload_dir = get_user_upload_dir()),
+        url = LoadModuleURL$shiny$server("url"),
+        dataset = LoadModuleDatasets$shiny$server("datasets"),
+        file = LoadModuleProjectFile$shiny$server("project_files")
       )
 
       selected_data_module <- reactive({
