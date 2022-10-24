@@ -9,14 +9,6 @@ html_dependency_lca <- function() {
   )
 }
 
-hide_if_standalone <- function(standalone, ui) {
-  if (standalone) {
-    shinyjs::hidden(ui)
-  } else {
-    ui
-  }
-}
-
 reactive_trigger <- function() {
   rv <- shiny::reactiveVal(0)
   list(

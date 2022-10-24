@@ -1,4 +1,4 @@
-page_viz_ui <- function(id, standalone = TRUE) {
+page_viz_ui <- function(id) {
   ns <- NS(id)
 
   tagList(
@@ -17,8 +17,7 @@ page_viz_ui <- function(id, standalone = TRUE) {
     ),
     shinyjs::useShinyjs(),
     html_dependency_lca(),
-    if (standalone) title_bar_ui(ns("title"), "Visualizations"),
-    shinyjs::hidden(checkboxInput(ns("standalone"), NULL, standalone)),
+    title_bar_ui(ns("title"), "Visualizations"),
 
     shinyjs::hidden(
       div(
@@ -65,20 +64,9 @@ page_viz_ui <- function(id, standalone = TRUE) {
           class = "no-margin flex flex-gap2",
           actionButton(ns("close"), "Close"),
           div(class = "flex-push"),
-          hide_if_standalone(
-            standalone,
-            shinyWidgets::prettyCheckbox(
-              ns("insert_code"),
-              "Insert Code",
-              value = TRUE,
-              width = "auto",
-              shape = "curve",
-              status = "primary"
-            )
-          ),
           actionButton(
             ns("continue"),
-            if (standalone) "Apply" else "Finish",
+            "Apply",
             icon = icon("check"),
             class = "btn-primary btn-lg"
           )
@@ -203,16 +191,14 @@ page_viz_server <- function(id, data_in = NULL, name_in = NULL) {
 
 
       observeEvent(input$continue, {
-        if (input$insert_code) {
-          insert_text(paste0(code()))
+        insert_text(paste0(code()))
 
-          shinymixpanel::mp_track(
-            MIXPANEL_EVENT_CODE,
-            list(
-              section = MIXPANEL_SECTION_VIZ
-            )
+        shinymixpanel::mp_track(
+          MIXPANEL_EVENT_CODE,
+          list(
+            section = MIXPANEL_SECTION_VIZ
           )
-        }
+        )
 
         kill_app()
       })

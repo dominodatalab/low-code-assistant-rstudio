@@ -1,4 +1,4 @@
-page_xforms_ui <- function(id, standalone = TRUE) {
+page_xforms_ui <- function(id) {
   ns <- NS(id)
 
   tagList(
@@ -17,8 +17,7 @@ page_xforms_ui <- function(id, standalone = TRUE) {
     ),
     shinyjs::useShinyjs(),
     html_dependency_lca(),
-    if (standalone) title_bar_ui(ns("title"), "Transformations"),
-    shinyjs::hidden(checkboxInput(ns("standalone"), NULL, standalone)),
+    title_bar_ui(ns("title"), "Transformations"),
 
     shinyjs::hidden(
       div(
@@ -55,21 +54,10 @@ page_xforms_ui <- function(id, standalone = TRUE) {
           class = "no-margin flex flex-gap2",
           actionButton(ns("close"), "Close"),
           div(class = "flex-push"),
-          hide_if_standalone(
-            standalone,
-            shinyWidgets::prettyCheckbox(
-              ns("insert_code"),
-              "Insert Code",
-              value = TRUE,
-              width = "auto",
-              shape = "curve",
-              status = "primary"
-            )
-          ),
           actionButton(
             ns("continue"),
-            if (standalone) "Apply" else "Continue",
-            icon = if (standalone) icon("check") else icon("angle-double-right"),
+            "Apply",
+            icon = icon("check"),
             class = "btn-primary btn-lg"
           )
         )
@@ -327,29 +315,24 @@ page_xforms_server <- function(id, data_name_in = NULL) {
       observe({
         req(xforms())
         shinyjs::toggleState("continue", condition = is.null(error()))
-        shinyjs::toggleState("insert_code", condition = (is.null(error()) && xforms()$size > 0))
       })
 
       observeEvent(input$continue, {
-        if (input$insert_code) {
-          if (xforms()$size > 0) {
-            insert_text(paste0(xforms()$get_code()))
-          }
-
-          shinymixpanel::mp_track(
-            MIXPANEL_EVENT_CODE,
-            list(
-              section = MIXPANEL_SECTION_XFORM
-            )
-          )
+        if (xforms()$size > 0) {
+          insert_text(paste0(xforms()$get_code()))
         }
+
+        shinymixpanel::mp_track(
+          MIXPANEL_EVENT_CODE,
+          list(
+            section = MIXPANEL_SECTION_XFORM
+          )
+        )
 
         result_rv$name <- name_out()
         result_rv$data <- result()
 
-        if (input$standalone) {
-          kill_app()
-        }
+        kill_app()
       })
 
       return(list(

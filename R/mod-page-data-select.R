@@ -1,4 +1,4 @@
-page_data_select_ui <- function(id, standalone = TRUE) {
+page_data_select_ui <- function(id) {
   ns <- NS(id)
 
   tagList(
@@ -17,8 +17,7 @@ page_data_select_ui <- function(id, standalone = TRUE) {
     ),
     shinyjs::useShinyjs(),
     html_dependency_lca(),
-    if (standalone) title_bar_ui(ns("title"), "Load Data"),
-    shinyjs::hidden(checkboxInput(ns("standalone"), NULL, standalone)),
+    title_bar_ui(ns("title"), "Load Data"),
 
     tabsetPanel(
       id = ns("import_modules"),
@@ -85,21 +84,10 @@ page_data_select_ui <- function(id, standalone = TRUE) {
       class = "no-margin flex flex-gap2",
       actionButton(ns("close"), "Close"),
       div(class = "flex-push"),
-      hide_if_standalone(
-        standalone,
-        shinyWidgets::prettyCheckbox(
-          ns("insert_code"),
-          "Insert Code",
-          value = TRUE,
-          width = "auto",
-          shape = "curve",
-          status = "primary"
-        )
-      ),
       actionButton(
         ns("continue"),
-        if (standalone) "Apply" else "Continue",
-        icon = if (standalone) icon("check") else icon("angle-double-right"),
+        "Apply",
+        icon = icon("check")
         class = "btn-primary btn-lg"
       )
     )
@@ -178,29 +166,24 @@ page_data_select_server <- function(id) {
 
       observe({
         shinyjs::toggleState("continue", condition = (!is.null(data()) && nrow(data()) > 0))
-        shinyjs::toggleState("insert_code", condition = (!is.null(code_in()) && !is.null(name_out()) && code_in() != name_out()))
       })
 
       observeEvent(input$continue, {
         assign(name_out(), data(), envir = .GlobalEnv)
 
-        if (input$insert_code) {
-          if (code_in() != name_out()) {
-            insert_text(code_out())
-          }
+        if (code_in() != name_out()) {
+          insert_text(code_out())
+        }
 
-          shinymixpanel::mp_track(
-            MIXPANEL_EVENT_CODE,
-            list(
-              section = MIXPANEL_SECTION_LOAD,
-              data_type = input$import_modules
-            )
+        shinymixpanel::mp_track(
+          MIXPANEL_EVENT_CODE,
+          list(
+            section = MIXPANEL_SECTION_LOAD,
+            data_type = input$import_modules
           )
-        }
+        )
 
-        if (input$standalone) {
-          kill_app()
-        }
+        kill_app()
       })
 
       return(list(
