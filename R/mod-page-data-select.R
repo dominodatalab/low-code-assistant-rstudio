@@ -47,6 +47,12 @@ page_data_select_ui <- function(id) {
         icon = icon("folder-open"),
         LoadModuleProjectFile$shiny$ui(ns("project_files"))
       ),
+      tabPanel(
+        "Demo Data",
+        value = "demo",
+        icon = icon("file"),
+        LoadModuleDemo$shiny$ui(ns("demo"))
+      )
     ),
     tags$script(glue::glue("$('#{ns(\"import_modules\")}').addClass('nav-justified');")),
     # shinyWidgets::prettyCheckbox(
@@ -126,7 +132,8 @@ page_data_select_server <- function(id) {
         upload = LoadModuleUpload$shiny$server("upload", upload_dir = get_user_upload_dir()),
         url = LoadModuleURL$shiny$server("url"),
         dataset = LoadModuleDatasets$shiny$server("datasets"),
-        file = LoadModuleProjectFile$shiny$server("project_files")
+        file = LoadModuleProjectFile$shiny$server("project_files"),
+        demo = LoadModuleDemo$shiny$server("demo")
       )
 
       selected_data_module <- reactive({
