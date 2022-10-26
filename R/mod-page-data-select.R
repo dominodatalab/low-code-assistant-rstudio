@@ -60,7 +60,7 @@ page_data_select_ui <- function(id) {
     #   "Custom variable name",
     #   value = FALSE,
     #   shape = "curve",
-    #   status = "info"
+    #   status = "primary"
     # ),
     #conditionalPanel(
     #  "input.custom_name", ns = ns,
@@ -68,10 +68,10 @@ page_data_select_ui <- function(id) {
     uiOutput(ns("error")),
     div(
       shinyWidgets::prettyCheckbox(
-        ns("show_code"), "Show Code", value = TRUE, width = "auto", shape = "curve", status = "info", inline = TRUE
+        ns("show_preview"), "Show Preview", value = TRUE, width = "auto", shape = "curve", status = "primary", inline = TRUE
       ),
       shinyWidgets::prettyCheckbox(
-        ns("show_preview"), "Show Preview", value = TRUE, width = "auto", shape = "curve", status = "info", inline = TRUE
+        ns("show_code"), "Show Code", value = TRUE, width = "auto", shape = "curve", status = "primary", inline = TRUE
       )
     ),
     conditionalPanel(

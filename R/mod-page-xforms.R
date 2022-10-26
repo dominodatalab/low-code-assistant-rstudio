@@ -19,10 +19,10 @@ page_xforms_ui <- function(id) {
     html_dependency_lca(),
     title_bar_ui(ns("title"), "Transformations"),
 
+    br(),
     shinyjs::hidden(
       div(
         id = ns("data_select"),
-        br(),
         data_environment_ui(ns("data_select_mod"))
       )
     ),
@@ -40,8 +40,14 @@ page_xforms_ui <- function(id) {
             actionButton(ns("undo"), NULL, icon = icon("undo", verify_fa = FALSE)),
             actionButton(ns("redo"), NULL, icon = icon("redo", verify_fa = FALSE)),
             actionButton(ns("add_xform"), " ADD TRANSFORMATION", icon = icon("plus"), class = "btn-primary", style = "margin: 0 20px"),
-            inelineUI(checkboxInput(ns("show_code"), "Show code", TRUE, width = "auto")),
-            inelineUI(checkboxInput(ns("show_table"), "Show data", TRUE))
+            span(
+              shinyWidgets::prettyCheckbox(
+                ns("show_table"), "Show Data", value = TRUE, width = "auto", shape = "curve", status = "primary", inline = TRUE
+              ),
+              shinyWidgets::prettyCheckbox(
+                ns("show_code"), "Show Code", value = TRUE, width = "auto", shape = "curve", status = "primary", inline = TRUE
+              )
+            )
           )
         ),
         uiOutput(ns("error")),
