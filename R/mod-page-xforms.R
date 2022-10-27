@@ -13,7 +13,8 @@ page_xforms_ui <- function(id) {
       ),
       default_properties_js = list("domain" = "location.host"),
       test_token = MIXPANEL_TEST_TOKEN,
-      test_domains = MIXPANEL_TEST_DOMAINS
+      test_domains = MIXPANEL_TEST_DOMAINS,
+      track_server = TRUE
     ),
     shinyjs::useShinyjs(),
     html_dependency_lca(),
