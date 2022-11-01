@@ -51,3 +51,36 @@ make_reactive <- function(x) {
     shiny::reactive(x)
   }
 }
+
+input_with_checkbox <- function(input, checkboxId, checkboxLabel, checkboxValue = FALSE, side = c("left", "right")) {
+  stopifnot(inherits(input, "shiny.tag"))
+  side <- match.arg(side)
+
+  checkbox <- tags$label(
+    class = "input-group-addon",
+    tags$input(
+      id = checkboxId,
+      checked = if (isTRUE(checkboxValue)) "checked" else NULL,
+      type = "checkbox", style = "vertical-align: middle"
+    ),
+    tags$span(checkboxLabel, style = "vertical-align: middle")
+  )
+
+  input_idx <- which(sapply(input$children, function(x) x$name == "input"))
+  if (length(input_idx) != 1) {
+    stop("Can't find the <input> tag")
+  }
+
+  input_tag <- input$children[[input_idx]]
+
+  if (side == "left") {
+    group <- tags$div(class = "input-group", checkbox, input_tag)
+  } else if (side == "right") {
+    group <- tags$div(class = "input-group", input_tag, checkbox)
+  } else {
+    stop("Invalid 'side'")
+  }
+
+  input$children[[input_idx]] <- group
+  input
+}

@@ -18,88 +18,91 @@ page_data_select_ui <- function(id) {
     ),
     shinyjs::useShinyjs(),
     html_dependency_lca(),
+
     title_bar_ui(ns("title"), "Load Data"),
 
-    tabsetPanel(
-      id = ns("import_modules"),
-      header = tagList(br(), textInput(ns("varname"), "Variable Name", "df", placeholder = "Variable name")),
+    div(
+      class = "page-main-content",
+      tabsetPanel(
+        id = ns("import_modules"),
+        header = br(),
 
-      tabPanel(
-        "Upload",
-        value = "upload",
-        icon = icon("upload"),
-        LoadModuleUpload$shiny$ui(ns("upload"))
+        tabPanel(
+          "Upload",
+          value = "upload",
+          icon = icon("upload"),
+          LoadModuleUpload$shiny$ui(ns("upload"))
+        ),
+        tabPanel(
+          "URL",
+          value = "url",
+          icon = icon("link"),
+          LoadModuleURL$shiny$ui(ns("url"))
+        ),
+        tabPanel(
+          "Datasets",
+          value = "dataset",
+          icon = icon("table"),
+          LoadModuleDatasets$shiny$ui(ns("datasets"))
+        ),
+        tabPanel(
+          "Project Files",
+          value = "file",
+          icon = icon("folder-open"),
+          LoadModuleProjectFile$shiny$ui(ns("project_files"))
+        ),
+        tabPanel(
+          "Demo Data",
+          value = "demo",
+          icon = icon("file"),
+          LoadModuleDemo$shiny$ui(ns("demo"))
+        )
       ),
-      tabPanel(
-        "URL",
-        value = "url",
-        icon = icon("link"),
-        LoadModuleURL$shiny$ui(ns("url"))
+      tags$script(glue::glue("$('#{ns(\"import_modules\")}').addClass('nav-justified');")),
+      uiOutput(ns("error")),
+      div(
+        shinyWidgets::prettyCheckbox(
+          ns("show_preview"), "Show Preview", value = TRUE, width = "auto", shape = "curve", status = "primary", inline = TRUE
+        ),
+        shinyWidgets::prettyCheckbox(
+          ns("show_code"), "Show Code", value = TRUE, width = "auto", shape = "curve", status = "primary", inline = TRUE
+        )
       ),
-      tabPanel(
-        "Datasets",
-        value = "dataset",
-        icon = icon("table"),
-        LoadModuleDatasets$shiny$ui(ns("datasets"))
+      conditionalPanel(
+        "input.show_preview", ns = ns,
+        htmltools::tagAppendAttributes(
+          tableOutput(ns("preview_data")),
+          class = "no-margin small-table"
+        ),
+        br()
       ),
-      tabPanel(
-        "Project Files",
-        value = "file",
-        icon = icon("folder-open"),
-        LoadModuleProjectFile$shiny$ui(ns("project_files"))
-      ),
-      tabPanel(
-        "Demo Data",
-        value = "demo",
-        icon = icon("file"),
-        LoadModuleDemo$shiny$ui(ns("demo"))
+      conditionalPanel(
+        "input.show_code", ns = ns,
+        code_chunk_ui(ns("code")),
+        br()
       )
     ),
-    tags$script(glue::glue("$('#{ns(\"import_modules\")}').addClass('nav-justified');")),
-    shinyWidgets::prettyCheckbox(
-      ns("custom_name"),
-      "Custom variable name",
-      value = FALSE,
-      shape = "curve",
-      status = "primary"
-    ),
-    conditionalPanel(
-     "input.custom_name", ns = ns,
-    ),
-    uiOutput(ns("error")),
     div(
-      shinyWidgets::prettyCheckbox(
-        ns("show_preview"), "Show Preview", value = TRUE, width = "auto", shape = "curve", status = "primary", inline = TRUE
+      class = "page-actions flex flex-gap2",
+      input_with_checkbox(
+        textInput(ns("varname"), "Output variable", "df"),
+        checkboxId = ns("custom_name"),
+        checkboxLabel = "Custom name",
+        checkboxValue = TRUE
       ),
-      shinyWidgets::prettyCheckbox(
-        ns("show_code"), "Show Code", value = TRUE, width = "auto", shape = "curve", status = "primary", inline = TRUE
-      )
-    ),
-    conditionalPanel(
-      "input.show_preview", ns = ns,
-      htmltools::tagAppendAttributes(
-        tableOutput(ns("preview_data")),
-        class = "no-margin small-table"
+      actionButton(
+        ns("close"),
+        "Close",
+        icon = icon("close"),
+        class = "btn-lg"
       ),
-      br()
-    ),
-    conditionalPanel(
-      "input.show_code", ns = ns,
-      code_chunk_ui(ns("code")),
-      br()
-    ),
-    div(
-      class = "no-margin flex flex-gap2",
-      actionButton(ns("close"), "Close"),
-      div(class = "flex-push"),
       actionButton(
         ns("continue"),
         "Apply",
         icon = icon("check"),
         class = "btn-primary btn-lg"
       )
-    ),
-    br()
+    )
   )
 }
 
@@ -160,6 +163,11 @@ page_data_select_server <- function(id) {
         } else {
           name_in()
         }
+      })
+
+      observe({
+        shinyjs::toggleState("varname", condition = input$custom_name)
+        shinyjs::toggleCssClass("varname", "notext", condition = !input$custom_name)
       })
 
       output$error <- renderUI({
