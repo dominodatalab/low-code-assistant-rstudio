@@ -21,13 +21,18 @@
 
 .page-actions {
   border-top: 1px solid #ddd;
-  padding: 0 0.5rem;
+  padding: 0 1rem;
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
   justify-content: flex-end;
   background: #fafafa;
+}
+
+.page-actions .btn {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
 }
 
 .notext {

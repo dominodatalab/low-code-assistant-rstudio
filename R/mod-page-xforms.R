@@ -18,6 +18,7 @@ page_xforms_ui <- function(id) {
     ),
     shinyjs::useShinyjs(),
     html_dependency_lca(),
+
     title_bar_ui(ns("title"), "Transformations"),
 
     br(),
@@ -27,40 +28,48 @@ page_xforms_ui <- function(id) {
         data_environment_ui(ns("data_select_mod"))
       )
     ),
+
     shinyjs::hidden(
       div(
         id = ns("main_section"),
-        conditionalPanel(
-          "input.show_table", ns = ns,
-          xforms_table_ui(ns("table")),
-          br()
-        ),
-        fluidRow(
-          column(
-            12,
-            actionButton(ns("undo"), NULL, icon = icon("undo", verify_fa = FALSE)),
-            actionButton(ns("redo"), NULL, icon = icon("redo", verify_fa = FALSE)),
-            actionButton(ns("add_xform"), " ADD TRANSFORMATION", icon = icon("plus"), class = "btn-primary", style = "margin: 0 20px"),
-            span(
-              shinyWidgets::prettyCheckbox(
-                ns("show_table"), "Show Data", value = TRUE, width = "auto", shape = "curve", status = "primary", inline = TRUE
-              ),
-              shinyWidgets::prettyCheckbox(
-                ns("show_code"), "Show Code", value = TRUE, width = "auto", shape = "curve", status = "primary", inline = TRUE
+
+        div(
+          class = "page-main-content",
+          conditionalPanel(
+            "input.show_table", ns = ns,
+            xforms_table_ui(ns("table")),
+            br()
+          ),
+          fluidRow(
+            column(
+              12,
+              actionButton(ns("undo"), NULL, icon = icon("undo", verify_fa = FALSE)),
+              actionButton(ns("redo"), NULL, icon = icon("redo", verify_fa = FALSE)),
+              actionButton(ns("add_xform"), " ADD TRANSFORMATION", icon = icon("plus"), class = "btn-primary", style = "margin: 0 20px"),
+              span(
+                shinyWidgets::prettyCheckbox(
+                  ns("show_table"), "Show Data", value = TRUE, width = "auto", shape = "curve", status = "primary", inline = TRUE
+                ),
+                shinyWidgets::prettyCheckbox(
+                  ns("show_code"), "Show Code", value = TRUE, width = "auto", shape = "curve", status = "primary", inline = TRUE
+                )
               )
             )
+          ),
+          uiOutput(ns("error")),
+          conditionalPanel(
+            "input.show_code", ns = ns,
+            code_chunk_ui(ns("code"))
           )
         ),
-        uiOutput(ns("error")),
-        conditionalPanel(
-          "input.show_code", ns = ns,
-          code_chunk_ui(ns("code"))
-        ),
-        br(),
         div(
-          class = "no-margin flex flex-gap2",
-          actionButton(ns("close"), "Close"),
-          div(class = "flex-push"),
+          class = "page-actions flex flex-gap2",
+          actionButton(
+            ns("close"),
+            "Close",
+            icon = icon("close"),
+            class = "btn-lg"
+          ),
           actionButton(
             ns("continue"),
             "Apply",
@@ -69,8 +78,7 @@ page_xforms_ui <- function(id) {
           )
         )
       )
-    ),
-    br()
+    )
   )
 }
 
