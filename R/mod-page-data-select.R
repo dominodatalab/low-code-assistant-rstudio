@@ -56,16 +56,16 @@ page_data_select_ui <- function(id) {
       )
     ),
     tags$script(glue::glue("$('#{ns(\"import_modules\")}').addClass('nav-justified');")),
-    # shinyWidgets::prettyCheckbox(
-    #   ns("custom_name"),
-    #   "Custom variable name",
-    #   value = FALSE,
-    #   shape = "curve",
-    #   status = "primary"
-    # ),
-    #conditionalPanel(
-    #  "input.custom_name", ns = ns,
-    #),
+    shinyWidgets::prettyCheckbox(
+      ns("custom_name"),
+      "Custom variable name",
+      value = FALSE,
+      shape = "curve",
+      status = "primary"
+    ),
+    conditionalPanel(
+     "input.custom_name", ns = ns,
+    ),
     uiOutput(ns("error")),
     div(
       shinyWidgets::prettyCheckbox(
@@ -154,12 +154,12 @@ page_data_select_server <- function(id) {
       })
 
       name_out <- reactive({
-        # req(result$name_in)
-        # if (input$custom_name) {
-        make.names(input$varname)
-        # } else {
-        #  result$name_in
-        # }
+        req(name_in())
+        if (input$custom_name) {
+          make.names(input$varname)
+        } else {
+          name_in()
+        }
       })
 
       output$error <- renderUI({
