@@ -30,6 +30,10 @@ insert_text <- function(text, newline = TRUE) {
   }
 
   tryCatch({
+    existing_contents <- rstudioapi::getSourceEditorContext()$contents
+    existing_library_calls <- existing_contents[grepl("^library(.+)$", existing_contents)]
+    text <- remove_duplicate_lines(text, existing_library_calls)
+
     rstudioapi::setCursorPosition(Inf, id = id)
     loc <- rstudioapi::getSourceEditorContext()$selection
     # if the end of the document is not a new line, add a new line
@@ -40,4 +44,27 @@ insert_text <- function(text, newline = TRUE) {
     rstudioapi::insertText(id = id, text = text)
   }, error = function(e) {})
   invisible(NULL)
+}
+
+remove_duplicate_lines <- function(text = "", lines_to_remove = c()) {
+  for (line in lines_to_remove) {
+    # Deal with lines in the middle
+    text <- gsub(paste0("\n", line, "\n"), "\n", text, fixed = TRUE)
+
+    # Deal with first line
+    if (startsWith(text, paste0(line, "\n"))) {
+      text <- sub(paste0(line, "\n"), "", text, fixed = TRUE)
+    }
+
+    # Deal with last line
+    if (endsWith(text, paste0("\n", line))) {
+      text <- paste0(text, "\n")
+      text <- sub(paste0("\n", line, "\n"), "", text, fixed = TRUE)
+    }
+
+    if (text == line) {
+      text <- ""
+    }
+  }
+  text
 }

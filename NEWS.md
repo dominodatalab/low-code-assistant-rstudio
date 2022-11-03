@@ -6,6 +6,7 @@
 - Data module: show user-friendly error message when a data source fails to get read correctly 
 - Data module: make preview and code always reflect the currently selected tab
 - Data module: allow user to automatically generate output variable name based on the selected data
+- Don't insert any `library(...)` calls into a script that already contains this line 
 - Add all package dependencies that were previously missing
 
 # assistDomino 0.1.0 (2022-10-13)
