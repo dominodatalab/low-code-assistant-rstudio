@@ -133,7 +133,10 @@ TransformationSequence <- R6::R6Class(
         temp_result <- get(self$name_in, envir = env)
         for (chunk_idx in seq_along(chunks)) {
           chunk <- chunks[[chunk_idx]]
-          temp_result <- eval(parse(text = chunk), envir = env)
+          res <- eval(parse(text = chunk), envir = env)
+          if (is.data.frame(res)) {
+            temp_result <- res
+          }
         }
         TransformationsResult$new(result = temp_result)
       }, error = function(err) {

@@ -23,12 +23,12 @@ test_that("Transformation parameters error correctly", {
   expect_error(MissingValuesTransformation$new(c("col1", "col2")))
 })
 
-run_xform <- function(data, xform) {
-  (eval(parse(text = xform$get_code("data"))))
+run_xform <- function(data, xform, tidyverse = TRUE) {
+  (eval(parse(text = xform$get_code("data", tidyverse = tidyverse))))
 }
 
 test_that("DropTransformation works", {
-  dfin <- data.frame(a = "a", b = "b", c = "c")
+  dfin <- data.frame(a = "A", b = "B", c = "C")
 
   expect_identical(
     run_xform(dfin, DropTransformation$new("a")),
@@ -41,7 +41,7 @@ test_that("DropTransformation works", {
 })
 
 test_that("SelectTransformation works", {
-  dfin <- data.frame(a = "a", b = "b", c = "c")
+  dfin <- data.frame(a = "A", b = "B", c = "C")
 
   expect_identical(
     run_xform(dfin, SelectTransformation$new("a")),
@@ -55,42 +55,47 @@ test_that("SelectTransformation works", {
 
 test_that("FilterTransformation works", {
   dfin <- data.frame(
-    a = c("a", "a", "b", "c"),
+    a = c("A", "B", "C", "D"),
     b = c(1, 2, 2, 3)
   )
 
   expect_identical(
-    run_xform(dfin, FilterTransformation$new("a", "==", "a", "character")),
-    dfin[ dfin$a == "a", ]
+    run_xform(dfin, FilterTransformation$new("a", "==", "A", "character")),
+    dfin[ dfin$a == "A", ]
   )
   expect_error(
-    run_xform(dfin, FilterTransformation$new("a", "==", "a"))
+    run_xform(dfin, FilterTransformation$new("a", "==", "B"))
   )
   expect_identical(
-    run_xform(dfin, FilterTransformation$new("a", "!=", "a", "character")),
-    dfin[ dfin$a != "a", ]
+    run_xform(dfin, FilterTransformation$new("a", "!=", "A", "character")),
+    dfin[ dfin$a != "A", ],
+    ignore_attr = TRUE
   )
 
   expect_identical(
     run_xform(dfin, FilterTransformation$new("b", "==", 2)),
-    dfin[ dfin$b == 2, ]
+    dfin[ dfin$b == 2, ],
+    ignore_attr = TRUE
   )
   expect_identical(
     run_xform(dfin, FilterTransformation$new("b", ">=", 2)),
-    dfin[ dfin$b >= 2, ]
+    dfin[ dfin$b >= 2, ],
+    ignore_attr = TRUE
   )
 })
 
 test_that("MissingValuesTransformation works", {
-  dfin <- data.frame(a = c(NA, "b", "c"), b = c("a", NA, "b"), c = c("a", "b", "c"))
+  dfin <- data.frame(a = c(NA, "B", "C"), b = c("A", NA, "B"), c = c("A", "B", "C"))
 
   expect_identical(
     run_xform(dfin, MissingValuesTransformation$new("a")),
-    dfin[c(2, 3), ]
+    dfin[c(2, 3), ],
+    ignore_attr = TRUE
   )
   expect_identical(
     run_xform(dfin, MissingValuesTransformation$new("b")),
-    dfin[c(1, 3), ]
+    dfin[c(1, 3), ],
+    ignore_attr = TRUE
   )
   expect_identical(
     run_xform(dfin, MissingValuesTransformation$new("c")),
@@ -102,6 +107,7 @@ test_that("MissingValuesTransformation works", {
   )
   expect_identical(
     run_xform(dfin, MissingValuesTransformation$new()),
-    dfin[3, ]
+    dfin[3, ],
+    ignore_attr = TRUE
   )
 })
