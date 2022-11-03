@@ -7,15 +7,15 @@ AggregateTransformation <- R6::R6Class(
     .cols = NULL,
     .aggregations = NULL,  # named list
 
-    get_code_for_aggregators = function(name_in) {
-      if (private$.tidyverse) {
+    get_code_for_aggregators = function(name_in, tidyverse) {
+      if (tidyverse) {
         aggregations <- lapply(seq_along(self$aggregations), function(idx) {
           type <- self$aggregations[[idx]]
           col <- names(self$aggregations[idx])
           if (! type %in% AggregateTransformation$OPTIONS) {
             stop("The aggregator must be one of: ", paste(AggregateTransformation$OPTIONS, collapse = " "), " (given: ", type, ")", call. = FALSE)
           }
-          private$get_code_for_aggregator(type, col, name_in)
+          private$get_code_for_aggregator(type, col, name_in, tidyverse)
         })
       } else {
         aggr_types <- unique(self$aggregations)
@@ -25,19 +25,19 @@ AggregateTransformation <- R6::R6Class(
           }
           aggr_cols <- names(self$aggregations[self$aggregations == type])
           aggr_cols <- unique(aggr_cols)
-          private$get_code_for_aggregator(type, aggr_cols, name_in)
+          private$get_code_for_aggregator(type, aggr_cols, name_in, tidyverse)
         })
       }
     },
 
-    get_code_for_aggregator = function(type, aggr_cols, name_in) {
+    get_code_for_aggregator = function(type, aggr_cols, name_in, tidyverse) {
       if (type == "size") {
         fxn <- "length"
       } else {
         fxn <- type
       }
 
-      if (private$.tidyverse) {
+      if (tidyverse) {
         glue::glue(
           "{aggr_cols}_{type} = {fxn}({aggr_cols})"
         )
@@ -68,14 +68,14 @@ AggregateTransformation <- R6::R6Class(
 
   public = list(
 
-    initialize = function(cols, aggregations, name_out = NULL, tidyverse = NULL) {
+    initialize = function(cols, aggregations, name_out = NULL) {
       if (length(cols) == 0) {
         stop("You must provide at least one column to group by", call. = FALSE)
       }
       if (length(aggregations) == 0) {
         stop("You must provide at least one aggregation", call. = FALSE)
       }
-      super$initialize(name_out, tidyverse)
+      super$initialize(name_out)
       private$.cols <- cols
       private$.aggregations <- aggregations
       invisible(self)
@@ -91,9 +91,9 @@ AggregateTransformation <- R6::R6Class(
       )
     },
 
-    get_code = function(name_in) {
-      aggregations <- private$get_code_for_aggregators(name_in)
-      if (private$.tidyverse) {
+    get_code = function(name_in, tidyverse = FALSE) {
+      aggregations <- private$get_code_for_aggregators(name_in, tidyverse)
+      if (tidyverse) {
         if (length(aggregations) == 1) {
           summaries <- glue::glue("  summarise({aggregations[[1]]})")
         } else {
@@ -105,6 +105,7 @@ AggregateTransformation <- R6::R6Class(
           )
         }
         glue::glue(
+          'library(dplyr)\n',
           '{self$name_out} <- ',
           '{name_in} %>%\n  group_by({paste(private$.cols, collapse = ", ")}) %>%\n',
           summaries,
