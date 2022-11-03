@@ -26,7 +26,12 @@ insert_text <- function(text, newline = TRUE) {
   }
 
   if (newline) {
-    text <- paste0(text, "\n")
+    if (endsWith(text, "\n\n")) {}
+    else if (endsWith(text, "\n")) {
+      text <- paste0(text, "\n")
+    } else {
+      text <- paste0(text, "\n\n")
+    }
   }
 
   tryCatch({

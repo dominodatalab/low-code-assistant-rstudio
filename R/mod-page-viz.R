@@ -150,7 +150,7 @@ page_viz_server <- function(id, data_in = NULL, name_in = NULL) {
         if (input$plotly) {
           code <- paste0(code, "library(plotly)\n")
         }
-        code <- glue::glue(code, "\n{input$plot_name} <- ggplot({name()})")
+        code <- glue::glue(code, "{input$plot_name} <- ggplot({name()})")
         code <- paste0(code, " + \n  aes")
         code <- glue::glue(code, "(x = {input$var_x}{yvar}{col})")
 
@@ -175,7 +175,7 @@ page_viz_server <- function(id, data_in = NULL, name_in = NULL) {
         if (input$plotly) {
           code <- glue::glue(code, "\n{input$plot_name} <- ggplotly({input$plot_name})\n")
         }
-        code <- paste0(code, "\n", input$plot_name, "\n")
+        code <- paste0(code, "\n", input$plot_name)
 
         code
       })
