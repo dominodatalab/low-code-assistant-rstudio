@@ -23,14 +23,14 @@ FilterTransformation <- R6::R6Class(
 
   public = list(
 
-    initialize = function(col, op, value, type = NULL, name_out = NULL) {
+    initialize = function(col, op, value, type = NULL, name_out = NULL, tidyverse = NULL) {
       if (length(col) != 1) {
         stop("You must provide exactly one column", call. = FALSE)
       }
       if (! op %in% FilterTransformation$OPTIONS) {
         stop("The operation must be one of: ", paste(FilterTransformation$OPTIONS, collapse = " "), call. = FALSE)
       }
-      super$initialize(name_out)
+      super$initialize(name_out, tidyverse)
       private$.col <- col
       private$.op <- op
       private$.value <- value
@@ -49,11 +49,19 @@ FilterTransformation <- R6::R6Class(
         value <- glue::glue('{shQuote(value, type = "cmd")}')
       }
 
-      glue::glue(
-        '{self$name_out} <- ',
-        '{name_in}',
-        '[ {name_in}[["{self$col}"]] {self$op} {value}, , drop = FALSE]'
-      )
+      if (private$.tidyverse) {
+        glue::glue(
+          '{self$name_out} <- ',
+          '{name_in} %>% ',
+          'filter({self$col} {self$op} {value})'
+        )
+      } else {
+        glue::glue(
+          '{self$name_out} <- ',
+          '{name_in}',
+          '[ {name_in}[["{self$col}"]] {self$op} {value}, , drop = FALSE]'
+        )
+      }
     }
 
   )

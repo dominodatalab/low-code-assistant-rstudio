@@ -24,6 +24,7 @@ test_that("Transformation parameters error correctly", {
 })
 
 run_xform <- function(data, xform) {
+  library(tidyverse)
   (eval(parse(text = xform$get_code("data"))))
 }
 

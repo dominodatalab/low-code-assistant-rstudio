@@ -14,11 +14,11 @@ DropTransformation <- R6::R6Class(
 
   public = list(
 
-    initialize = function(cols, name_out = NULL) {
+    initialize = function(cols, name_out = NULL, tidyverse = NULL) {
       if (length(cols) == 0) {
         stop("You must provide at least one column", call. = FALSE)
       }
-      super$initialize(name_out)
+      super$initialize(name_out, tidyverse)
       private$.cols <- cols
       invisible(self)
     },
@@ -28,11 +28,19 @@ DropTransformation <- R6::R6Class(
     },
 
     get_code = function(name_in) {
-      glue::glue(
-        '{self$name_out} <- ',
-        '{name_in}',
-        '[, !(names({name_in}) %in% c("{paste(self$cols, collapse = \'", "\')}")), drop = FALSE]'
-      )
+      if (private$.tidyverse) {
+        glue::glue(
+          '{self$name_out} <- ',
+          '{name_in} %>% ',
+          'select(-c("{paste(self$cols, collapse = \'", "\')}"))'
+        )
+      } else {
+        glue::glue(
+          '{self$name_out} <- ',
+          '{name_in}',
+          '[, !(names({name_in}) %in% c("{paste(self$cols, collapse = \'", "\')}")), drop = FALSE]'
+        )
+      }
     }
 
   )

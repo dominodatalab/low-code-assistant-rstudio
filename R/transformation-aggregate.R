@@ -7,22 +7,52 @@ AggregateTransformation <- R6::R6Class(
     .cols = NULL,
     .aggregations = NULL,  # named list
 
+    get_code_for_aggregators = function(name_in) {
+      if (private$.tidyverse) {
+        aggregations <- lapply(seq_along(self$aggregations), function(idx) {
+          type <- self$aggregations[[idx]]
+          col <- names(self$aggregations[idx])
+          if (! type %in% AggregateTransformation$OPTIONS) {
+            stop("The aggregator must be one of: ", paste(AggregateTransformation$OPTIONS, collapse = " "), " (given: ", type, ")", call. = FALSE)
+          }
+          private$get_code_for_aggregator(type, col, name_in)
+        })
+      } else {
+        aggr_types <- unique(self$aggregations)
+        aggregations <- lapply(aggr_types, function(type) {
+          if (! type %in% AggregateTransformation$OPTIONS) {
+            stop("The aggregator must be one of: ", paste(AggregateTransformation$OPTIONS, collapse = " "), " (given: ", type, ")", call. = FALSE)
+          }
+          aggr_cols <- names(self$aggregations[self$aggregations == type])
+          aggr_cols <- unique(aggr_cols)
+          private$get_code_for_aggregator(type, aggr_cols, name_in)
+        })
+      }
+    },
+
     get_code_for_aggregator = function(type, aggr_cols, name_in) {
       if (type == "size") {
         fxn <- "length"
       } else {
         fxn <- type
       }
-      glue::glue(
-        "aggregate(",
-        "cbind(",
-        glue::glue_collapse(paste(paste(aggr_cols, type, sep = '_'), aggr_cols, sep = ' = '), sep = ', '),
-        ")",
-        " ~ ",
-        "{glue::glue_collapse(self$cols, sep = ' + ')}, ",
-        "{name_in}, ",
-        "FUN = {fxn})"
-      )
+
+      if (private$.tidyverse) {
+        glue::glue(
+          "{aggr_cols}_{type} = {fxn}({aggr_cols})"
+        )
+      } else {
+        glue::glue(
+          "aggregate(",
+          "cbind(",
+          glue::glue_collapse(paste(paste(aggr_cols, type, sep = '_'), aggr_cols, sep = ' = '), sep = ', '),
+          ")",
+          " ~ ",
+          "{glue::glue_collapse(self$cols, sep = ' + ')}, ",
+          "{name_in}, ",
+          "FUN = {fxn})"
+        )
+      }
     }
 
   ),
@@ -38,14 +68,14 @@ AggregateTransformation <- R6::R6Class(
 
   public = list(
 
-    initialize = function(cols, aggregations, name_out = NULL) {
+    initialize = function(cols, aggregations, name_out = NULL, tidyverse = NULL) {
       if (length(cols) == 0) {
         stop("You must provide at least one column to group by", call. = FALSE)
       }
       if (length(aggregations) == 0) {
         stop("You must provide at least one aggregation", call. = FALSE)
       }
-      super$initialize(name_out)
+      super$initialize(name_out, tidyverse)
       private$.cols <- cols
       private$.aggregations <- aggregations
       invisible(self)
@@ -62,31 +92,41 @@ AggregateTransformation <- R6::R6Class(
     },
 
     get_code = function(name_in) {
-      aggr_types <- unique(self$aggregations)
-      aggregations <- lapply(aggr_types, function(type) {
-        if (! type %in% AggregateTransformation$OPTIONS) {
-          stop("The aggregator must be one of: ", paste(AggregateTransformation$OPTIONS, collapse = " "), " (given: ", type, ")", call. = FALSE)
+      aggregations <- private$get_code_for_aggregators(name_in)
+      if (private$.tidyverse) {
+        if (length(aggregations) == 1) {
+          summaries <- glue::glue("  summarise({aggregations[[1]]})")
+        } else {
+          summaries <- glue::glue(
+            '  summarise(\n',
+            '{paste("    ", aggregations, collapse = ",\n")}\n',
+            '  )',
+            .trim = FALSE
+          )
         }
-        aggr_cols <- names(self$aggregations[self$aggregations == type])
-        aggr_cols <- unique(aggr_cols)
-        private$get_code_for_aggregator(type, aggr_cols, name_in)
-      })
-
-      if (length(aggregations) == 1) {
         glue::glue(
           '{self$name_out} <- ',
-          '{aggregations[[1]]}'
+          '{name_in} %>%\n  group_by({paste(private$.cols, collapse = ", ")}) %>%\n',
+          summaries,
+          .trim = FALSE
         )
       } else {
-        glue::glue(
-          '{self$name_out} <- Reduce(',
-          '  merge,',
-          '  list(',
-          glue::glue_collapse(paste0("    ", aggregations), sep = ",\n"),
-          '  )',
-          ')',
-          .sep = '\n'
-        )
+        if (length(aggregations) == 1) {
+          glue::glue(
+            '{self$name_out} <- ',
+            '{aggregations[[1]]}'
+          )
+        } else {
+          glue::glue(
+            '{self$name_out} <- Reduce(',
+            '  merge,',
+            '  list(',
+            glue::glue_collapse(paste0("    ", aggregations), sep = ",\n"),
+            '  )',
+            ')',
+            .sep = '\n'
+          )
+        }
       }
     }
   )

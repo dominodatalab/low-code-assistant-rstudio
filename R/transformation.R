@@ -3,7 +3,8 @@ Transformation <- R6::R6Class(
   cloneable = FALSE,
 
   private = list(
-    .name_out = NULL
+    .name_out = NULL,
+    .tidyverse = FALSE
   ),
 
   active = list(
@@ -13,9 +14,19 @@ Transformation <- R6::R6Class(
   ),
 
   public = list(
-    initialize = function(name_out) {
+    initialize = function(name_out = NULL, tidyverse = NULL) {
       private$.name_out <- name_out %||% "df"
+      self$use_tidyverse(tidyverse %||% TRUE)
       invisible(self)
+    },
+
+    use_tidyverse = function(x) {
+      if (isTRUE(x) || isFALSE(x)) {
+        private$.tidyverse <- x
+        invisible(self)
+      } else {
+        stop("tidyverse must be either `TRUE` or `FALSE")
+      }
     }
   )
 )

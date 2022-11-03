@@ -166,7 +166,7 @@ page_xforms_server <- function(id, data_name_in = NULL) {
       code_section <- code_chunk_server(
         "code",
         chunks = reactive(xforms()$get_code_chunks()),
-        editable = reactive(seq_len(xforms()$size)),
+        editable = reactive(1+seq_len(xforms()$size)),
         error_line = error_line_num
       )
 
@@ -260,19 +260,19 @@ page_xforms_server <- function(id, data_name_in = NULL) {
 
       # edit/modify/delete
       observeEvent(code_section$modify(), {
-        temp_xform <- xforms()$head(code_section$modify() - 1)
+        temp_xform <- xforms()$head(code_section$modify() - 2)
         new_env <- new.env()
         assign(data_name(), main_data(), envir = new_env)
         temp_res <- temp_xform$run(new_env)$result
-        xform_modal$show(data = temp_res, action = "edit", xform = xforms()$transformations[[code_section$modify()]], meta = code_section$modify())
+        xform_modal$show(data = temp_res, action = "edit", xform = xforms()$transformations[[code_section$modify()-1]], meta = code_section$modify()-1)
       })
 
       observeEvent(code_section$insert(), {
-        temp_xform <- xforms()$head(code_section$insert() - 1)
+        temp_xform <- xforms()$head(code_section$insert() - 2)
         new_env <- new.env()
         assign(data_name(), main_data(), envir = new_env)
         temp_res <- temp_xform$run(new_env)$result
-        xform_modal$show(data = temp_res, action = "insert", meta = code_section$insert())
+        xform_modal$show(data = temp_res, action = "insert", meta = code_section$insert()-1)
       })
 
       observeEvent(code_section$delete(), {
@@ -281,11 +281,11 @@ page_xforms_server <- function(id, data_name_in = NULL) {
           list(
             section = MIXPANEL_SECTION_XFORM,
             type = "delete",
-            transformation_type = class(xforms()$transformations[[code_section$delete()]])[1]
+            transformation_type = class(xforms()$transformations[[code_section$delete()-1]])[1]
           )
         )
 
-        new_xforms <- xforms()$remove(code_section$delete())
+        new_xforms <- xforms()$remove(code_section$delete()-1)
         xforms(new_xforms)
         undo_redo$add(new_xforms)
       })

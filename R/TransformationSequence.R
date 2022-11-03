@@ -10,6 +10,7 @@ TransformationSequence <- R6::R6Class(
 
     .transformations = NULL,
     .name_in = NULL,
+    .tidyverse = NULL,
 
     set_transformations = function(transformations) {
       if (length(transformations) == 0) {
@@ -49,8 +50,9 @@ TransformationSequence <- R6::R6Class(
 
   public = list(
 
-    initialize = function(transformations = list(), name_in) {
+    initialize = function(transformations = list(), name_in, tidyverse = T) {
       private$.name_in <- name_in
+      private$.tidyverse <- tidyverse
       private$set_transformations(transformations)
       invisible(self)
     },
@@ -63,6 +65,15 @@ TransformationSequence <- R6::R6Class(
       }
     },
 
+    use_tidyverse = function(x) {
+      if (isTRUE(x) || isFALSE(x)) {
+        private$.tidyverse <- x
+        invisible(self)
+      } else {
+        stop("tidyverse must be either `TRUE` or `FALSE")
+      }
+    },
+
     get_code = function() {
       chunks <- self$get_code_chunks()
       paste(chunks, collapse = "\n")
@@ -71,6 +82,9 @@ TransformationSequence <- R6::R6Class(
     get_code_chunks = function() {
       name_in <- private$.name_in
       chunks <- list()
+      if (private$.tidyverse) {
+        chunks <- append(chunks, "library(tidyverse)")
+      }
       for (transformation in private$.transformations) {
         chunks <- append(chunks, transformation$get_code(name_in))
         name_in <- transformation$name_out
@@ -120,7 +134,8 @@ TransformationSequence <- R6::R6Class(
         }
         TransformationsResult$new(result = temp_result)
       }, error = function(err) {
-        TransformationsResult$new(result = temp_result, error = err$message, error_line = chunk, error_line_num = chunk_idx)
+        msg <- iconv(cli::ansi_strip(conditionMessage(err)), "latin1", "ASCII", sub = "")
+        TransformationsResult$new(result = temp_result, error = msg, error_line = chunk, error_line_num = chunk_idx)
       })
       result
     }

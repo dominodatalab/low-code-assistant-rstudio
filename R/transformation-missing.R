@@ -14,13 +14,13 @@ MissingValuesTransformation <- R6::R6Class(
 
   public = list(
 
-    initialize = function(col = NULL, name_out = NULL) {
+    initialize = function(col = NULL, name_out = NULL, tidyverse = NULL) {
       if (length(col) == 0) {
         col <- NULL
       } else if (length(col) > 1) {
         stop("You must provide exactly one column", call. = FALSE)
       }
-      super$initialize(name_out)
+      super$initialize(name_out, tidyverse)
       private$.col <- col
       invisible(self)
     },
@@ -34,16 +34,29 @@ MissingValuesTransformation <- R6::R6Class(
     },
 
     get_code = function(name_in) {
-      if (is.null(self$col)) {
-        filter_code <- '[complete.cases({name_in}), , drop = FALSE]'
+      if (private$.tidyverse) {
+        if (is.null(self$col)) {
+          filter_code <- 'drop_na()'
+        } else {
+          filter_code <- 'drop_na("{self$col}")'
+        }
+        glue::glue(
+          '{self$name_out} <- ',
+          '{name_in} %>% ',
+          filter_code
+        )
       } else {
-        filter_code <- '[!is.na({name_in}[["{self$col}"]]), , drop = FALSE]'
+        if (is.null(self$col)) {
+          filter_code <- '[complete.cases({name_in}), , drop = FALSE]'
+        } else {
+          filter_code <- '[!is.na({name_in}[["{self$col}"]]), , drop = FALSE]'
+        }
+        glue::glue(
+          '{self$name_out} <- ',
+          '{name_in}',
+          filter_code
+        )
       }
-      glue::glue(
-        '{self$name_out} <- ',
-        '{name_in}',
-        filter_code
-      )
     }
 
   )
