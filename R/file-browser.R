@@ -3,9 +3,14 @@ FILEBROWSER_TYPE_DIR <- "dir"
 FILEBROWSER_TYPE_FILE <- "file"
 FILEBROWSER_TYPES <- c(FILEBROWSER_TYPE_PARENT, FILEBROWSER_TYPE_DIR, FILEBROWSER_TYPE_FILE)
 FILEBROWSER_CSS <-
- ".shiny-file-browser { overflow: auto; border: 1px solid #ddd; padding: 0.5rem; }
+ ".shiny-file-browser { overflow: auto; border: 1px solid #ddd; padding: 0.5rem; font-size: 1.1em; }
   .shiny-file-browser .current-wd { font-family: monospace; padding: 0.5rem; }
-  .shiny-file-browser .file-list { user-select: none; font-size: 1.1em; padding: 0 0.1rem; }
+  .shiny-file-browser .current-wd .current-wd-breadcrumbs { display: flex; align-items: center; }
+  .shiny-file-browser .current-wd .file-breadcrumb { border-radius: 5px; transition: background 0.3s; }
+  .shiny-file-browser .current-wd .file-breadcrumb-clickable { cursor: pointer; }
+  .shiny-file-browser .current-wd .file-breadcrumb-clickable:hover { background: #f6f6f6; }
+  .shiny-file-browser .current-wd .file-breadcrumb-clickable:active { background: #ccc; }
+  .shiny-file-browser .file-list { user-select: none; padding: 0 0.1rem; }
   .shiny-file-browser .file-row { display: flex; cursor: pointer; transition: background 0.3s; }
   .shiny-file-browser .file-row:hover { background: #f6f6f6; }
   .shiny-file-browser .file-row:active { background: #ccc; }
@@ -34,7 +39,7 @@ file_browser_ui <- function(id, height = NULL) {
     singleton(tags$head(tags$style(FILEBROWSER_CSS))),
     class = "shiny-file-browser",
     style = style,
-    div(class = "current-wd", textOutput(ns("current_wd"))),
+    div(class = "current-wd", uiOutput(ns("current_wd"))),
     div(class = "file-list", uiOutput(ns("file_list")))
   )
 }
@@ -83,8 +88,20 @@ file_browser_server <- function(
         selected(NULL)
       })
 
-      output$current_wd <- renderText({
-        wd()
+      output$current_wd <- renderUI({
+        crumbs <- make_breadcrumbs(wd())
+        crumbs <- lapply(seq_along(crumbs), function(idx) {
+          tagList(
+            if (idx > 1) span("/", class = "file-breadcrumb-separator"),
+            span(
+              unname(crumbs[idx]),
+              onclick = create_file_onclick(names(crumbs[idx]), ns = ns),
+              class = "file-breadcrumb",
+              class = if (is_subdir(root_r(), names(crumbs[idx]))) "file-breadcrumb-clickable"
+            )
+          )
+        })
+        div(crumbs, class = "current-wd-breadcrumbs")
       })
 
       at_root <- reactive({
@@ -226,4 +243,36 @@ create_file_onclick <- function(new_path, ns = shiny::NS(NULL)) {
     "Shiny.setInputValue('{{ ns('file_clicked') }}', '{{ new_path }}', {priority: 'event'})",
     .open = "{{", .close = "}}"
   )
+}
+
+make_breadcrumbs <- function(path) {
+  parts <- c()
+  while (TRUE) {
+    name <- basename(path)
+    parent <- dirname(path)
+
+    # An empty input or a path that begins with a slash
+    if (name == "") {
+      parts <- c(setNames(path, path), parts)
+      break
+    }
+
+    # A path that doesn't start with a slash
+    if (parent == "" || parent == ".") {
+      parts <- c(setNames(name, path), parts)
+      break
+    }
+
+    # Special case: the C:/ or D:/ etc drives on Windows
+    if (dirname(path) == path) {
+      parts <- c(setNames(name, path), parts)
+      break
+    }
+
+    path <- gsub("/+$", "", path)
+
+    parts <- c(setNames(name, path), parts)
+    path <- parent
+  }
+  parts
 }

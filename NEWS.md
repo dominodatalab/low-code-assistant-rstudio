@@ -8,6 +8,7 @@
 - Data module: allow user to automatically generate output variable name based on the selected data
 - Code chunk insertion: Don't insert any `library(...)` calls into a script that already contains this line 
 - Code chunk insertion: Insert an empty line after every code chunk that gets inserted into a script
+- File browser: allow clicking on any parent path in the breadcrumbs to quickly navigate there
 - Add all package dependencies that were previously missing
 
 # assistDomino 0.1.0 (2022-10-13)
