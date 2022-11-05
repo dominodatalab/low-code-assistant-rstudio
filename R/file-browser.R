@@ -2,6 +2,17 @@ FILEBROWSER_TYPE_PARENT <- "parent"
 FILEBROWSER_TYPE_DIR <- "dir"
 FILEBROWSER_TYPE_FILE <- "file"
 FILEBROWSER_TYPES <- c(FILEBROWSER_TYPE_PARENT, FILEBROWSER_TYPE_DIR, FILEBROWSER_TYPE_FILE)
+FILEBROWSER_CSS <-
+ ".shiny-file-browser { overflow: auto; border: 1px solid #ddd; padding: 0.5rem; }
+  .shiny-file-browser .current-wd { font-family: monospace; padding: 0.5rem; }
+  .shiny-file-browser .file-list { user-select: none; font-size: 1.1em; padding: 0 0.1rem; }
+  .shiny-file-browser .file-row { display: flex; cursor: pointer; transition: background 0.3s; }
+  .shiny-file-browser .file-row:hover { background: #f6f6f6; }
+  .shiny-file-browser .file-row:active { background: #ccc; }
+  .shiny-file-browser .file-icon { margin-right: 2rem; }
+  .shiny-file-browser .file-type-dir .file-contents,
+  .shiny-file-browser .file-type-parent .file-contents { font-weight: bold; }
+  .shiny-file-browser .file-meta { font-style: italic; }"
 
 #' File browser
 #'
@@ -20,19 +31,7 @@ file_browser_ui <- function(id, height = NULL) {
   style <- if (!is.null(height)) paste0("height: ", htmltools::validateCssUnit(height))
 
   div(
-    singleton(tags$head(tags$style(
-      ".shiny-file-browser { overflow: auto; border: 1px solid #ddd; padding: 0.5rem; }
-      .shiny-file-browser .current-wd { font-family: monospace; padding: 0.5rem; }
-      .shiny-file-browser .file-list { user-select: none; font-size: 1.1em; padding: 0 0.1rem; }
-      .shiny-file-browser .file-row { display: flex; cursor: pointer; transition: background 0.3s; }
-      .shiny-file-browser .file-row:hover { background: #f6f6f6; }
-      .shiny-file-browser .file-row:active { background: #ccc; }
-      .shiny-file-browser .file-icon { margin-right: 2rem; }
-      .shiny-file-browser .file-type-dir .file-contents,
-      .shiny-file-browser .file-type-parent .file-contents { font-weight: bold; }
-      .shiny-file-browser .file-meta { font-style: italic; }
-      "
-    ))),
+    singleton(tags$head(tags$style(FILEBROWSER_CSS))),
     class = "shiny-file-browser",
     style = style,
     div(class = "current-wd", textOutput(ns("current_wd"))),
