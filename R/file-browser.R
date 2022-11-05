@@ -6,10 +6,11 @@ FILEBROWSER_CSS <-
  ".shiny-file-browser { overflow: auto; border: 1px solid #ddd; padding: 0.5rem; font-size: 1.1em; }
   .shiny-file-browser .current-wd { font-family: monospace; padding: 0.5rem; }
   .shiny-file-browser .current-wd .current-wd-breadcrumbs { display: flex; align-items: center; }
-  .shiny-file-browser .current-wd .file-breadcrumb { border-radius: 5px; transition: background 0.3s; }
+  .shiny-file-browser .current-wd .file-breadcrumb { padding: 0 2px; border-radius: 5px; transition: background 0.3s; }
   .shiny-file-browser .current-wd .file-breadcrumb-clickable { cursor: pointer; }
   .shiny-file-browser .current-wd .file-breadcrumb-clickable:hover { background: #f6f6f6; }
   .shiny-file-browser .current-wd .file-breadcrumb-clickable:active { background: #ccc; }
+  .shiny-file-browser .current-wd .file-breadcrumb-separator { color: #aaa; }
   .shiny-file-browser .file-list { user-select: none; padding: 0 0.1rem; }
   .shiny-file-browser .file-row { display: flex; cursor: pointer; transition: background 0.3s; }
   .shiny-file-browser .file-row:hover { background: #f6f6f6; }
@@ -89,10 +90,10 @@ file_browser_server <- function(
       })
 
       output$current_wd <- renderUI({
-        crumbs <- make_breadcrumbs(wd(), include_root = FALSE)
+        crumbs <- make_breadcrumbs(wd())
         crumbs_html <- lapply(seq_along(crumbs), function(idx) {
           tagList(
-            if (idx > 1) span("/", class = "file-breadcrumb-separator"),
+            if (idx > 1) span(HTML("&rsaquo;"), class = "file-breadcrumb-separator"),
             span(
               unname(crumbs[idx]),
               onclick = create_file_onclick(names(crumbs[idx]), ns = ns),
