@@ -89,8 +89,8 @@ file_browser_server <- function(
       })
 
       output$current_wd <- renderUI({
-        crumbs <- make_breadcrumbs(wd())
-        crumbs <- lapply(seq_along(crumbs), function(idx) {
+        crumbs <- make_breadcrumbs(wd(), include_root = FALSE)
+        crumbs_html <- lapply(seq_along(crumbs), function(idx) {
           tagList(
             if (idx > 1) span("/", class = "file-breadcrumb-separator"),
             span(
@@ -101,7 +101,7 @@ file_browser_server <- function(
             )
           )
         })
-        div(crumbs, class = "current-wd-breadcrumbs")
+        div(crumbs_html, class = "current-wd-breadcrumbs")
       })
 
       at_root <- reactive({
@@ -245,13 +245,21 @@ create_file_onclick <- function(new_path, ns = shiny::NS(NULL)) {
   )
 }
 
-make_breadcrumbs <- function(path) {
+make_breadcrumbs <- function(path, include_root = TRUE) {
   parts <- c()
   while (TRUE) {
     name <- basename(path)
     parent <- dirname(path)
 
-    # An empty input or a path that begins with a slash
+    # A path that begins with a slash
+    if (path == "/") {
+      if (include_root) {
+        parts <- c(setNames(path, path), parts)
+      }
+      break
+    }
+
+    # An empty input
     if (name == "") {
       parts <- c(setNames(path, path), parts)
       break
