@@ -8,6 +8,7 @@ LoadModuleURL$shiny <- list(
   ui = function(id) {
     ns <- NS(id)
     tagList(
+      br(),
       shinyWidgets::alert(
         "Enter a URL of a file with one of the following extensions:", br(),
         paste(LoadModuleFile$FILE_READ_EXTENSIONS, collapse = ", "),

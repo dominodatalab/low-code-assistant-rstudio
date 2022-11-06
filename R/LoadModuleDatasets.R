@@ -8,6 +8,7 @@ LoadModuleDatasets$shiny <- list(
   ui = function(id) {
     ns <- NS(id)
     tagList(
+      br(),
       shinyfilebrowser::file_browser_ui(ns("filebrowser"))
     )
   },

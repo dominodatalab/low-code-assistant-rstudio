@@ -9,6 +9,9 @@
 - Code chunk insertion: Don't insert any `library(...)` calls into a script that already contains this line 
 - Code chunk insertion: Insert an empty line after every code chunk that gets inserted into a script
 - File browser: allow clicking on any parent path in the breadcrumbs to quickly navigate there
+- File browser: allow de-selecting items by clicking on them again
+- Improve the UI for all file browsers and list selectors
+- Make the package work with older shiny versions (previously version >= 1.7 was needed)
 - Add all package dependencies that were previously missing
 
 # assistDomino 0.1.0 (2022-10-13)
