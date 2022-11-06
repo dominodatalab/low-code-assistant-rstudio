@@ -3,7 +3,7 @@ data_environment_ui <- function(id) {
 
   tagList(
     shinyWidgets::alert("Select a data.frame from your R workspace", status = "info"),
-    shinyfilebrowser::path_browser_ui(ns("dataframes"), bigger = TRUE)
+    shinyfilebrowser::list_selector_ui(ns("dataframes"))
   )
 }
 
@@ -21,22 +21,20 @@ data_environment_server <- function(id) {
       } else {
         df_choices <- stats::setNames(dataframes, paste(dataframes, df_dims))
       }
-      datasets <- shinyfilebrowser::path_browser_server(
+      datasets <- shinyfilebrowser::list_selector_server(
         "dataframes",
         df_choices,
-        show_path = FALSE,
-        show_icons = FALSE,
         text_empty = "There are no data.frames"
       )
 
       name <- reactive({
-        req(datasets$selected())
-        datasets$selected()
+        req(datasets())
+        datasets()
       })
 
       code <- reactive({
-        req(datasets$selected())
-        datasets$selected()
+        req(datasets())
+        datasets()
       })
 
       observeEvent(code(), {

@@ -61,7 +61,7 @@ LoadModuleDemo$shiny <- list(
   ui = function(id) {
     ns <- NS(id)
     tagList(
-      shinyfilebrowser::path_browser_ui(ns("datasets"), bigger = TRUE)
+      shinyfilebrowser::list_selector_ui(ns("datasets"))
     )
   },
 
@@ -69,14 +69,12 @@ LoadModuleDemo$shiny <- list(
     moduleServer(
       id,
       function(input, output, session) {
-        datasets <- shinyfilebrowser::path_browser_server(
+        datasets <- shinyfilebrowser::list_selector_server(
           "datasets",
-          LoadModuleDemo$DATASETS,
-          show_path = FALSE,
-          show_icons = FALSE
+          LoadModuleDemo$DATASETS
         )
         load <- reactive({
-          LoadModuleDemo$new(datasets$selected())
+          LoadModuleDemo$new(datasets())
         })
 
         return(list(
