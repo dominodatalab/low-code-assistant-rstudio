@@ -2,10 +2,6 @@
   if (is.null(x)) y else x
 }
 
-drop_null <- function(x) {
-  Filter(Negate(is.null), x)
-}
-
 cat0 <- function(...) {
   cat(..., sep = "")
 }

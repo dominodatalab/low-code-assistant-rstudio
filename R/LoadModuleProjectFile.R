@@ -8,7 +8,7 @@ LoadModuleProjectFile$shiny <- list(
   ui = function(id) {
     ns <- NS(id)
     tagList(
-      file_browser_ui(ns("filebrowser")), br()
+      shinyfilebrowser::file_browser_ui(ns("filebrowser")), br()
     )
   },
 
@@ -16,7 +16,7 @@ LoadModuleProjectFile$shiny <- list(
     moduleServer(
       id,
       function(input, output, session) {
-        browser <- file_browser_server(
+        browser <- shinyfilebrowser::file_browser_server(
           "filebrowser",
           path = get_user_project_dir(),
           extensions = LoadModuleFile$FILE_READ_EXTENSIONS,
