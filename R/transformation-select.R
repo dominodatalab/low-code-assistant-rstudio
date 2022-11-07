@@ -6,7 +6,7 @@ SelectTransformation <- R6::R6Class(
     .cols = NULL,
 
     get_dependencies = function() {
-      if (private$.tidyverse) c("dplyr","timevis","shiny","shinyjs","shinyalert") else NULL
+      if (private$.tidyverse) "dplyr" else NULL
     },
 
     get_full_code = function(name_in) {
