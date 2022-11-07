@@ -6,7 +6,30 @@ FilterTransformation <- R6::R6Class(
     .col = NULL,
     .op = NULL,
     .value = NULL,
-    .type = NULL
+    .type = NULL,
+
+    get_dependencies = function() {
+      if (private$.tidyverse) "dplyr" else NULL
+    },
+
+    get_full_code = function(name_in) {
+      value <- self$value
+      if (!is.null(private$.type) && private$.type %in% c("character", "factor")) {
+        value <- glue::glue('{shQuote(value, type = "cmd")}')
+      }
+
+      if (private$.tidyverse) {
+        glue::glue(
+          '{name_in} %>% ',
+          'filter({self$col} {self$op} {value})'
+        )
+      } else {
+        glue::glue(
+          '{name_in}',
+          '[ {name_in}[["{self$col}"]] {self$op} {value}, , drop = FALSE]'
+        )
+      }
+    }
   ),
 
   active = list(
@@ -42,30 +65,7 @@ FilterTransformation <- R6::R6Class(
       super$print()
       cat0(glue::glue("{self$col} {self$op} {self$value}",
                       if (is.null(private$.type)) "" else " ({private$.type})"), "\n")
-    },
-
-    get_code = function(name_in) {
-      value <- self$value
-      if (!is.null(private$.type) && private$.type %in% c("character", "factor")) {
-        value <- glue::glue('{shQuote(value, type = "cmd")}')
-      }
-
-      if (private$.tidyverse) {
-        glue::glue(
-          'library(dplyr)\n',
-          '{self$name_out} <- ',
-          '{name_in} %>% ',
-          'filter({self$col} {self$op} {value})'
-        )
-      } else {
-        glue::glue(
-          '{self$name_out} <- ',
-          '{name_in}',
-          '[ {name_in}[["{self$col}"]] {self$op} {value}, , drop = FALSE]'
-        )
-      }
     }
-
   )
 )
 

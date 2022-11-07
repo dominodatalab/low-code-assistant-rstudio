@@ -1,3 +1,4 @@
+# A subclass must implement: private$get_full_code(name_in) and private$get_dependencies()
 Transformation <- R6::R6Class(
   "Transformation",
   cloneable = FALSE,
@@ -14,6 +15,10 @@ Transformation <- R6::R6Class(
 
     tidyverse = function() {
       private$.tidyverse
+    },
+
+    dependencies = function() {
+      private$get_dependencies()
     }
   ),
 
@@ -37,6 +42,17 @@ Transformation <- R6::R6Class(
         if (private$.tidyverse) "{tidyverse}" else "base R",
         ") "
       )
+    },
+
+    get_code = function(name_in, dependencies = TRUE) {
+      code <- paste(self$name_out, "<-", private$get_full_code(name_in))
+      if (dependencies && length(private$get_dependencies()) >= 1) {
+        code <- paste0(
+          paste(paste0("library(", private$get_dependencies(), ")\n"), collapse = ""),
+          code
+        )
+      }
+      code
     }
   )
 )

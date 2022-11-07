@@ -8,7 +8,13 @@
 \usage{
 code_chunk_ui(id)
 
-code_chunk_server(id, chunks = NULL, editable = NULL, error_line = NULL)
+code_chunk_server(
+  id,
+  chunks = NULL,
+  editable = NULL,
+  error_line = NULL,
+  skip = NULL
+)
 }
 \arguments{
 \item{id}{Unique ID for the module}
@@ -19,6 +25,12 @@ A single chunk is also acceptable. A code chunk can consist of multiple lines.}
 \item{editable}{(reactive or static) Vector of chunk numbers that are editable, or TRUE to make everything editable}
 
 \item{error_line}{(reactive or static) Chunk number that should be shown as the error.}
+
+\item{skip}{(reactive or static) Number of lines to skip in the numbering system, essentially ignoring those lines
+for all purposes but still showing them. For example, if there are 10 lines in total and \code{skip = 3} and a user
+clicks on insert/modify/delete on the 5th line, then the module will report it as the second line (5 - 3 = 2).
+Similarly, if \code{skip = 3} and \code{error_line = 5}, then it will appear as if the 8th line is the error (because the
+first 3 don't count).}
 }
 \value{
 List with reactive elements corresponding to user interactions:

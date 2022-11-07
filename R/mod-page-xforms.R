@@ -146,9 +146,6 @@ page_xforms_server <- function(id, data_name_in = NULL) {
       xforms_chunks <- reactive({
         xforms()$get_code_chunks()
       })
-      xforms_setup_lines <- reactive({
-        length(xforms_chunks()) - xforms()$size
-      })
       error <- reactive({
         xforms_result()$error
       })
@@ -167,10 +164,8 @@ page_xforms_server <- function(id, data_name_in = NULL) {
         "code",
         chunks = xforms_chunks,
         error_line = error_line_num,
-        editable = reactive(
-          if (xforms()$size == 0) FALSE
-          else seq(xforms_setup_lines() + 1, length(xforms_chunks()))
-        )
+        editable = reactive(seq_len(xforms()$size)),
+        skip = reactive(length(xforms()$dependencies))
       )
 
       undo_redo <- UndoRedoStack$new(type = TransformationSequence$classname)
@@ -263,19 +258,19 @@ page_xforms_server <- function(id, data_name_in = NULL) {
 
       # edit/modify/delete
       observeEvent(code_section$modify(), {
-        temp_xform <- xforms()$head(code_section$modify() - 1 - xforms_setup_lines())
+        temp_xform <- xforms()$head(code_section$modify() - 1)
         new_env <- new.env()
         assign(data_name(), main_data(), envir = new_env)
         temp_res <- temp_xform$run(new_env)$result
-        xform_modal$show(data = temp_res, action = "edit", xform = xforms()$transformations[[code_section$modify() - xforms_setup_lines()]], meta = code_section$modify() - xforms_setup_lines())
+        xform_modal$show(data = temp_res, action = "edit", xform = xforms()$transformations[[code_section$modify()]], meta = code_section$modify())
       })
 
       observeEvent(code_section$insert(), {
-        temp_xform <- xforms()$head(code_section$insert() - 1 - xforms_setup_lines())
+        temp_xform <- xforms()$head(code_section$insert() - 1)
         new_env <- new.env()
         assign(data_name(), main_data(), envir = new_env)
         temp_res <- temp_xform$run(new_env)$result
-        xform_modal$show(data = temp_res, action = "insert", meta = code_section$insert() - xforms_setup_lines() )
+        xform_modal$show(data = temp_res, action = "insert", meta = code_section$insert())
       })
 
       observeEvent(code_section$delete(), {
@@ -284,11 +279,11 @@ page_xforms_server <- function(id, data_name_in = NULL) {
           list(
             section = MIXPANEL_SECTION_XFORM,
             type = "delete",
-            transformation_type = class(xforms()$transformations[[code_section$delete() - xforms_setup_lines()]])[1]
+            transformation_type = class(xforms()$transformations[[code_section$delete()]])[1]
           )
         )
 
-        new_xforms <- xforms()$remove(code_section$delete() - xforms_setup_lines())
+        new_xforms <- xforms()$remove(code_section$delete())
         xforms(new_xforms)
         undo_redo$add(new_xforms)
       })

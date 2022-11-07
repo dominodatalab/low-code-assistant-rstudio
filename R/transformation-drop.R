@@ -3,7 +3,25 @@ DropTransformation <- R6::R6Class(
   inherit = Transformation,
 
   private = list(
-    .cols = NULL
+    .cols = NULL,
+
+    get_dependencies = function() {
+      if (private$.tidyverse) "dplyr" else NULL
+    },
+
+    get_full_code = function(name_in) {
+      if (private$.tidyverse) {
+        glue::glue(
+          '{name_in} %>% ',
+          'select(-c("{paste(self$cols, collapse = \'", "\')}"))'
+        )
+      } else {
+        glue::glue(
+          '{name_in}',
+          '[, !(names({name_in}) %in% c("{paste(self$cols, collapse = \'", "\')}")), drop = FALSE]'
+        )
+      }
+    }
   ),
 
   active = list(
@@ -26,25 +44,7 @@ DropTransformation <- R6::R6Class(
     print = function() {
       super$print()
       cat0("Columns: ", paste(self$cols, collapse = ", "), "\n")
-    },
-
-    get_code = function(name_in) {
-      if (private$.tidyverse) {
-        glue::glue(
-          'library(dplyr)\n',
-          '{self$name_out} <- ',
-          '{name_in} %>% ',
-          'select(-c("{paste(self$cols, collapse = \'", "\')}"))'
-        )
-      } else {
-        glue::glue(
-          '{self$name_out} <- ',
-          '{name_in}',
-          '[, !(names({name_in}) %in% c("{paste(self$cols, collapse = \'", "\')}")), drop = FALSE]'
-        )
-      }
     }
-
   )
 )
 

@@ -7,6 +7,47 @@ AggregateTransformation <- R6::R6Class(
     .cols = NULL,
     .aggregations = NULL,  # named list
 
+    get_dependencies = function() {
+      if (private$.tidyverse) "dplyr" else NULL
+    },
+
+    get_full_code = function(name_in) {
+      aggregations <- private$get_code_for_aggregators(name_in)
+      if (self$tidyverse) {
+        if (length(aggregations) == 1) {
+          summaries <- glue::glue("  summarise({aggregations[[1]]})")
+        } else {
+          summaries <- glue::glue(
+            '  summarise(\n',
+            '{paste("    ", aggregations, collapse = ",\n")}\n',
+            '  )',
+            .trim = FALSE
+          )
+        }
+        glue::glue(
+          '{name_in} %>%\n  group_by({paste(private$.cols, collapse = ", ")}) %>%\n',
+          summaries,
+          .trim = FALSE
+        )
+      } else {
+        if (length(aggregations) == 1) {
+          glue::glue(
+            '{aggregations[[1]]}'
+          )
+        } else {
+          glue::glue(
+            'Reduce(',
+            '  merge,',
+            '  list(',
+            glue::glue_collapse(paste0("    ", aggregations), sep = ",\n"),
+            '  )',
+            ')',
+            .sep = '\n'
+          )
+        }
+      }
+    },
+
     get_code_for_aggregators = function(name_in) {
       if (self$tidyverse) {
         aggregations <- lapply(seq_along(self$aggregations), function(idx) {
@@ -90,46 +131,6 @@ AggregateTransformation <- R6::R6Class(
         "    Aggregate by: ",
         paste(names(self$aggregations), unname(self$aggregations), sep = "=", collapse = ", "), "\n"
       )
-    },
-
-    get_code = function(name_in) {
-      aggregations <- private$get_code_for_aggregators(name_in)
-      if (self$tidyverse) {
-        if (length(aggregations) == 1) {
-          summaries <- glue::glue("  summarise({aggregations[[1]]})")
-        } else {
-          summaries <- glue::glue(
-            '  summarise(\n',
-            '{paste("    ", aggregations, collapse = ",\n")}\n',
-            '  )',
-            .trim = FALSE
-          )
-        }
-        glue::glue(
-          'library(dplyr)\n',
-          '{self$name_out} <- ',
-          '{name_in} %>%\n  group_by({paste(private$.cols, collapse = ", ")}) %>%\n',
-          summaries,
-          .trim = FALSE
-        )
-      } else {
-        if (length(aggregations) == 1) {
-          glue::glue(
-            '{self$name_out} <- ',
-            '{aggregations[[1]]}'
-          )
-        } else {
-          glue::glue(
-            '{self$name_out} <- Reduce(',
-            '  merge,',
-            '  list(',
-            glue::glue_collapse(paste0("    ", aggregations), sep = ",\n"),
-            '  )',
-            ')',
-            .sep = '\n'
-          )
-        }
-      }
     }
   )
 )

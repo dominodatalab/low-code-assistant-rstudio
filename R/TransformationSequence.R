@@ -32,7 +32,6 @@ TransformationSequence <- R6::R6Class(
       }
       private$.transformations <- transformations
     }
-
   ),
 
   active = list(
@@ -58,6 +57,15 @@ TransformationSequence <- R6::R6Class(
 
     tidyverse = function() {
       private$.tidyverse
+    },
+
+    dependencies = function() {
+      deps <- NULL
+      for (transformation in private$.transformations) {
+        deps <- c(deps, transformation$dependencies)
+      }
+      deps <- sort(unique(deps))
+      deps
     }
   ),
 
@@ -88,28 +96,36 @@ TransformationSequence <- R6::R6Class(
       invisible(self)
     },
 
-    get_code = function() {
-      chunks <- self$get_code_chunks()
+    get_code = function(include_setup = TRUE) {
+      chunks <- self$get_code_chunks(include_setup = include_setup)
       paste(chunks, collapse = "\n")
     },
 
-    get_code_chunks = function() {
+    get_setup_chunks = function() {
+      if (length(self$dependencies) == 0) {
+        list()
+      } else {
+        as.list(paste0("library(", self$dependencies, ")"))
+      }
+    },
+
+    get_code_chunks = function(include_setup = TRUE) {
       name_in <- private$.name_in
-      all_libraries <- c()
-      chunks <- list()
+      if (self$size == 0) {
+        return(name_in)
+      }
+
+      if (include_setup) {
+        chunks <- self$get_setup_chunks()
+      } else {
+        chunks <- list()
+      }
+
       for (transformation in private$.transformations) {
-        code <- transformation$get_code(name_in)
-        lines <- strsplit(code, "\n")[[1]]
-        libraries <- lines[grepl("^library(.+)$", lines)]
-        all_libraries <- unique(c(all_libraries, libraries))
-        code <- remove_duplicate_lines(code, libraries)
-        chunks <- append(chunks, code)
+        chunks <- append(chunks, transformation$get_code(name_in, dependencies = FALSE))
         name_in <- transformation$name_out
       }
-      chunks <- append(all_libraries, chunks)
-      if (self$size == 0) {
-        chunks <- append(chunks, name_in)
-      }
+
       chunks
     },
 
@@ -145,7 +161,23 @@ TransformationSequence <- R6::R6Class(
     },
 
     run = function(env = parent.frame()) {
-      chunks <- self$get_code_chunks()
+      setup_chunks <- self$get_setup_chunks()
+      result <- tryCatch({
+        for (setup_idx in seq_along(setup_chunks)) {
+          chunk <- setup_chunks[[setup_idx]]
+          eval(parse(text = chunk), envir = env)
+        }
+        NULL
+      }, error = function(err) {
+        msg <- iconv(cli::ansi_strip(conditionMessage(err)), "latin1", "ASCII", sub = "")
+        TransformationsResult$new(result = NULL, error = msg, error_line = chunk, error_line_num = 0)
+      })
+
+      if (!is.null(result)) {
+        return(result)
+      }
+
+      chunks <- self$get_code_chunks(include_setup = FALSE)
       result <- tryCatch({
         temp_result <- get(self$name_in, envir = env)
         for (chunk_idx in seq_along(chunks)) {
@@ -160,6 +192,7 @@ TransformationSequence <- R6::R6Class(
         msg <- iconv(cli::ansi_strip(conditionMessage(err)), "latin1", "ASCII", sub = "")
         TransformationsResult$new(result = temp_result, error = msg, error_line = chunk, error_line_num = chunk_idx)
       })
+
       result
     }
 

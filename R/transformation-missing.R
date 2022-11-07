@@ -3,7 +3,35 @@ MissingValuesTransformation <- R6::R6Class(
   inherit = Transformation,
 
   private = list(
-    .col = NULL
+    .col = NULL,
+
+    get_dependencies = function() {
+      if (private$.tidyverse) "tidyr" else NULL
+    },
+
+    get_full_code = function(name_in) {
+      if (private$.tidyverse) {
+        if (is.null(self$col)) {
+          filter_code <- 'drop_na()'
+        } else {
+          filter_code <- 'drop_na("{self$col}")'
+        }
+        glue::glue(
+          '{name_in} %>% ',
+          filter_code
+        )
+      } else {
+        if (is.null(self$col)) {
+          filter_code <- '[complete.cases({name_in}), , drop = FALSE]'
+        } else {
+          filter_code <- '[!is.na({name_in}[["{self$col}"]]), , drop = FALSE]'
+        }
+        glue::glue(
+          '{name_in}',
+          filter_code
+        )
+      }
+    }
   ),
 
   active = list(
@@ -32,35 +60,7 @@ MissingValuesTransformation <- R6::R6Class(
       } else {
         cat0("Rows where column `", self$col, "` is missing\n")
       }
-    },
-
-    get_code = function(name_in) {
-      if (private$.tidyverse) {
-        if (is.null(self$col)) {
-          filter_code <- 'drop_na()'
-        } else {
-          filter_code <- 'drop_na("{self$col}")'
-        }
-        glue::glue(
-          'library(tidyr)\n',
-          '{self$name_out} <- ',
-          '{name_in} %>% ',
-          filter_code
-        )
-      } else {
-        if (is.null(self$col)) {
-          filter_code <- '[complete.cases({name_in}), , drop = FALSE]'
-        } else {
-          filter_code <- '[!is.na({name_in}[["{self$col}"]]), , drop = FALSE]'
-        }
-        glue::glue(
-          '{self$name_out} <- ',
-          '{name_in}',
-          filter_code
-        )
-      }
     }
-
   )
 )
 
