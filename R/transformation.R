@@ -25,7 +25,7 @@ Transformation <- R6::R6Class(
   public = list(
     initialize = function(name_out = NULL, tidyverse = NULL) {
       private$.name_out <- name_out %||% "df"
-      self$use_tidyverse(tidyverse %||% TRUE)
+      self$use_tidyverse(tidyverse %||% FALSE)
       invisible(self)
     },
 

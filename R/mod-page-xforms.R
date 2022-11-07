@@ -52,6 +52,9 @@ page_xforms_ui <- function(id) {
                 ),
                 shinyWidgets::prettyCheckbox(
                   ns("show_code"), "Show Code", value = TRUE, width = "auto", shape = "curve", status = "primary", inline = TRUE
+                ),
+                shinyWidgets::prettyCheckbox(
+                  ns("use_tidyverse"), "Use tidyverse", value = TRUE, width = "auto", shape = "curve", status = "primary", inline = TRUE
                 )
               )
             )
@@ -131,11 +134,15 @@ page_xforms_server <- function(id, data_name_in = NULL) {
 
       observeEvent(data_name(), {
         initial_xforms <- TransformationSequence$new(name_in = data_name())
-        xforms(initial_xforms)
+        xforms_orig(initial_xforms)
         undo_redo$add(initial_xforms)
       })
 
-      xforms <- reactiveVal()
+      xforms_orig <- reactiveVal()
+      xforms <- reactive({
+        if (is.null(xforms_orig())) return(NULL)
+        xforms_orig()$clone()$use_tidyverse(input$use_tidyverse)
+      })
       xforms_result <- reactive({
         req(xforms())
         isolate({
@@ -212,7 +219,7 @@ page_xforms_server <- function(id, data_name_in = NULL) {
           new_xforms[[xform_modal$meta()]] <- xform_modal$result()
           new_xforms <- TransformationSequence$new(new_xforms, name_in = xforms()$name_in)
         }
-        xforms(new_xforms)
+        xforms_orig(new_xforms)
         undo_redo$add(new_xforms)
       })
 
@@ -241,7 +248,7 @@ page_xforms_server <- function(id, data_name_in = NULL) {
         )
 
         new_xforms <- undo_redo$undo()$value
-        xforms(new_xforms)
+        xforms_orig(new_xforms)
       })
       observeEvent(input$redo, {
         shinymixpanel::mp_track(
@@ -253,7 +260,7 @@ page_xforms_server <- function(id, data_name_in = NULL) {
         )
 
         new_xforms <- undo_redo$redo()$value
-        xforms(new_xforms)
+        xforms_orig(new_xforms)
       })
 
       # edit/modify/delete
@@ -284,7 +291,7 @@ page_xforms_server <- function(id, data_name_in = NULL) {
         )
 
         new_xforms <- xforms()$remove(code_section$delete())
-        xforms(new_xforms)
+        xforms_orig(new_xforms)
         undo_redo$add(new_xforms)
       })
 
@@ -299,7 +306,7 @@ page_xforms_server <- function(id, data_name_in = NULL) {
         )
 
         new_xforms <- xforms()$add(table$drop())
-        xforms(new_xforms)
+        xforms_orig(new_xforms)
         undo_redo$add(new_xforms)
       })
       observeEvent(table$missing(), {
