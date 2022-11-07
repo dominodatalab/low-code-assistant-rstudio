@@ -52,9 +52,6 @@ page_xforms_ui <- function(id) {
                 ),
                 shinyWidgets::prettyCheckbox(
                   ns("show_code"), "Show Code", value = TRUE, width = "auto", shape = "curve", status = "primary", inline = TRUE
-                ),
-                shinyWidgets::prettyCheckbox(
-                  ns("use_tidyverse"), "Use tidyverse", value = TRUE, width = "auto", shape = "curve", status = "primary", inline = TRUE
                 )
               )
             )
@@ -143,11 +140,11 @@ page_xforms_server <- function(id, data_name_in = NULL) {
         req(xforms())
         isolate({
           assign(data_name(), main_data(), envir = .GlobalEnv)
-          xforms()$run(env = .GlobalEnv, tidyverse = input$use_tidyverse)
+          xforms()$run(env = .GlobalEnv)
         })
       })
       xforms_chunks <- reactive({
-        xforms()$get_code_chunks(tidyverse = input$use_tidyverse)
+        xforms()$get_code_chunks()
       })
       xforms_setup_lines <- reactive({
         length(xforms_chunks()) - xforms()$size
@@ -269,7 +266,7 @@ page_xforms_server <- function(id, data_name_in = NULL) {
         temp_xform <- xforms()$head(code_section$modify() - 1 - xforms_setup_lines())
         new_env <- new.env()
         assign(data_name(), main_data(), envir = new_env)
-        temp_res <- temp_xform$run(new_env, tidyverse = input$use_tidyverse)$result
+        temp_res <- temp_xform$run(new_env)$result
         xform_modal$show(data = temp_res, action = "edit", xform = xforms()$transformations[[code_section$modify() - xforms_setup_lines()]], meta = code_section$modify() - xforms_setup_lines())
       })
 
@@ -277,7 +274,7 @@ page_xforms_server <- function(id, data_name_in = NULL) {
         temp_xform <- xforms()$head(code_section$insert() - 1 - xforms_setup_lines())
         new_env <- new.env()
         assign(data_name(), main_data(), envir = new_env)
-        temp_res <- temp_xform$run(new_env, tidyverse = input$use_tidyverse)$result
+        temp_res <- temp_xform$run(new_env)$result
         xform_modal$show(data = temp_res, action = "insert", meta = code_section$insert() - xforms_setup_lines() )
       })
 
@@ -340,7 +337,7 @@ page_xforms_server <- function(id, data_name_in = NULL) {
 
       observeEvent(input$continue, {
         if (xforms()$size > 0) {
-          insert_text(paste0(xforms()$get_code(tidyverse = input$use_tidyverse)))
+          insert_text(paste0(xforms()$get_code()))
         }
 
         shinymixpanel::mp_track(

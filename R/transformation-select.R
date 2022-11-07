@@ -14,21 +14,22 @@ SelectTransformation <- R6::R6Class(
 
   public = list(
 
-    initialize = function(cols, name_out = NULL) {
+    initialize = function(cols, name_out = NULL, tidyverse = NULL) {
       if (length(cols) == 0) {
         stop("You must provide at least one column", call. = FALSE)
       }
-      super$initialize(name_out)
+      super$initialize(name_out, tidyverse)
       private$.cols <- cols
       invisible(self)
     },
 
     print = function() {
-      cat0("<Transformation> Select columns: ", paste(self$cols, collapse = ", "), "\n")
+      super$print()
+      cat0("Columns: ", paste(self$cols, collapse = ", "), "\n")
     },
 
-    get_code = function(name_in, tidyverse = FALSE) {
-      if (tidyverse) {
+    get_code = function(name_in) {
+      if (private$.tidyverse) {
         glue::glue(
           'library(dplyr)\n',
           '{self$name_out} <- ',

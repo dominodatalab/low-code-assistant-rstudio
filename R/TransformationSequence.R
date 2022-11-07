@@ -10,6 +10,7 @@ TransformationSequence <- R6::R6Class(
 
     .transformations = NULL,
     .name_in = NULL,
+    .tidyverse = NULL,
 
     set_transformations = function(transformations) {
       if (length(transformations) == 0) {
@@ -27,6 +28,7 @@ TransformationSequence <- R6::R6Class(
         if (!inherits(transformation, Transformation$classname)) {
           stop("TransformationSequence: Must be provided a list of <Transformation> objects", call. = FALSE)
         }
+        transformation$use_tidyverse(self$tidyverse)
       }
       private$.transformations <- transformations
     }
@@ -52,13 +54,18 @@ TransformationSequence <- R6::R6Class(
 
     size = function() {
       length(private$.transformations)
+    },
+
+    tidyverse = function() {
+      private$.tidyverse
     }
   ),
 
   public = list(
 
-    initialize = function(transformations = list(), name_in) {
+    initialize = function(transformations = list(), name_in, tidyverse = NULL) {
       private$.name_in <- name_in
+      self$use_tidyverse(tidyverse)
       private$set_transformations(transformations)
       invisible(self)
     },
@@ -71,17 +78,27 @@ TransformationSequence <- R6::R6Class(
       }
     },
 
-    get_code = function(tidyverse = TRUE) {
-      chunks <- self$get_code_chunks(tidyverse = tidyverse)
+    use_tidyverse = function(use) {
+      if (!identical(private$.tidyverse, use)) {
+        private$.tidyverse <- use
+        for (transformation in private$.transformations) {
+          transformation$use_tidyverse(use)
+        }
+      }
+      invisible(self)
+    },
+
+    get_code = function() {
+      chunks <- self$get_code_chunks()
       paste(chunks, collapse = "\n")
     },
 
-    get_code_chunks = function(tidyverse = TRUE) {
+    get_code_chunks = function() {
       name_in <- private$.name_in
       all_libraries <- c()
       chunks <- list()
       for (transformation in private$.transformations) {
-        code <- transformation$get_code(name_in, tidyverse = tidyverse)
+        code <- transformation$get_code(name_in)
         lines <- strsplit(code, "\n")[[1]]
         libraries <- lines[grepl("^library(.+)$", lines)]
         all_libraries <- unique(c(all_libraries, libraries))
@@ -108,7 +125,7 @@ TransformationSequence <- R6::R6Class(
         stop("insert: 'after' must be between 0 and the number of transformations", call. = FALSE)
       }
       new_xforms <- append(self$transformations, transformation, after = after)
-      TransformationSequence$new(transformations = new_xforms, name_in = self$name_in)
+      TransformationSequence$new(transformations = new_xforms, name_in = self$name_in, tidyverse = self$tidyverse)
     },
 
     remove = function(n) {
@@ -116,7 +133,7 @@ TransformationSequence <- R6::R6Class(
         stop("remove: 'n' must be between 1 and the number of transformations", call. = FALSE)
       }
       new_xforms <- self$transformations[-n]
-      TransformationSequence$new(transformations = new_xforms, name_in = self$name_in)
+      TransformationSequence$new(transformations = new_xforms, name_in = self$name_in, tidyverse = self$tidyverse)
     },
 
     head = function(n) {
@@ -124,11 +141,11 @@ TransformationSequence <- R6::R6Class(
         stop("head: 'n' must be between 1 and the number of transformations", call. = FALSE)
       }
       new_xforms <- head(self$transformations, n)
-      TransformationSequence$new(transformations = new_xforms, name_in = self$name_in)
+      TransformationSequence$new(transformations = new_xforms, name_in = self$name_in, tidyverse = self$tidyverse)
     },
 
-    run = function(env = parent.frame(), tidyverse = TRUE) {
-      chunks <- self$get_code_chunks(tidyverse = tidyverse)
+    run = function(env = parent.frame()) {
+      chunks <- self$get_code_chunks()
       result <- tryCatch({
         temp_result <- get(self$name_in, envir = env)
         for (chunk_idx in seq_along(chunks)) {

@@ -12,6 +12,7 @@ BugReports: https://github.com/dominodatalab/low-code-assistant-rstudio/issues
 Depends:
     R (>= 3.1.0)
 Imports:
+    cli,
     datasets,
     fontawesome,
     gapminder,
