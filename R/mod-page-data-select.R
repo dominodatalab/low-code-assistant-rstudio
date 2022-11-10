@@ -25,7 +25,6 @@ page_data_select_ui <- function(id) {
       class = "page-main-content",
       tabsetPanel(
         id = ns("import_modules"),
-        header = br(),
 
         tabPanel(
           "Upload",

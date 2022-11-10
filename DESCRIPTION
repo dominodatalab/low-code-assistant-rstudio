@@ -10,7 +10,7 @@ Description: The Domino Low Code Assistant (LCA) can help generate code for vari
 URL: https://github.com/dominodatalab/low-code-assistant-rstudio
 BugReports: https://github.com/dominodatalab/low-code-assistant-rstudio/issues
 Depends:
-    R (>= 3.1.0)
+    R (>= 3.3.0)
 Imports:
     cli,
     datasets,
@@ -30,13 +30,14 @@ Imports:
     readxl,
     rstudioapi,
     shiny (>= 1.0.0),
+    shinyfilebrowser,
     shinymixpanel,
     shinyjs,
     shinyWidgets,
     stats,
     tools,
     utils
-Remotes: daattali/shinymixpanel
+Remotes: daattali/shinymixpanel, daattali/shinyfilebrowser
 License: file LICENSE.md
 Encoding: UTF-8
 RoxygenNote: 7.2.1
