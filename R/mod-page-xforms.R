@@ -94,8 +94,6 @@ page_xforms_server <- function(id, data_name_in = NULL) {
         )
       )
 
-      result_rv <- reactiveValues(name = NULL, data = NULL)
-
       observeEvent(input$close, {
         kill_app()
       })
@@ -145,6 +143,9 @@ page_xforms_server <- function(id, data_name_in = NULL) {
           xforms()$run(env = .GlobalEnv)
         })
       })
+      xforms_chunks <- reactive({
+        xforms()$get_code_chunks()
+      })
       error <- reactive({
         xforms_result()$error
       })
@@ -154,10 +155,6 @@ page_xforms_server <- function(id, data_name_in = NULL) {
       result <- reactive({
         xforms_result()$result
       })
-      name_out <- reactive({
-        req(xforms())
-        utils::tail(unlist(xforms()$get_code_chunks()), 1)
-      })
 
       xform_modal <- transformation_modal("xform_modal")
 
@@ -165,9 +162,10 @@ page_xforms_server <- function(id, data_name_in = NULL) {
 
       code_section <- code_chunk_server(
         "code",
-        chunks = reactive(xforms()$get_code_chunks()),
+        chunks = xforms_chunks,
+        error_line = error_line_num,
         editable = reactive(seq_len(xforms()$size)),
-        error_line = error_line_num
+        skip = reactive(length(xforms()$dependencies))
       )
 
       undo_redo <- UndoRedoStack$new(type = TransformationSequence$classname)
@@ -343,9 +341,6 @@ page_xforms_server <- function(id, data_name_in = NULL) {
             section = MIXPANEL_SECTION_XFORM
           )
         )
-
-        result_rv$name <- name_out()
-        result_rv$data <- result()
 
         kill_app()
       })

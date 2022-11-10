@@ -46,11 +46,16 @@ code_chunk_ui <- function(id) {
 #' A single chunk is also acceptable. A code chunk can consist of multiple lines.
 #' @param editable (reactive or static) Vector of chunk numbers that are editable, or TRUE to make everything editable
 #' @param error_line (reactive or static) Chunk number that should be shown as the error.
+#' @param skip (reactive or static) Number of lines to skip in the numbering system, essentially ignoring those lines
+#' for all purposes but still showing them. For example, if there are 10 lines in total and `skip = 3` and a user
+#' clicks on insert/modify/delete on the 5th line, then the module will report it as the second line (5 - 3 = 2).
+#' Similarly, if `skip = 3` and `error_line = 5`, then it will appear as if the 8th line is the error (because the
+#' first 3 don't count).
 #' @return List with reactive elements corresponding to user interactions:
 #'   - insert: The chunk number the user wants to insert before
 #'   - modify: The chunk number the user wants to modify
 #'   - delete: The chunk number the user wants to delete
-code_chunk_server <- function(id, chunks = NULL, editable = NULL, error_line = NULL) {
+code_chunk_server <- function(id, chunks = NULL, editable = NULL, error_line = NULL, skip = NULL) {
   moduleServer(
     id,
     function(input, output, session) {
@@ -58,6 +63,7 @@ code_chunk_server <- function(id, chunks = NULL, editable = NULL, error_line = N
       chunks_r <- make_reactive(chunks)
       error_line_r <- make_reactive(error_line)
       editable_r <- make_reactive(editable)
+      skip_r <- make_reactive(skip)
 
       output$code_section <- renderUI({
         if (length(chunks_r()) == 0 || (length(chunks_r()) == 1 && chunks_r() == "")) {
@@ -66,9 +72,16 @@ code_chunk_server <- function(id, chunks = NULL, editable = NULL, error_line = N
 
         chunks_html <- lapply(seq_along(chunks_r()), function(chunk_idx) {
           chunk <- chunks_r()[[chunk_idx]]
+
+          if (!is.null(skip_r())) {
+            chunk_idx <- chunk_idx - skip_r()
+          }
+
           error <- (!is.null(error_line_r()) && error_line_r() == chunk_idx)
 
-          if (!is.null(editable_r()) && isTRUE(editable_r())) {
+          if (chunk_idx < 1) {
+            edit <- FALSE
+          } else if (!is.null(editable_r()) && isTRUE(editable_r())) {
             edit <- TRUE
           } else {
             edit <- chunk_idx %in% editable_r()

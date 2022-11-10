@@ -3,7 +3,25 @@ DropTransformation <- R6::R6Class(
   inherit = Transformation,
 
   private = list(
-    .cols = NULL
+    .cols = NULL,
+
+    get_dependencies = function() {
+      if (private$.tidyverse) "dplyr" else NULL
+    },
+
+    get_full_code = function(name_in) {
+      if (private$.tidyverse) {
+        glue::glue(
+          '{name_in} %>% ',
+          'select(-c("{paste(self$cols, collapse = \'", "\')}"))'
+        )
+      } else {
+        glue::glue(
+          '{name_in}',
+          '[, !(names({name_in}) %in% c("{paste(self$cols, collapse = \'", "\')}")), drop = FALSE]'
+        )
+      }
+    }
   ),
 
   active = list(
@@ -14,27 +32,19 @@ DropTransformation <- R6::R6Class(
 
   public = list(
 
-    initialize = function(cols, name_out = NULL) {
+    initialize = function(cols, name_out = NULL, tidyverse = NULL) {
       if (length(cols) == 0) {
         stop("You must provide at least one column", call. = FALSE)
       }
-      super$initialize(name_out)
+      super$initialize(name_out, tidyverse)
       private$.cols <- cols
       invisible(self)
     },
 
     print = function() {
-      cat0("<Transformation> Drop columns: ", paste(self$cols, collapse = ", "), "\n")
-    },
-
-    get_code = function(name_in) {
-      glue::glue(
-        '{self$name_out} <- ',
-        '{name_in}',
-        '[, !(names({name_in}) %in% c("{paste(self$cols, collapse = \'", "\')}")), drop = FALSE]'
-      )
+      super$print()
+      cat0("Columns: ", paste(self$cols, collapse = ", "), "\n")
     }
-
   )
 )
 

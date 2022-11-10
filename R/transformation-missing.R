@@ -3,7 +3,35 @@ MissingValuesTransformation <- R6::R6Class(
   inherit = Transformation,
 
   private = list(
-    .col = NULL
+    .col = NULL,
+
+    get_dependencies = function() {
+      if (private$.tidyverse) "tidyr" else NULL
+    },
+
+    get_full_code = function(name_in) {
+      if (private$.tidyverse) {
+        if (is.null(self$col)) {
+          filter_code <- 'drop_na()'
+        } else {
+          filter_code <- 'drop_na("{self$col}")'
+        }
+        glue::glue(
+          '{name_in} %>% ',
+          filter_code
+        )
+      } else {
+        if (is.null(self$col)) {
+          filter_code <- '[complete.cases({name_in}), , drop = FALSE]'
+        } else {
+          filter_code <- '[!is.na({name_in}[["{self$col}"]]), , drop = FALSE]'
+        }
+        glue::glue(
+          '{name_in}',
+          filter_code
+        )
+      }
+    }
   ),
 
   active = list(
@@ -14,38 +42,25 @@ MissingValuesTransformation <- R6::R6Class(
 
   public = list(
 
-    initialize = function(col = NULL, name_out = NULL) {
+    initialize = function(col = NULL, name_out = NULL, tidyverse = NULL) {
       if (length(col) == 0) {
         col <- NULL
       } else if (length(col) > 1) {
         stop("You must provide exactly one column", call. = FALSE)
       }
-      super$initialize(name_out)
+      super$initialize(name_out, tidyverse)
       private$.col <- col
       invisible(self)
     },
 
     print = function() {
+      super$print()
       if (is.null(self$col)) {
-        cat0("<Transformation> Missing values: Any rows with missing values", "\n")
+        cat0("Any rows with missing values", "\n")
       } else {
-        cat0("<Transformation> Missing values: Rows where column is missing: ", self$col, "\n")
+        cat0("Rows where column `", self$col, "` is missing\n")
       }
-    },
-
-    get_code = function(name_in) {
-      if (is.null(self$col)) {
-        filter_code <- '[complete.cases({name_in}), , drop = FALSE]'
-      } else {
-        filter_code <- '[!is.na({name_in}[["{self$col}"]]), , drop = FALSE]'
-      }
-      glue::glue(
-        '{self$name_out} <- ',
-        '{name_in}',
-        filter_code
-      )
     }
-
   )
 )
 

@@ -6,7 +6,30 @@ FilterTransformation <- R6::R6Class(
     .col = NULL,
     .op = NULL,
     .value = NULL,
-    .type = NULL
+    .type = NULL,
+
+    get_dependencies = function() {
+      if (private$.tidyverse) "dplyr" else NULL
+    },
+
+    get_full_code = function(name_in) {
+      value <- self$value
+      if (!is.null(private$.type) && private$.type %in% c("character", "factor")) {
+        value <- glue::glue('{shQuote(value, type = "cmd")}')
+      }
+
+      if (private$.tidyverse) {
+        glue::glue(
+          '{name_in} %>% ',
+          'filter({self$col} {self$op} {value})'
+        )
+      } else {
+        glue::glue(
+          '{name_in}',
+          '[ {name_in}[["{self$col}"]] {self$op} {value}, , drop = FALSE]'
+        )
+      }
+    }
   ),
 
   active = list(
@@ -23,14 +46,14 @@ FilterTransformation <- R6::R6Class(
 
   public = list(
 
-    initialize = function(col, op, value, type = NULL, name_out = NULL) {
+    initialize = function(col, op, value, type = NULL, name_out = NULL, tidyverse = NULL) {
       if (length(col) != 1) {
         stop("You must provide exactly one column", call. = FALSE)
       }
       if (! op %in% FilterTransformation$OPTIONS) {
         stop("The operation must be one of: ", paste(FilterTransformation$OPTIONS, collapse = " "), call. = FALSE)
       }
-      super$initialize(name_out)
+      super$initialize(name_out, tidyverse)
       private$.col <- col
       private$.op <- op
       private$.value <- value
@@ -39,23 +62,10 @@ FilterTransformation <- R6::R6Class(
     },
 
     print = function() {
-      cat0(glue::glue("<Transformation> Filter column: {self$col} {self$op} {self$value}",
+      super$print()
+      cat0(glue::glue("{self$col} {self$op} {self$value}",
                       if (is.null(private$.type)) "" else " ({private$.type})"), "\n")
-    },
-
-    get_code = function(name_in) {
-      value <- self$value
-      if (!is.null(private$.type) && private$.type %in% c("character", "factor")) {
-        value <- glue::glue('{shQuote(value, type = "cmd")}')
-      }
-
-      glue::glue(
-        '{self$name_out} <- ',
-        '{name_in}',
-        '[ {name_in}[["{self$col}"]] {self$op} {value}, , drop = FALSE]'
-      )
     }
-
   )
 )
 
