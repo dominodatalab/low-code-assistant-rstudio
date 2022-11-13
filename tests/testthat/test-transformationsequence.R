@@ -16,6 +16,17 @@ test_that("TransformationSequence needs a name_in", {
   expect_error(TransformationSequence$new(name_in = "df"), NA)
 })
 
+test_that("TransformationSequence has the correct name_out", {
+  expect_identical(
+    TransformationSequence$new(name_in = "somedf")$name_out,
+    "somedf"
+  )
+  expect_identical(
+    TransformationSequence$new(Transformation$new(name_out = "otherdf"), name_in = "somedf")$name_out,
+    "otherdf"
+  )
+})
+
 test_that("TransformationSequence sets the correct transformations", {
   expect_identical(
     TransformationSequence$new(name_in = "df")$transformations,
@@ -31,6 +42,225 @@ test_that("TransformationSequence sets the correct transformations", {
   )
   expect_identical(
     TransformationSequence$new(name_in = "df", list(get_xform_sel1(), get_xform_sel2(), get_xform_drop1()))$transformations,
+    list(get_xform_sel1(), get_xform_sel2(), get_xform_drop1())
+  )
+})
+
+test_that("TransformationSequence dependencies are correct", {
+  expect_identical(
+    TransformationSequence$new(name_in = "df")$dependencies,
+    c()
+  )
+  expect_identical(
+    TransformationSequence$new(get_xform_sel1()$use_tidyverse(FALSE), name_in = "df")$dependencies,
+    c()
+  )
+  expect_identical(
+    TransformationSequence$new(get_xform_sel1()$use_tidyverse(TRUE), name_in = "df")$dependencies,
+    "dplyr"
+  )
+  expect_identical(
+    TransformationSequence$new(name_in = "df", list(
+      get_xform_sel1()$use_tidyverse(TRUE),
+      get_xform_sel1()$use_tidyverse(TRUE),
+      MissingValuesTransformation$new(tidyverse = TRUE)
+    ))$dependencies,
+    c("dplyr", "tidyr")
+  )
+  expect_identical(
+    TransformationSequence$new(name_in = "df", list(
+      get_xform_sel1()$use_tidyverse(TRUE),
+      get_xform_sel1()$use_tidyverse(TRUE),
+      MissingValuesTransformation$new(tidyverse = FALSE)
+    ))$dependencies,
+    "dplyr"
+  )
+})
+
+test_that("TransformationSequence add is correct", {
+  expect_error(
+    TransformationSequence$new(name_in = "df")$add()
+  )
+  expect_error(
+    TransformationSequence$new(name_in = "df")$add(5)
+  )
+
+  expect_identical(
+    TransformationSequence$new(name_in = "df")$
+      add(get_xform_sel1())$transformations,
+    list(get_xform_sel1())
+  )
+  expect_identical(
+    TransformationSequence$new(name_in = "df", get_xform_drop1())$
+      add(get_xform_sel1())$transformations,
+    list(get_xform_drop1(), get_xform_sel1())
+  )
+  expect_identical(
+    TransformationSequence$new(name_in = "df", get_xform_drop1())
+    $add(get_xform_sel1())$transformations,
+    list(get_xform_drop1(), get_xform_sel1())
+  )
+  expect_identical(
+    TransformationSequence$new(name_in = "df", list(get_xform_drop1(), get_xform_drop2()))
+    $add(get_xform_sel1())$transformations,
+    list(get_xform_drop1(), get_xform_drop2(), get_xform_sel1())
+  )
+  expect_identical(
+    TransformationSequence$new(name_in = "df", list(get_xform_sel1(), get_xform_drop1()))
+    $add(get_xform_drop2())$transformations,
+    list(get_xform_sel1(), get_xform_drop1(), get_xform_drop2())
+  )
+})
+
+test_that("TransformationSequence insert is correct", {
+  expect_error(
+    TransformationSequence$new(name_in = "df")$insert()
+  )
+  expect_error(
+    TransformationSequence$new(name_in = "df")$insert(5, 0)
+  )
+  expect_error(
+    TransformationSequence$new(name_in = "df")$insert(get_xform_sel1(), 1)
+  )
+  expect_error(
+    TransformationSequence$new(name_in = "df")$insert(get_xform_sel1(), -1)
+  )
+
+
+  expect_identical(
+    TransformationSequence$new(name_in = "df")$
+      insert(get_xform_sel1(), 0)$transformations,
+    list(get_xform_sel1())
+  )
+
+  expect_identical(
+    TransformationSequence$new(name_in = "df", list(
+      get_xform_sel1(), get_xform_sel2(), get_xform_drop1()
+    ))$
+      insert(get_xform_drop2(), 0)$transformations,
+    list(get_xform_drop2(), get_xform_sel1(), get_xform_sel2(), get_xform_drop1())
+  )
+
+  expect_identical(
+    TransformationSequence$new(name_in = "df", list(
+      get_xform_sel1(), get_xform_sel2(), get_xform_drop1()
+    ))$
+      insert(get_xform_drop2(), 1)$transformations,
+    list(get_xform_sel1(), get_xform_drop2(), get_xform_sel2(), get_xform_drop1())
+  )
+
+  expect_identical(
+    TransformationSequence$new(name_in = "df", list(
+      get_xform_sel1(), get_xform_sel2(), get_xform_drop1()
+    ))$
+      insert(get_xform_drop2(), 2)$transformations,
+    list(get_xform_sel1(), get_xform_sel2(), get_xform_drop2(), get_xform_drop1())
+  )
+
+
+  expect_identical(
+    TransformationSequence$new(name_in = "df", list(
+      get_xform_sel1(), get_xform_sel2(), get_xform_drop1()
+    ))$
+      insert(get_xform_drop2(), 3)$transformations,
+    list(get_xform_sel1(), get_xform_sel2(), get_xform_drop1(), get_xform_drop2())
+  )
+
+  expect_error(
+    TransformationSequence$new(name_in = "df", list(
+      get_xform_sel1(), get_xform_sel2(), get_xform_drop1()
+    ))$
+      insert(get_xform_drop2(), 4)
+  )
+})
+
+test_that("TransformationSequence remove is correct", {
+  expect_error(
+    TransformationSequence$new(name_in = "df")$remove()
+  )
+  expect_error(
+    TransformationSequence$new(name_in = "df")$remove(0)
+  )
+  expect_error(
+    TransformationSequence$new(name_in = "df", list(
+      get_xform_sel1(), get_xform_sel2(), get_xform_drop1()
+    ))$remove(-1)
+  )
+  expect_error(
+    TransformationSequence$new(name_in = "df", list(
+      get_xform_sel1(), get_xform_sel2(), get_xform_drop1()
+    ))$remove(0)
+  )
+  expect_identical(
+    TransformationSequence$new(name_in = "df", get_xform_sel1())$remove(1),
+    TransformationSequence$new(name_in = "df")
+  )
+  expect_identical(
+    TransformationSequence$new(name_in = "df", list(
+      get_xform_sel1(), get_xform_sel2(), get_xform_drop1()
+    ))$remove(1)$transformations,
+    list(get_xform_sel2(), get_xform_drop1())
+  )
+  expect_identical(
+    TransformationSequence$new(name_in = "df", list(
+      get_xform_sel1(), get_xform_sel2(), get_xform_drop1()
+    ))$remove(2)$transformations,
+    list(get_xform_sel1(), get_xform_drop1())
+  )
+  expect_identical(
+    TransformationSequence$new(name_in = "df", list(
+      get_xform_sel1(), get_xform_sel2(), get_xform_drop1()
+    ))$remove(3)$transformations,
+    list(get_xform_sel1(), get_xform_sel2())
+  )
+  expect_identical(
+    TransformationSequence$new(name_in = "df", list(
+      get_xform_sel1(), get_xform_sel2(), get_xform_drop1()
+    ))$remove(3)$remove(1)$transformations,
+    list(get_xform_sel2())
+  )
+})
+
+test_that("TransformationSequence head is correct", {
+  expect_error(
+    TransformationSequence$new(name_in = "df")$head()
+  )
+  expect_identical(
+    TransformationSequence$new(name_in = "df")$head(0),
+    TransformationSequence$new(name_in = "df")
+  )
+  expect_error(
+    TransformationSequence$new(name_in = "df", list(
+      get_xform_sel1(), get_xform_sel2(), get_xform_drop1()
+    ))$head(-1)
+  )
+  expect_error(
+    TransformationSequence$new(name_in = "df", list(
+      get_xform_sel1(), get_xform_sel2(), get_xform_drop1()
+    ))$head(4)
+  )
+  expect_identical(
+    TransformationSequence$new(name_in = "df", list(
+      get_xform_sel1(), get_xform_sel2(), get_xform_drop1()
+    ))$head(0),
+    TransformationSequence$new(name_in = "df")
+  )
+  expect_identical(
+    TransformationSequence$new(name_in = "df", list(
+      get_xform_sel1(), get_xform_sel2(), get_xform_drop1()
+    ))$head(1)$transformations,
+    list(get_xform_sel1())
+  )
+  expect_identical(
+    TransformationSequence$new(name_in = "df", list(
+      get_xform_sel1(), get_xform_sel2(), get_xform_drop1()
+    ))$head(2)$transformations,
+    list(get_xform_sel1(), get_xform_sel2())
+  )
+  expect_identical(
+    TransformationSequence$new(name_in = "df", list(
+      get_xform_sel1(), get_xform_sel2(), get_xform_drop1()
+    ))$head(3)$transformations,
     list(get_xform_sel1(), get_xform_sel2(), get_xform_drop1())
   )
 })
