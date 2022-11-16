@@ -4,7 +4,7 @@
 
 TransformationSequence <- R6::R6Class(
   "TransformationSequence",
-  cloneable = FALSE,
+  cloneable = TRUE,
 
   private = list(
 
@@ -87,11 +87,9 @@ TransformationSequence <- R6::R6Class(
     },
 
     use_tidyverse = function(use) {
-      if (!identical(private$.tidyverse, use)) {
-        private$.tidyverse <- use
-        for (transformation in private$.transformations) {
-          transformation$use_tidyverse(use)
-        }
+      private$.tidyverse <- use
+      for (transformation in private$.transformations) {
+        transformation$use_tidyverse(use)
       }
       invisible(self)
     },
