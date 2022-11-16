@@ -38,7 +38,7 @@ Imports:
     tools,
     utils
 Remotes: daattali/shinymixpanel, daattali/shinyfilebrowser
-License: file LICENSE.md
+License: file LICENSE
 Encoding: UTF-8
 RoxygenNote: 7.2.1
 Roxygen: list(markdown = TRUE)
