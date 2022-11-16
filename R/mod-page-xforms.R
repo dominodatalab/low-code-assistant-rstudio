@@ -139,7 +139,7 @@ page_xforms_server <- function(id, data_name_in = NULL) {
       xforms_result <- reactive({
         req(xforms())
         isolate({
-          assign(data_name(), main_data(), envir = .GlobalEnv)
+          assign_to_global(data_name(), main_data())
           xforms()$run(env = .GlobalEnv)
         })
       })

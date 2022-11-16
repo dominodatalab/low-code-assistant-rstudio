@@ -11,6 +11,10 @@ firstup <- function(s) {
   s
 }
 
+assign_to_global <- function(name, x, pos = 1L) {
+  assign(name, x, envir = as.environment(pos))
+}
+
 is_valid_name <- function(s) {
   make.names(s) == s
 }

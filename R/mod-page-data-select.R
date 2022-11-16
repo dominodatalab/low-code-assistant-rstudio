@@ -191,7 +191,7 @@ page_data_select_server <- function(id) {
       })
 
       observeEvent(input$continue, {
-        assign(name_out(), data(), envir = .GlobalEnv)
+        assign_to_global(name_out(), data())
 
         if (code_in() != name_out()) {
           insert_text(code_out())
