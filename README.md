@@ -1,5 +1,9 @@
 # Domino Low Code Assistant (LCA) for R
 
+<!-- badges: start -->
+[![R-CMD-check](https://github.com/dominodatalab/low-code-assistant-rstudio/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/dominodatalab/low-code-assistant-rstudio/actions/workflows/R-CMD-check.yaml)
+<!-- badges: end -->
+
 Accelerate routine data science tasks and smoothly interface with the Domino API through the LCA point-and-click GUI.
 
 ## Installation
