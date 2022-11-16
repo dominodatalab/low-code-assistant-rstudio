@@ -5,7 +5,7 @@
 - Data module: show user-friendly error message when a data source fails to get read correctly 
 - Data module: make preview and code always reflect the currently selected tab
 - Data module: allow user to automatically generate output variable name based on the selected data
-- Transformations module: use {tidyverse} instead of base R for transformations
+- Transformations module: allow using either {tidyverse} or base R for the transformations code
 - Code chunk insertion: Don't insert any `library(...)` calls into a script that already contains this line 
 - Code chunk insertion: Insert an empty line after every code chunk that gets inserted into a script
 - File browser: allow clicking on any parent path in the breadcrumbs to quickly navigate there

@@ -10,12 +10,17 @@ PACKAGE_NAME <- "assistDomino"
   }
 }
 
+# Workaround for https://github.com/rstudio/rstudio/issues/12078
+#' @import miniUI
+NULL
+
 # Empty imports to get rid of CRAN check warnings
-#' @import R6
 #' @import datasets
 #' @import gapminder
-#' @import ggplot2
-#' @import haven
-#' @import miniUI
-#' @import readxl
+#' @importFrom R6 R6Class
+#' @importFrom ggplot2 ggplot
+#' @importFrom haven read_sas
+#' @importFrom readxl read_xls
+#' @importFrom cli ansi_strip
+#' @importFrom tools file_ext
 NULL
