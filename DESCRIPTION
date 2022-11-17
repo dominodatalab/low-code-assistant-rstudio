@@ -14,7 +14,7 @@ Depends:
 Imports:
     cli (>= 2.2.0),
     datasets,
-    fontawesome,
+    fontawesome (>= 0.4.0),
     gapminder,
     ggplot2,
     glue,
