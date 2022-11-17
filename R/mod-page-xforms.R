@@ -62,7 +62,7 @@ page_xforms_ui <- function(id) {
           uiOutput(ns("error")),
           conditionalPanel(
             "input.show_code", ns = ns,
-            code_chunk_ui(ns("code"))
+            shinycodeviewer::code_viewer_ui(ns("code"))
           )
         ),
         div(
@@ -151,6 +151,7 @@ page_xforms_server <- function(id, data_name_in = NULL) {
         })
       })
       xforms_chunks <- reactive({
+        req(xforms())
         xforms()$get_code_chunks()
       })
       error <- reactive({
@@ -167,15 +168,16 @@ page_xforms_server <- function(id, data_name_in = NULL) {
 
       table <- xforms_table_server("table", result)
 
-      code_section <- code_chunk_server(
+      undo_redo <- UndoRedoStack$new(type = TransformationSequence$classname)
+
+      code_section <- shinycodeviewer::code_viewer_server(
         "code",
         chunks = xforms_chunks,
         error_line = error_line_num,
         editable = reactive(seq_len(xforms()$size)),
-        skip = reactive(length(xforms()$dependencies))
+        skip = reactive(length(xforms()$dependencies)),
+        auto_actions = FALSE
       )
-
-      undo_redo <- UndoRedoStack$new(type = TransformationSequence$classname)
 
       #--- New transformation
       observeEvent(input$add_xform, {

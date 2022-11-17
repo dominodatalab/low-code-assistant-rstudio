@@ -77,7 +77,7 @@ page_data_select_ui <- function(id) {
       ),
       conditionalPanel(
         "input.show_code", ns = ns,
-        code_chunk_ui(ns("code")),
+        shinycodeviewer::code_viewer_ui(ns("code")),
         br()
       )
     ),
@@ -179,7 +179,7 @@ page_data_select_server <- function(id) {
         paste0(name_out(), " <- ", code_in())
       })
 
-      code_chunk_server("code", code_out)
+      shinycodeviewer::code_viewer_server("code", code_out)
 
       output$preview_data <- renderTable({
         req(data())

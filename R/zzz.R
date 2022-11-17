@@ -14,6 +14,10 @@ PACKAGE_NAME <- "assistDomino"
 #' @import miniUI
 NULL
 
+# Import shiny because the code is too messy to include shiny:: everywhere
+#' @import shiny
+NULL
+
 # Empty imports to get rid of CRAN check warnings
 #' @import datasets
 #' @import gapminder

@@ -1,6 +1,6 @@
 Package: assistDomino
 Title: Low Code Assistant for RStudio
-Version: 0.1.0.9014
+Version: 0.1.0.9015
 Authors@R: c(
     person("Dean", "Attali",
         email = "daattali@gmail.com",
@@ -19,7 +19,7 @@ Imports:
     ggplot2,
     glue,
     haven (>= 1.1.0),
-    htmltools,
+    htmltools (>= 0.3.5),
     httr (>= 1.2.0),
     jsonlite,
     methods,
@@ -29,7 +29,8 @@ Imports:
     reactable (>= 0.3.0.9000),
     readxl,
     rstudioapi (>= 0.8),
-    shiny (>= 1.0.4),
+    shiny (>= 1.5.0),
+    shinycodeviewer,
     shinyfilebrowser,
     shinymixpanel,
     shinyjs,
@@ -38,6 +39,7 @@ Imports:
     tools,
     utils
 Remotes:
+    daattali/shinycodeviewer,
     daattali/shinymixpanel,
     daattali/shinyfilebrowser,
     glin/reactable
