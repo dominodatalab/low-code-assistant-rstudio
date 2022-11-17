@@ -1,6 +1,6 @@
 Package: assistDomino
 Title: Low Code Assistant for RStudio
-Version: 0.1.0.9013
+Version: 0.1.0.9014
 Authors@R: c(
     person("Dean", "Attali",
         email = "daattali@gmail.com",
@@ -12,24 +12,24 @@ BugReports: https://github.com/dominodatalab/low-code-assistant-rstudio/issues
 Depends:
     R (>= 3.3.0)
 Imports:
-    cli,
+    cli (>= 2.2.0),
     datasets,
     fontawesome,
     gapminder,
     ggplot2,
     glue,
-    haven,
+    haven (>= 1.1.0),
     htmltools,
-    httr,
+    httr (>= 1.2.0),
     jsonlite,
     methods,
     miniUI,
     plotly,
     R6,
-    reactable,
+    reactable (>= 0.3.0.9000),
     readxl,
-    rstudioapi,
-    shiny (>= 1.0.0),
+    rstudioapi (>= 0.8),
+    shiny (>= 1.0.4),
     shinyfilebrowser,
     shinymixpanel,
     shinyjs,
@@ -37,7 +37,10 @@ Imports:
     stats,
     tools,
     utils
-Remotes: daattali/shinymixpanel, daattali/shinyfilebrowser
+Remotes:
+    daattali/shinymixpanel,
+    daattali/shinyfilebrowser,
+    glin/reactable
 License: file LICENSE
 Encoding: UTF-8
 RoxygenNote: 7.2.1
