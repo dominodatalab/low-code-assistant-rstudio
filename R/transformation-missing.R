@@ -75,14 +75,14 @@ MissingValuesTransformation$shiny <- list(
     fluidRow(
       column(
         4,
-        selectInput(ns("missing_type"), "Missing values in", choices = c(
+        shinyWidgets::pickerInput(ns("missing_type"), "Missing values in", choices = c(
           "A specific column" = "column",
           "Any column" = "all"
         ))
       ),
       conditionalPanel(
         "input.missing_type == 'column'", ns = ns,
-        column(4, selectInput(ns("missing_col"), "Column", NULL))
+        column(4, shinyWidgets::pickerInput(ns("missing_col"), "Column", NULL))
       ),
       conditionalPanel(
         "input.missing_type != 'column'", ns = ns,
@@ -98,16 +98,16 @@ MissingValuesTransformation$shiny <- list(
       function(input, output, session) {
 
         observeEvent(data(), {
-          updateSelectInput(session, "missing_col", choices = names(data()))
+          shinyWidgets::updatePickerInput(session, "missing_col", choices = names(data()))
         })
 
         observeEvent(old_xform(), {
           if (inherits(old_xform(), MissingValuesTransformation$classname)) {
             if (is.null(old_xform()$col)) {
-              updateSelectInput(session, "missing_type", selected = "all")
+              shinyWidgets::updatePickerInput(session, "missing_type", selected = "all")
             } else {
-              updateSelectInput(session, "missing_type", selected = "column")
-              updateSelectInput(session, "missing_col", selected = old_xform()$col)
+              shinyWidgets::updatePickerInput(session, "missing_type", selected = "column")
+              shinyWidgets::updatePickerInput(session, "missing_col", selected = old_xform()$col)
             }
             updateTextInput(session, "missing_name", value = old_xform()$name_out)
           }

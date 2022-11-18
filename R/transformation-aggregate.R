@@ -158,9 +158,9 @@ AggregateTransformation$shiny <- list(
              .aggregate_existing_ui .row:hover .remove-btn { display: flex !important; }"
       ))),
       fluidRow(
-        column(3, selectInput(ns("aggregate_cols"), "Group by", NULL, multiple = TRUE)),
-        column(3, selectInput(ns("aggregate_col_agg"), "Aggregate on", "")),
-        column(3, selectInput(ns("aggregate_aggregator"), "Aggregator", c("", unname(AggregateTransformation$OPTIONS)))),
+        column(3, shinyWidgets::pickerInput(ns("aggregate_cols"), "Group by", NULL, multiple = TRUE)),
+        column(3, shinyWidgets::pickerInput(ns("aggregate_col_agg"), "Aggregate on", "")),
+        column(3, shinyWidgets::pickerInput(ns("aggregate_aggregator"), "Aggregator", c("", unname(AggregateTransformation$OPTIONS)))),
         column(3, textInput(ns("aggregate_name"), "New name", "dfg"))
       ),
       fluidRow(
@@ -178,8 +178,8 @@ AggregateTransformation$shiny <- list(
         ns <- session$ns
 
         observeEvent(data(), {
-          updateSelectInput(session, "aggregate_cols", choices = names(data()))
-          updateSelectInput(session, "aggregate_col_agg", choices = c("", names(data())))
+          shinyWidgets::updatePickerInput(session, "aggregate_cols", choices = names(data()))
+          shinyWidgets::updatePickerInput(session, "aggregate_col_agg", choices = c("", names(data())))
         })
 
         observeEvent(old_xform(), {
@@ -187,8 +187,8 @@ AggregateTransformation$shiny <- list(
             aggs <- lapply(seq_along(old_xform()$aggregations), function(idx) {
               as.list(old_xform()$aggregations[idx])
             })
-            updateSelectInput(session, "xform_type", selected = "aggregate")
-            updateSelectInput(session, "aggregate_cols", selected = old_xform()$cols)
+            shinyWidgets::updatePickerInput(session, "xform_type", selected = "aggregate")
+            shinyWidgets::updatePickerInput(session, "aggregate_cols", selected = old_xform()$cols)
             updateTextInput(session, "aggregate_existing", value = as.character(jsonlite::toJSON(aggs)))
             updateTextInput(session, "aggregate_name", value = old_xform()$name_out)
           }
@@ -209,8 +209,8 @@ AggregateTransformation$shiny <- list(
         # we have to use a list-of-lists instead of a single list
         observeEvent(c(input$aggregate_col_agg, input$aggregate_aggregator), {
           req(input$aggregate_col_agg, input$aggregate_aggregator)
-          updateSelectInput(session, "aggregate_col_agg", selected = "")
-          updateSelectInput(session, "aggregate_aggregator", selected = "")
+          shinyWidgets::updatePickerInput(session, "aggregate_col_agg", selected = "")
+          shinyWidgets::updatePickerInput(session, "aggregate_aggregator", selected = "")
 
           new_aggregation <- list(as.list(stats::setNames(input$aggregate_aggregator, input$aggregate_col_agg)))
           if (new_aggregation %in% existing_aggregations()) {

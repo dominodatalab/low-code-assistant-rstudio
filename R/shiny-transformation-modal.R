@@ -26,7 +26,7 @@ transformation_modal <- function(id) {
           fluidRow(
             column(
               12,
-              selectInput(
+              shinyWidgets::pickerInput(
                 ns("xform_type"), label = NULL,
                 choices = stats::setNames(
                   lapply(ALL_XFORMS, function(x) x$name_short),
@@ -73,7 +73,7 @@ transformation_modal <- function(id) {
           shinyjs::hide("xform_type")
           lapply(ALL_XFORMS, function(x) {
             if (inherits(xform(), x$classname)) {
-              updateSelectInput(session, "xform_type", selected = x$name_short)
+              shinyWidgets::updatePickerInput(session, "xform_type", selected = x$name_short)
             }
           })
         }

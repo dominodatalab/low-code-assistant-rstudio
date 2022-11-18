@@ -87,8 +87,8 @@ FilterTransformation$shiny <- list(
     ns <- NS(id)
 
     fluidRow(
-      column(4, selectInput(ns("filter_col"), "Column", NULL)),
-      column(2, selectInput(ns("filter_op"), "Operation", unname(FilterTransformation$OPTIONS))),
+      column(4, shinyWidgets::pickerInput(ns("filter_col"), "Column", NULL)),
+      column(2, shinyWidgets::pickerInput(ns("filter_op"), "Operation", unname(FilterTransformation$OPTIONS))),
       column(2, textInput(ns("filter_value"), "Value", "")),
       column(2, textInput(ns("filter_name"), "New name", "df"))
     )
@@ -100,13 +100,13 @@ FilterTransformation$shiny <- list(
       function(input, output, session) {
 
         observeEvent(data(), {
-          updateSelectInput(session, "filter_col", choices = names(data()))
+          shinyWidgets::updatePickerInput(session, "filter_col", choices = names(data()))
         })
 
         observeEvent(old_xform(), {
           if (inherits(old_xform(), FilterTransformation$classname)) {
-            updateSelectInput(session, "filter_col", selected = old_xform()$col)
-            updateSelectInput(session, "filter_op", selected = old_xform()$op)
+            shinyWidgets::updatePickerInput(session, "filter_col", selected = old_xform()$col)
+            shinyWidgets::updatePickerInput(session, "filter_op", selected = old_xform()$op)
             updateTextInput(session, "filter_value", value = old_xform()$value)
             updateTextInput(session, "filter_name", value = old_xform()$name_out)
           }

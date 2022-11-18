@@ -57,7 +57,7 @@ SelectTransformation$shiny <- list(
     ns <- NS(id)
 
     fluidRow(
-      column(4, selectInput(ns("select_cols"), "Columns", NULL, multiple = TRUE)),
+      column(4, shinyWidgets::pickerInput(ns("select_cols"), "Columns", NULL, multiple = TRUE)),
       column(2, textInput(ns("select_name"), "New name", "df"))
     )
   },
@@ -68,12 +68,12 @@ SelectTransformation$shiny <- list(
       function(input, output, session) {
 
         observeEvent(data(), {
-          updateSelectInput(session, "select_cols", choices = names(data()))
+          shinyWidgets::updatePickerInput(session, "select_cols", choices = names(data()))
         })
 
         observeEvent(old_xform(), {
           if (inherits(old_xform(), SelectTransformation$classname)) {
-            updateSelectInput(session, "select_cols", selected = old_xform()$cols)
+            shinyWidgets::updatePickerInput(session, "select_cols", selected = old_xform()$cols)
             updateTextInput(session, "select_name", value = old_xform()$name_out)
           }
         })
