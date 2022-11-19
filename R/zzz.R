@@ -19,10 +19,15 @@ PACKAGE_NAME <- "assistDomino"
       break
     }
   }
+  #
+  # If no Python is present (or not in the expected place), then install MiniConda.
+  #
   if (!reticulate::py_available(initialize = TRUE)) {
     try(reticulate::install_miniconda())
   }
 
+  # Install the (Python) domino_data package.
+  #
   if (!reticulate::py_module_available("domino_data")) {
     reticulate::py_install("dominodatalab-data", pip = TRUE, method = "virtualenv")
   }
