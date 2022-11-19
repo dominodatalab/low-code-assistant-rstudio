@@ -14,6 +14,7 @@ docs:
 build:
 	cd ..;\
 	R CMD build --no-manual $(PKGSRC);\
+	R -e 'reticulate::install_miniconda()'
 	R -e 'reticulate::py_install("dominodatalab-data", pip = TRUE)'
 
 build-cran:
