@@ -29,6 +29,7 @@ Imports:
     DominoDataR,
     reactable (>= 0.3.0.9000),
     readxl,
+    reticulate,
     rstudioapi (>= 0.8),
     shiny (>= 1.5.0),
     shinycodeviewer,
