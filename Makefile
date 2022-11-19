@@ -21,7 +21,7 @@ build-cran:
 install: build
 	cd ..;\
 	R CMD INSTALL $(PKGNAME)_$(PKGVERS).tar.gz
-	R -e 'reticulate::install_miniconda()'
+	R -e 'try(reticulate::install_miniconda())'
 	R -e 'reticulate::py_install("dominodatalab-data", pip = TRUE)'
 
 check: build-cran
