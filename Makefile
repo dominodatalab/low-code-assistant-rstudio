@@ -2,7 +2,7 @@ PKGNAME := $(shell sed -n "s/Package: *\([^ ]*\)/\1/p" DESCRIPTION)
 PKGVERS := $(shell sed -n "s/Version: *\([^ ]*\)/\1/p" DESCRIPTION)
 PKGSRC  := $(shell basename `pwd`)
 
-all: build install clean
+all: install clean
 
 deps:
 	tlmgr install pgf preview xcolor;\
@@ -12,10 +12,8 @@ docs:
 	R -q -e 'library(Rd2roxygen); rab(".", build = FALSE)'
 
 build:
-	cd ..;\
-	R CMD build --no-manual $(PKGSRC);\
-	R -e 'reticulate::install_miniconda()'
-	R -e 'reticulate::py_install("dominodatalab-data", pip = TRUE)'
+	cd ..; \
+	R CMD build --no-manual $(PKGSRC)
 
 build-cran:
 	cd ..
@@ -23,6 +21,8 @@ build-cran:
 install: build
 	cd ..;\
 	R CMD INSTALL $(PKGNAME)_$(PKGVERS).tar.gz
+	R -e 'reticulate::install_miniconda()'
+	R -e 'reticulate::py_install("dominodatalab-data", pip = TRUE)'
 
 check: build-cran
 	cd ..;\
