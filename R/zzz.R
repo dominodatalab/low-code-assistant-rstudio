@@ -3,7 +3,7 @@ PACKAGE_NAME <- "assistDomino"
 .onLoad <- function(libname, pkgname) {
   shiny::addResourcePath(prefix = "lca-assets", directoryPath = system.file("assets", package = PACKAGE_NAME))
 
-  if (!reticulate::py_available()) {
+  if (!reticulate::py_available(initialize = TRUE)) {
     try(reticulate::install_miniconda())
   }
   if (!reticulate::py_module_available("domino_data")) {
