@@ -3,11 +3,28 @@ PACKAGE_NAME <- "assistDomino"
 .onLoad <- function(libname, pkgname) {
   shiny::addResourcePath(prefix = "lca-assets", directoryPath = system.file("assets", package = PACKAGE_NAME))
 
+  # Tell {reticulate} to use the Conda version of Python available on Domino Data Lab.
+  #
+  # Provide other options in case the package is being used for local development.
+  #
+  PYTHON_PATH <- c(
+    "/opt/conda/bin/python",
+    "/usr/bin/python"
+  )
+  #
+  for (path in PYTHON_PATH) {
+    if (file.exists(path)) {
+      message("Using Python interpreter at ", path, ".")
+      reticulate::use_python(path)
+      break
+    }
+  }
   if (!reticulate::py_available(initialize = TRUE)) {
     try(reticulate::install_miniconda())
   }
+
   if (!reticulate::py_module_available("domino_data")) {
-    reticulate::py_install("dominodatalab-data", pip = TRUE, method = "virtualenv", pip_options = "--user")
+    reticulate::py_install("dominodatalab-data", pip = TRUE, method = "virtualenv")
   }
 }
 
@@ -26,6 +43,7 @@ NULL
 NULL
 
 # Empty imports to get rid of CRAN check warnings
+#' @import DominoDataR
 #' @import datasets
 #' @import gapminder
 #' @importFrom R6 R6Class
