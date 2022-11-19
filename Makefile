@@ -14,20 +14,20 @@ docs:
 build:
 	cd ..; \
 	R CMD build --no-manual $(PKGSRC)
+	R -e 'try(reticulate::install_miniconda())'
+	R -e 'reticulate::py_install("dominodatalab-data", pip = TRUE)'
 
 build-cran:
 	cd ..
 
 install: build
-	cd ..;\
+	cd ..; \
 	R CMD INSTALL $(PKGNAME)_$(PKGVERS).tar.gz
-	R -e 'try(reticulate::install_miniconda())'
-	R -e 'reticulate::py_install("dominodatalab-data", pip = TRUE)'
 
 check: build-cran
-	cd ..;\
+	cd ..; \
 	R CMD check $(PKGNAME)_$(PKGVERS).tar.gz --as-cran
 
 clean:
-	cd ..;\
+	cd ..; \
 	$(RM) -r $(PKGNAME).Rcheck/
