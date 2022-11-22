@@ -12,6 +12,7 @@
 - File browser: allow de-selecting items by clicking on them again
 - Improve the UI for all file browsers and list selectors
 - Mixpanel: use server-side tracking when the client is blocked
+- Fix bug where modals would close unexpectedly on Firefox
 - Make the package work with older shiny versions (previously version >= 1.7 was needed)
 - Add all package dependencies that were previously missing
 
