@@ -134,8 +134,8 @@ page_xforms_server <- function(id, data_name_in = NULL) {
 
       observeEvent(data_name(), {
         initial_xforms <- TransformationSequence$new(name_in = data_name())
-        xforms_orig(initial_xforms)
-        undo_redo$add(initial_xforms)
+        undo_redo()$clear(clear_value = TRUE)
+        undo_redo()$do(initial_xforms)
       })
 
       xforms_orig <- reactiveVal()
@@ -168,7 +168,7 @@ page_xforms_server <- function(id, data_name_in = NULL) {
 
       table <- xforms_table_server("table", result)
 
-      undo_redo <- UndoRedoStack$new(type = TransformationSequence$classname)
+      undo_redo <- UndoManager$new(type = TransformationSequence$classname)$reactive()
 
       code_section <- shinycodeviewer::code_viewer_server(
         "code",
@@ -178,6 +178,10 @@ page_xforms_server <- function(id, data_name_in = NULL) {
         skip = reactive(length(xforms()$dependencies)),
         auto_actions = FALSE
       )
+
+      observeEvent(undo_redo(), {
+        xforms_orig(undo_redo()$value)
+      })
 
       #--- New transformation
       observeEvent(input$add_xform, {
@@ -221,8 +225,7 @@ page_xforms_server <- function(id, data_name_in = NULL) {
           new_xforms[[xform_modal$meta()]] <- xform_modal$result()
           new_xforms <- TransformationSequence$new(new_xforms, name_in = xforms()$name_in)
         }
-        xforms_orig(new_xforms)
-        undo_redo$add(new_xforms)
+        undo_redo()$do(new_xforms)
       })
 
       observe({
@@ -235,9 +238,9 @@ page_xforms_server <- function(id, data_name_in = NULL) {
       })
 
       #--- Undo/redo
-      observeEvent(xforms(), {
-        shinyjs::toggleState("undo", undo_redo$undo_size > 0)
-        shinyjs::toggleState("redo", undo_redo$redo_size > 0)
+      observe({
+        shinyjs::toggleState("undo", undo_redo()$can_undo > 0)
+        shinyjs::toggleState("redo", undo_redo()$can_redo > 0)
       })
 
       observeEvent(input$undo, {
@@ -249,8 +252,7 @@ page_xforms_server <- function(id, data_name_in = NULL) {
           )
         )
 
-        new_xforms <- undo_redo$undo()$value
-        xforms_orig(new_xforms)
+        undo_redo()$undo()
       })
       observeEvent(input$redo, {
         shinymixpanel::mp_track(
@@ -261,8 +263,7 @@ page_xforms_server <- function(id, data_name_in = NULL) {
           )
         )
 
-        new_xforms <- undo_redo$redo()$value
-        xforms_orig(new_xforms)
+        undo_redo()$redo()
       })
 
       # edit/modify/delete
@@ -293,8 +294,7 @@ page_xforms_server <- function(id, data_name_in = NULL) {
         )
 
         new_xforms <- xforms()$remove(code_section$delete())
-        xforms_orig(new_xforms)
-        undo_redo$add(new_xforms)
+        undo_redo()$do(new_xforms)
       })
 
       #--- Actions were taken in the table
@@ -308,8 +308,7 @@ page_xforms_server <- function(id, data_name_in = NULL) {
         )
 
         new_xforms <- xforms()$add(table$drop())
-        xforms_orig(new_xforms)
-        undo_redo$add(new_xforms)
+        undo_redo()$do(new_xforms)
       })
       observeEvent(table$missing(), {
         shinymixpanel::mp_track(
