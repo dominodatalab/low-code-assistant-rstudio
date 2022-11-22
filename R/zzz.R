@@ -27,4 +27,6 @@ NULL
 #' @importFrom readxl read_xls
 #' @importFrom cli ansi_strip
 #' @importFrom tools file_ext
+#' @importFrom dplyr filter
+#' @importFrom tidyr drop_na
 NULL

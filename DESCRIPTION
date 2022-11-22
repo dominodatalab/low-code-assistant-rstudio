@@ -15,6 +15,7 @@ Imports:
     checkmate,
     cli (>= 2.2.0),
     datasets,
+    dplyr,
     fontawesome (>= 0.4.0),
     gapminder,
     ggplot2,
@@ -37,6 +38,7 @@ Imports:
     shinyjs,
     shinyWidgets,
     stats,
+    tidyr,
     tools,
     utils
 Remotes:
