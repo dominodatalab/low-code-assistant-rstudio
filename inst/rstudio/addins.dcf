@@ -12,3 +12,8 @@ Name: LCA Visualizations
 Description: Run the Data Visualization wizard of LCA.
 Binding: assist_viz_addin
 Interactive: true
+
+Name: LCA Snippets
+Description: Run the Snippets wizard of LCA.
+Binding: assist_snippets_addin
+Interactive: true

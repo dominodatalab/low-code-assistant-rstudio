@@ -57,3 +57,23 @@ assist_viz <- function() {
 assist_viz_addin <- function() {
   assist_viz()
 }
+
+#' Low Code Assistant - Snippets
+#'
+#' Run the snippets LCA wizard.
+#' @export
+assist_snippets <- function() {
+  app <- shiny::shinyApp(
+    ui = shiny::fluidPage(page_snippets_ui("app")),
+    server = function(input, output, session) page_snippets_server("app")
+  )
+  shiny::runGadget(app, viewer = shiny::dialogViewer("Domino R Assistant", 1100, 800))
+}
+
+#' Low Code Assistant - Snippets
+#'
+#' Run the snippets LCA wizard.
+#' @export
+assist_snippets_addin <- function() {
+  assist_snippets()
+}
