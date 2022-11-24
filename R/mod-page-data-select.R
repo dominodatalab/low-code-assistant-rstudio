@@ -97,7 +97,7 @@ page_data_select_ui <- function(id) {
       ),
       actionButton(
         ns("continue"),
-        "Apply",
+        "Insert Code",
         icon = icon("check"),
         class = "btn-primary btn-lg"
       )

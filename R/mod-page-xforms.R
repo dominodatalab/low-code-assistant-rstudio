@@ -21,64 +21,70 @@ page_xforms_ui <- function(id) {
 
     title_bar_ui(ns("title"), "Transformations"),
 
-    br(),
-    shinyjs::hidden(
-      div(
-        id = ns("data_select"),
-        data_environment_ui(ns("data_select_mod"))
+    div(
+      class = "page-main-content",
+      br(),
+      shinyjs::hidden(
+        div(
+          id = ns("data_select"),
+          data_environment_ui(ns("data_select_mod"))
+        )
+      ),
+
+      shinyjs::hidden(
+        div(
+          id = ns("main_section"),
+
+          div(
+
+            conditionalPanel(
+              "input.show_table", ns = ns,
+              xforms_table_ui(ns("table")),
+              br()
+            ),
+            fluidRow(
+              column(
+                12,
+                actionButton(ns("undo"), NULL, icon = icon("undo", verify_fa = FALSE)),
+                actionButton(ns("redo"), NULL, icon = icon("redo", verify_fa = FALSE)),
+                actionButton(ns("add_xform"), " ADD TRANSFORMATION", icon = icon("plus"), class = "btn-primary", style = "margin: 0 20px"),
+                span(
+                  shinyWidgets::prettyCheckbox(
+                    ns("show_table"), "Show Data", value = TRUE, width = "auto", shape = "curve", status = "primary", inline = TRUE
+                  ),
+                  shinyWidgets::prettyCheckbox(
+                    ns("show_code"), "Show Code", value = TRUE, width = "auto", shape = "curve", status = "primary", inline = TRUE
+                  ),
+                  shinyWidgets::prettyCheckbox(
+                    ns("use_tidyverse"), "Use tidyverse", value = TRUE, width = "auto", shape = "curve", status = "primary", inline = TRUE
+                  )
+                )
+              )
+            ),
+            uiOutput(ns("error")),
+            conditionalPanel(
+              "input.show_code", ns = ns,
+              shinycodeviewer::code_viewer_ui(ns("code"))
+            )
+          )
+        )
       )
     ),
 
-    shinyjs::hidden(
-      div(
-        id = ns("main_section"),
-
-        div(
-          class = "page-main-content",
-          conditionalPanel(
-            "input.show_table", ns = ns,
-            xforms_table_ui(ns("table")),
-            br()
-          ),
-          fluidRow(
-            column(
-              12,
-              actionButton(ns("undo"), NULL, icon = icon("undo", verify_fa = FALSE)),
-              actionButton(ns("redo"), NULL, icon = icon("redo", verify_fa = FALSE)),
-              actionButton(ns("add_xform"), " ADD TRANSFORMATION", icon = icon("plus"), class = "btn-primary", style = "margin: 0 20px"),
-              span(
-                shinyWidgets::prettyCheckbox(
-                  ns("show_table"), "Show Data", value = TRUE, width = "auto", shape = "curve", status = "primary", inline = TRUE
-                ),
-                shinyWidgets::prettyCheckbox(
-                  ns("show_code"), "Show Code", value = TRUE, width = "auto", shape = "curve", status = "primary", inline = TRUE
-                ),
-                shinyWidgets::prettyCheckbox(
-                  ns("use_tidyverse"), "Use tidyverse", value = TRUE, width = "auto", shape = "curve", status = "primary", inline = TRUE
-                )
-              )
-            )
-          ),
-          uiOutput(ns("error")),
-          conditionalPanel(
-            "input.show_code", ns = ns,
-            shinycodeviewer::code_viewer_ui(ns("code"))
-          )
-        ),
-        div(
-          class = "page-actions flex flex-gap2",
-          actionButton(
-            ns("close"),
-            "Close",
-            icon = icon("close"),
-            class = "btn-lg"
-          ),
-          actionButton(
-            ns("continue"),
-            "Apply",
-            icon = icon("check"),
-            class = "btn-primary btn-lg"
-          )
+    div(
+      class = "page-actions flex flex-gap2",
+      actionButton(
+        ns("close"),
+        "Close",
+        icon = icon("close"),
+        class = "btn-lg"
+      ),
+      shinyjs::disabled(
+        actionButton(
+          ns("continue"),
+          "Insert Code",
+          icon = icon("check"),
+          class = "btn-primary btn-lg"
         )
       )
     )
@@ -334,14 +340,11 @@ page_xforms_server <- function(id, data_name_in = NULL) {
       })
 
       observe({
-        req(xforms())
-        shinyjs::toggleState("continue", condition = is.null(error()))
+        shinyjs::toggleState("continue", condition = xforms()$size > 0 && is.null(error()))
       })
 
       observeEvent(input$continue, {
-        if (xforms()$size > 0) {
-          insert_text(paste0(xforms()$get_code()))
-        }
+        insert_text(paste0(xforms()$get_code()))
 
         shinymixpanel::mp_track(
           MIXPANEL_EVENT_CODE,

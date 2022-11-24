@@ -18,66 +18,71 @@ page_viz_ui <- function(id) {
     ),
     shinyjs::useShinyjs(),
     html_dependency_lca(),
+
     title_bar_ui(ns("title"), "Visualizations"),
 
-    shinyjs::hidden(
-      div(
-        id = ns("data_select"),
-        br(),
-        data_environment_ui(ns("data_select_mod"))
+    div(
+      class = "page-main-content",
+      shinyjs::hidden(
+        div(
+          id = ns("data_select"),
+          br(),
+          data_environment_ui(ns("data_select_mod"))
+        )
+      ),
+
+      shinyjs::hidden(
+        div(
+          id = ns("main_section"),
+
+          div(
+            textInput(ns("plot_name"), "Variable name", "plot"),
+            selectInput(ns("plot_type"), "Plot type", c("", "Scatter", "Histogram", "Line")),
+            conditionalPanel(
+              "input.plot_type != ''", ns = ns,
+              fluidRow(
+                column(4,selectInput(ns("var_x"), "X Variable", choices = "")),
+                column(4,     conditionalPanel(
+                  "input.plot_type != 'Histogram'", ns = ns,
+                  selectInput(ns("var_y"), "Y Variable", choices = ""),
+                )),
+                column(4,  selectInput(ns("color"), "Color", choices = ""))
+              ),
+              fluidRow(
+                column(4,shinyWidgets::prettySwitch(ns("log_x"), "Log X-axis", status = "primary", fill = TRUE),
+                       shinyWidgets::prettySwitch(ns("plotly"), "Use plotly", status = "primary", fill = TRUE)),
+                column(4, sliderInput(ns("font"), "Font size", 6, 50, 12)),
+                column(4, selectInput(ns("theme"), "Theme", c("", "classic", "minimal", "grey", "bw", "linedraw", "light", "dark")))
+              ),
+              uiOutput(ns("code")),
+              conditionalPanel(
+                "input.plotly", ns = ns,
+                plotly::plotlyOutput(ns("plot_plotly"), height = 600)
+              ),
+              conditionalPanel(
+                "!input.plotly", ns = ns,
+                plotOutput(ns("plot"), height = 600),
+              )
+            )
+          )
+        )
       )
     ),
 
-    shinyjs::hidden(
-      div(
-        id = ns("main_section"),
-
-        div(
-          class = "page-main-content",
-          textInput(ns("plot_name"), "Variable name", "plot"),
-          selectInput(ns("plot_type"), "Plot type", c("", "Scatter", "Histogram", "Line")),
-          conditionalPanel(
-            "input.plot_type != ''", ns = ns,
-            fluidRow(
-              column(4,selectInput(ns("var_x"), "X Variable", choices = "")),
-              column(4,     conditionalPanel(
-                "input.plot_type != 'Histogram'", ns = ns,
-                selectInput(ns("var_y"), "Y Variable", choices = ""),
-              )),
-              column(4,  selectInput(ns("color"), "Color", choices = ""))
-            ),
-            fluidRow(
-              column(4,shinyWidgets::prettySwitch(ns("log_x"), "Log X-axis", status = "primary", fill = TRUE),
-                     shinyWidgets::prettySwitch(ns("plotly"), "Use plotly", status = "primary", fill = TRUE)),
-              column(4, sliderInput(ns("font"), "Font size", 6, 50, 12)),
-              column(4, selectInput(ns("theme"), "Theme", c("", "classic", "minimal", "grey", "bw", "linedraw", "light", "dark")))
-            ),
-            uiOutput(ns("code")),
-            conditionalPanel(
-              "input.plotly", ns = ns,
-              plotly::plotlyOutput(ns("plot_plotly"), height = 600)
-            ),
-            conditionalPanel(
-              "!input.plotly", ns = ns,
-              plotOutput(ns("plot"), height = 600),
-            )
-          )
-        ),
-
-        div(
-          class = "page-actions flex flex-gap2",
-          actionButton(
-            ns("close"),
-            "Close",
-            icon = icon("close"),
-            class = "btn-lg"
-          ),
-          actionButton(
-            ns("continue"),
-            "Apply",
-            icon = icon("check"),
-            class = "btn-primary btn-lg"
-          )
+    div(
+      class = "page-actions flex flex-gap2",
+      actionButton(
+        ns("close"),
+        "Close",
+        icon = icon("close"),
+        class = "btn-lg"
+      ),
+      shinyjs::disabled(
+        actionButton(
+          ns("continue"),
+          "Insert Code",
+          icon = icon("check"),
+          class = "btn-primary btn-lg"
         )
       )
     )
@@ -197,6 +202,9 @@ page_viz_server <- function(id, data_in = NULL, name_in = NULL) {
         tags$pre(code())
       })
 
+      observe({
+        shinyjs::toggleState("continue", condition = nzchar(code()))
+      })
 
       observeEvent(input$continue, {
         insert_text(paste0(code()))

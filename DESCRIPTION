@@ -1,6 +1,6 @@
 Package: assistDomino
 Title: Low Code Assistant for RStudio
-Version: 0.1.0.9017
+Version: 0.1.0.9018
 Authors@R: c(
     person("Dean", "Attali",
         email = "daattali@gmail.com",
