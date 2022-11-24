@@ -1,11 +1,37 @@
+.lca-page {
+  height: 100%;
+}
+.lca-page > body {
+  height: 100%;
+}
+.lca-page > body > .container-fluid {
+  height: 100%;
+  display: flex;
+  flex-flow: column;
+  padding: 0;
+  margin: 0;
+}
+.lca-page .header-bar {
+  flex: 0 1 auto;
+}
+.lca-page .page-main-content {
+  flex: 1 1 auto;
+  overflow: auto;
+  padding: 0 15px;
+}
+.lca-page .page-actions {
+  flex: 0 1 auto;
+}
+
 .header-bar {
-  margin: 0 -15px;
-  font-size: 2.5rem;
+  font-size: 2rem;
   text-transform: uppercase;
   background: #2d71c7;
   color: #fff;
-  height: 70px;
-  padding: 10px 20px;
+  padding: 5px 10px;
+}
+.header-bar img {
+  height: 35px;
 }
 
 .no-margin .form-group,
@@ -15,17 +41,9 @@
   margin-bottom: 0;
 }
 
-.page-main-content {
-  padding-bottom: 75px;
-}
-
 .page-actions {
   border-top: 1px solid #ddd;
   padding: 0 1rem;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
   justify-content: flex-end;
   background: #fafafa;
 }

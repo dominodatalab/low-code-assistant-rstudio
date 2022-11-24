@@ -1,16 +1,19 @@
 title_bar_ui <- function(id, title = NULL) {
   ns <- NS(id)
 
-  div(
-    html_dependency_lca(),
-    class = "header-bar",
-    class = "flex flex-gap1",
-    if (is.null(title))
-      textOutput(ns("page_title"))
-    else
-      title,
-    div("Domino R Assistant", class = "flex-push"),
-    img(height = "100%", src = "lca-assets/lca/img/domino-logo.svg")
+  tagList(
+    tags$html(class = "lca-page"),
+    div(
+      html_dependency_lca(),
+      class = "header-bar",
+      class = "flex flex-gap1",
+      if (is.null(title))
+        textOutput(ns("page_title"))
+      else
+        title,
+      div("Domino R Assistant", class = "flex-push"),
+      img(height = "100%", src = "lca-assets/lca/img/domino-logo.svg")
+    )
   )
 }
 
