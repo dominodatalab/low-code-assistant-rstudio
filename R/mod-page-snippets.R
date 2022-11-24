@@ -37,6 +37,7 @@ page_snippets_ui <- function(id) {
         )
       )
     ),
+
     div(
       class = "page-actions flex flex-gap2",
       actionButton(
@@ -47,7 +48,7 @@ page_snippets_ui <- function(id) {
       ),
       actionButton(
         ns("continue"),
-        "Insert",
+        "Insert Code",
         icon = icon("check"),
         class = "btn-primary btn-lg"
       )
