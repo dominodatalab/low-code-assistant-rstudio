@@ -28,8 +28,8 @@ find_snippets_path <- function(path) {
     return(empty_df)
   }
   data.frame(
-    full_path = normalizePath(winslash = "/", list.files(path, recursive = TRUE, pattern = "\\.py$", full.names = TRUE)),
-    short_path = list.files(path, recursive = TRUE, pattern = "\\.py$", full.names = FALSE),
+    full_path = normalizePath(winslash = "/", list.files(path, recursive = TRUE, pattern = "\\.R$", full.names = TRUE)),
+    short_path = list.files(path, recursive = TRUE, pattern = "\\.R$", full.names = FALSE),
     stringsAsFactors = FALSE
   )
 }

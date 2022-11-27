@@ -23,7 +23,6 @@ page_snippets_ui <- function(id) {
 
     div(
       class = "page-main-content",
-      h1("TEST: change py -> R", style = "background: red"),
       fluidRow(
         column(
           6,
