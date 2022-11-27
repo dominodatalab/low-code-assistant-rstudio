@@ -1,4 +1,4 @@
-# Unreleased version
+# assistDomino 0.2.0 (2022-11-26)
 
 - Add Snippets wizard for inserting code snippets
 - Data module: add a 'Demo Data' tab to allow loading demo datasets
