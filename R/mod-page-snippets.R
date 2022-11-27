@@ -72,27 +72,34 @@ page_snippets_server <- function(id) {
 
       all_snippets <- merge_all_snippets()
 
-      snippets <- shinyfilebrowser::path_browser_server(
+      snippet_selector <- shinyfilebrowser::path_browser_server(
         "snippets",
         all_snippets$short_path,
         show_extension = FALSE,
         text_empty = "No snippets here"
       )
 
+      selected_snippet <- reactive({
+        snippet_selector$selected()
+      })
+
+      selected_snippet_full <- reactive({
+        all_snippets[all_snippets$short_path == selected_snippet(), ]$full_path
+      })
+
       output$file_name <- renderText({
-        if (is.null(snippets$selected())) {
+        if (is.null(selected_snippet())) {
           "Please select a snippet to preview"
         } else {
-          get_file_name_no_ext(snippets$selected())
+          get_file_name_no_ext(selected_snippet())
         }
       })
 
       file_contents <- reactive({
-        if (is.null(snippets$selected())) {
+        if (is.null(selected_snippet())) {
           NULL
         } else {
-          snippet_file <- all_snippets[all_snippets$short_path == snippets$selected(), ]$full_path
-          lines <- suppressWarnings(readLines(snippet_file))
+          lines <- suppressWarnings(readLines(selected_snippet_full()))
           lines
         }
       })
@@ -100,7 +107,7 @@ page_snippets_server <- function(id) {
       shinycodeviewer::code_viewer_server("file_contents", chunks = file_contents, editable = FALSE)
 
       observe({
-        shinyjs::toggleState("continue", condition = !is.null(snippets$selected()))
+        shinyjs::toggleState("continue", condition = !is.null(selected_snippet()))
       })
 
       observeEvent(input$continue, {
