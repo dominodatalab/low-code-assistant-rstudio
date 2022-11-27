@@ -83,7 +83,7 @@ page_snippets_server <- function(id) {
         if (is.null(snippets$selected())) {
           "Please select a snippet to preview"
         } else {
-          tools::file_path_sans_ext(basename(snippets$selected()))
+          get_file_name_no_ext(snippets$selected())
         }
       })
 

@@ -19,7 +19,7 @@ LoadModuleFile <- R6::R6Class(
     },
 
     get_name = function() {
-      make.names(tools::file_path_sans_ext(basename(private$.file)))
+      make.names(get_file_name_no_ext(private$.file))
     },
 
     get_code = function() {

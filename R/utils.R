@@ -73,3 +73,7 @@ remove_duplicate_lines <- function(text = "", lines_to_remove = c()) {
   }
   text
 }
+
+get_file_name_no_ext <- function(x) {
+  tools::file_path_sans_ext(basename(x))
+}
