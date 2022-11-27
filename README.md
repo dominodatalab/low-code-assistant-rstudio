@@ -41,6 +41,8 @@ In RStudio, click the "Addins" menu.
 
 Under the heading of "ASSISTDOMINO" there will be a few buttons, one for each of the LCA modules: "LCA Data Selector", "LCA Data Transformation", "LCA Data Visualization". Click on any of the LCA modules to launch them.
 
+> If you installed using Method 1 and you don't see the LCA menus, you may need to click on the *Select* menu and choose *Terminate R* in order for RStudio to refresh.
+
 ![addins menu after click](inst/docs/screenshots/rstudio-addins-open.png)
 
 ### Development
