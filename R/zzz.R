@@ -29,4 +29,5 @@ NULL
 #' @importFrom tools file_ext
 #' @importFrom dplyr filter
 #' @importFrom tidyr drop_na
+#' @importFrom checkmate test_character
 NULL

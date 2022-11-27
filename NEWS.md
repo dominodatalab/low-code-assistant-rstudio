@@ -1,5 +1,6 @@
 # Unreleased version
 
+- Add Snippets wizard for inserting code snippets
 - Data module: add a 'Demo Data' tab to allow loading demo datasets
 - Data module: support reading many more file types beyond CSV (.csv, .txt, .tsv, .sas7bdat, .xpt, .sav, .zsav, .dta, .por, .xls, .xlsx)
 - Data module: show user-friendly error message when a data source fails to get read correctly 
