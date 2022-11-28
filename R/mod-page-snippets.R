@@ -17,7 +17,9 @@ page_snippets_ui <- function(id) {
       track_server = TRUE
     ),
     shinyjs::useShinyjs(),
+    shinyalert::useShinyalert(force = TRUE),
     html_dependency_lca(),
+    waiter::useWaiter(),
 
     title_bar_ui(ns("title"), "Snippets"),
 
@@ -39,6 +41,29 @@ page_snippets_ui <- function(id) {
 
     div(
       class = "page-actions flex flex-gap2",
+      actionButton(
+        ns("add"),
+        "Add",
+        icon = icon("plus"),
+        class = "btn-primary btn-lg"
+      ),
+      shinyjs::hidden(
+        actionButton(
+          ns("edit"),
+          "Edit",
+          icon = icon("pencil"),
+          class = "btn-primary btn-lg"
+        )
+      ),
+      shinyjs::hidden(
+        actionButton(
+          ns("delete"),
+          "Delete",
+          icon = icon("trash"),
+          class = "btn-primary btn-lg"
+        )
+      ),
+      div(class = "flex-push"),
       actionButton(
         ns("close"),
         "Close",
@@ -70,11 +95,22 @@ page_snippets_server <- function(id) {
         kill_app()
       })
 
-      all_snippets <- merge_all_snippets()
+      snippets_refresh <- reactive_trigger()
+
+      all_snippets <- reactive({
+        snippets_refresh$depend()
+        merge_all_snippets()
+      })
+
+      editable_paths_list <- reactive({
+        waiter::waiter_show(color = "#333e48cc", html = waiter::spin_plus())
+        on.exit(waiter::waiter_hide(), add = TRUE)
+        get_editable_snippets_paths()
+      })
 
       snippet_selector <- shinyfilebrowser::path_browser_server(
         "snippets",
-        all_snippets$short_path,
+        reactive(sort(all_snippets()$short_path)),
         show_extension = FALSE,
         text_empty = "No snippets here"
       )
@@ -84,7 +120,7 @@ page_snippets_server <- function(id) {
       })
 
       selected_snippet_full <- reactive({
-        all_snippets[all_snippets$short_path == selected_snippet(), ]$full_path
+        all_snippets()[all_snippets()$short_path == selected_snippet(), ]$full_path
       })
 
       output$file_name <- renderText({
@@ -104,7 +140,61 @@ page_snippets_server <- function(id) {
         }
       })
 
-      shinycodeviewer::code_viewer_server("file_contents", chunks = file_contents, editable = FALSE)
+      shinycodeviewer::code_viewer_server("file_contents", chunks = file_contents, editable = FALSE, show_chunk_numbers = TRUE)
+
+      snippet_modal <- snippet_add_edit_modal("snippet_modal", editable_paths = editable_paths_list)
+
+      observeEvent(snippet_modal$update(), {
+        snippets_refresh$trigger()
+      })
+
+      observeEvent(input$add, {
+        snippet_modal$show(action = "add", folder = snippet_selector$path())
+      })
+
+      observeEvent(input$edit, {
+        snippet_modal$show(action = "edit", folder = snippet_selector$path(), snippet = selected_snippet_full())
+      })
+
+      observeEvent(input$delete, {
+        shinyalert::shinyalert(
+          title = "Are you sure you want to delete this snippet?",
+          text = get_file_name_no_ext(selected_snippet()),
+          showCancelButton = TRUE, cancelButtonText = "Cancel", confirmButtonText = "Delete",
+          inputId = "delete_confirm", closeOnClickOutside = TRUE
+        )
+      })
+
+      observeEvent(input$delete_confirm, {
+        if (!input$delete_confirm) {
+          return()
+        }
+        tryCatch({
+          file.remove(selected_snippet_full())
+          snippets_refresh$trigger()
+          shinyalert::shinyalert(type = "success", "Snippet deleted")
+        }, error = function(err) {
+          shinyalert::shinyalert(type = "error", title = "Error", text = err$message)
+        })
+      })
+
+      can_edit_file <- reactive({
+        if (is.null(selected_snippet())) {
+          return(FALSE)
+        }
+        editable_paths <- unname(unlist(editable_paths_list()))
+        any(sapply(editable_paths, is_subdir, selected_snippet_full()))
+      })
+
+      observe({
+        shinyjs::toggle("edit", condition = !is.null(selected_snippet()))
+        shinyjs::toggle("delete", condition = !is.null(selected_snippet()))
+      })
+
+      observe({
+        shinyjs::toggleState("edit", condition = can_edit_file())
+        shinyjs::toggleState("delete", condition = can_edit_file())
+      })
 
       observe({
         shinyjs::toggleState("continue", condition = !is.null(selected_snippet()))

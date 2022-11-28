@@ -16,7 +16,7 @@ get_snippets_paths_imported_projects <- function() {
 }
 
 get_snippets_paths_current_project <- function() {
-  file.path(Sys.getenv("DOMINO_WORKING_DIR"), "snippets")
+  file.path(get_user_project_dir(), "snippets")
 }
 
 find_snippets_path <- function(path) {
@@ -32,16 +32,6 @@ find_snippets_path <- function(path) {
     short_path = list.files(path, recursive = TRUE, pattern = "\\.R$", full.names = FALSE),
     stringsAsFactors = FALSE
   )
-}
-
-is_git_writable <- function(dir) {
-  tryCatch({
-    owd <- setwd(dir)
-    on.exit(setwd(owd), add = TRUE)
-    gitcreds::gitcreds_get(use_cache = FALSE, set_cache = FALSE)
-    processx::run("git", c("push", "--dry-run", "--force", "--no-verify"))
-    TRUE
-  }, error = function(err) FALSE)
 }
 
 find_snippets <- function(paths) {
@@ -61,4 +51,13 @@ merge_all_snippets <- function() {
     get_snippets_paths_builtin()
   )
   find_snippets(paths)
+}
+
+get_editable_snippets_paths <- function() {
+  git_paths <- get_writable_git_repos()
+  paths <- list("Current Project" = get_user_project_dir())
+  if (length(git_paths) > 0) {
+    paths[["Git Repos"]] <- setNames(git_paths, basename(git_paths))
+  }
+  paths
 }

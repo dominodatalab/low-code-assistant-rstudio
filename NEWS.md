@@ -1,3 +1,7 @@
+# Unreleased version
+
+- Snippets module: support adding snippets, editing snippets, deleting snippets
+
 # assistDomino 0.2.0 (2022-11-26)
 
 - Add Snippets wizard for inserting code snippets

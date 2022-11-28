@@ -6,6 +6,15 @@ get_user_datasets_dir <- function() {
   Sys.getenv("DOMINO_DATASETS_DIR", getwd())
 }
 
+get_user_git_repos <- function() {
+  dir <- Sys.getenv("DOMINO_IMPORTED_CODE_DIR", "")
+  if (dir == "") {
+    character(0)
+  } else {
+    list.dirs(dir, recursive = FALSE)
+  }
+}
+
 get_user_upload_dir <- function() {
   git <- (Sys.getenv("DOMINO_IS_GIT_BASED") == "true")
   if (git) {
