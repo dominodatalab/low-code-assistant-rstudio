@@ -179,7 +179,7 @@ page_xforms_server <- function(id, data_name_in = NULL) {
       code_section <- shinycodeviewer::code_viewer_server(
         "code",
         chunks = xforms_chunks,
-        error_line = error_line_num,
+        error_chunk = error_line_num,
         editable = reactive(seq_len(xforms()$size)),
         skip = reactive(length(xforms()$dependencies)),
         auto_actions = FALSE
