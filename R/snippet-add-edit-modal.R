@@ -66,7 +66,7 @@ snippet_add_edit_modal <- function(id, editable_paths) {
           path_idx <- which(sapply(editable_paths, is_subdir, snippet))
           repo <- editable_paths[path_idx]
           name <- get_file_name_no_ext(snippet)
-          contents <- suppressWarnings(readLines(snippet))
+          contents <- suppressWarnings(paste(readLines(snippet), collapse = "\n"))
 
           updateTextInput(session, "name", value = name)
           shinyWidgets::updatePickerInput(session, "repo", choices = editable_paths_r(), selected = repo)

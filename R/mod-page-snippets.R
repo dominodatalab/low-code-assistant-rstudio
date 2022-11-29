@@ -41,26 +41,56 @@ page_snippets_ui <- function(id) {
 
     div(
       class = "page-actions flex flex-gap2",
-      actionButton(
-        ns("add"),
-        "Add",
-        icon = icon("plus"),
-        class = "btn-primary btn-lg"
+      shinytip::tip(
+        div(
+          class = "action-button snippet-edit-mode-btn col-grey",
+          id = ns("enable_edit"),
+          span(
+            class = "fa-stack",
+            icon("pen", class = "fa-stack-1x"),
+            icon("slash", class = "fa-stack-1x")
+          )
+        ),
+        "Snippet editing disabled. Click to enable",
+        position = "right"
       ),
       shinyjs::hidden(
-        actionButton(
-          ns("edit"),
-          "Edit",
-          icon = icon("pencil"),
-          class = "btn-primary btn-lg"
-        )
-      ),
-      shinyjs::hidden(
-        actionButton(
-          ns("delete"),
-          "Delete",
-          icon = icon("trash"),
-          class = "btn-primary btn-lg"
+        shinytip::tip(
+          div(
+            class = "action-button snippet-edit-mode-btn col-link",
+            id = ns("disable_edit"),
+            span(
+              class = "fa-stack",
+              icon("pen", class = "fa-stack-1x")
+            )
+          ),
+          "Snippet editing enabled. Click to disable",
+          position = "right"
+        ),
+        div(
+          id = ns("editing_btns"),
+          actionButton(
+            ns("add"),
+            "Add",
+            icon = icon("plus"),
+            class = "btn-primary btn-lg"
+          ),
+          shinyjs::hidden(
+            actionButton(
+              ns("edit"),
+              "Edit",
+              icon = icon("pencil"),
+              class = "btn-primary btn-lg"
+            )
+          ),
+          shinyjs::hidden(
+            actionButton(
+              ns("delete"),
+              "Delete",
+              icon = icon("trash"),
+              class = "btn-primary btn-lg"
+            )
+          )
         )
       ),
       div(class = "flex-push"),
@@ -198,6 +228,17 @@ page_snippets_server <- function(id) {
 
       observe({
         shinyjs::toggleState("continue", condition = !is.null(selected_snippet()))
+      })
+
+      observeEvent(input$enable_edit, {
+        shinyjs::hide("enable_edit")
+        shinyjs::show("disable_edit")
+        shinyjs::show("editing_btns")
+      })
+      observeEvent(input$disable_edit, {
+        shinyjs::show("enable_edit")
+        shinyjs::hide("disable_edit")
+        shinyjs::hide("editing_btns")
       })
 
       observeEvent(input$continue, {
