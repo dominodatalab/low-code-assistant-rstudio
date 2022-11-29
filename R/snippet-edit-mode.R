@@ -80,9 +80,25 @@ snippet_edit_mode_server <- function(id, selected_snippet, selected_snippet_full
       })
 
       observeEvent(input$enable_edit, {
+        shinymixpanel::mp_track(
+          MIXPANEL_EVENT_INTERACTION,
+          list(
+            section = MIXPANEL_SECTION_SNIPPETS,
+            type = "enable edit"
+          )
+        )
+
         edit_mode(TRUE)
       })
       observeEvent(input$disable_edit, {
+        shinymixpanel::mp_track(
+          MIXPANEL_EVENT_INTERACTION,
+          list(
+            section = MIXPANEL_SECTION_SNIPPETS,
+            type = "disable edit"
+          )
+        )
+
         edit_mode(FALSE)
       })
 
@@ -113,10 +129,26 @@ snippet_edit_mode_server <- function(id, selected_snippet, selected_snippet_full
       add_edit_modal <- snippet_add_edit_modal("snippet_modal", editable_paths = editable_paths_list)
 
       observeEvent(input$add, {
+        shinymixpanel::mp_track(
+          MIXPANEL_EVENT_INTERACTION,
+          list(
+            section = MIXPANEL_SECTION_SNIPPETS,
+            type = "add"
+          )
+        )
+
         add_edit_modal$show(action = "add", folder = curwd())
       })
 
       observeEvent(input$edit, {
+        shinymixpanel::mp_track(
+          MIXPANEL_EVENT_INTERACTION,
+          list(
+            section = MIXPANEL_SECTION_SNIPPETS,
+            type = "edit"
+          )
+        )
+
         add_edit_modal$show(action = "edit", folder = curwd(), snippet = selected_snippet_full())
       })
 
@@ -125,6 +157,14 @@ snippet_edit_mode_server <- function(id, selected_snippet, selected_snippet_full
       })
 
       observeEvent(input$delete, {
+        shinymixpanel::mp_track(
+          MIXPANEL_EVENT_INTERACTION,
+          list(
+            section = MIXPANEL_SECTION_SNIPPETS,
+            type = "delete"
+          )
+        )
+
         shinyalert::shinyalert(
           title = "Are you sure you want to delete this snippet?",
           text = get_file_name_no_ext(selected_snippet()),
