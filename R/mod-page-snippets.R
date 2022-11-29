@@ -84,6 +84,7 @@ page_snippets_server <- function(id) {
       snippet_selector <- shinyfilebrowser::path_browser_server(
         "snippets",
         reactive(sort(all_snippets()$short_path)),
+        clear_selection_on_navigate = TRUE,
         show_extension = FALSE,
         text_empty = "No snippets here"
       )
