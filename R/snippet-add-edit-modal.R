@@ -1,5 +1,3 @@
-#TODO add a "edit" button to hide the add/edit/delete buttons
-
 snippet_add_edit_modal <- function(id, editable_paths) {
 
   moduleServer(
@@ -44,6 +42,7 @@ snippet_add_edit_modal <- function(id, editable_paths) {
           ns("contents"),
           value = "",
           mode = "r",
+          height = "200px",
           fontSize = 14,
           debounce = 500
         )
