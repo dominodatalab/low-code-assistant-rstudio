@@ -41,20 +41,20 @@ page_snippets_ui <- function(id) {
 
     div(
       class = "page-actions flex flex-gap2",
-      shinytip::tip(
-        div(
-          class = "action-button snippet-edit-mode-btn col-grey",
-          id = ns("enable_edit"),
-          span(
-            class = "fa-stack",
-            icon("pen", class = "fa-stack-1x"),
-            icon("slash", class = "fa-stack-1x")
-          )
-        ),
-        "Snippet editing disabled. Click to enable",
-        position = "right"
-      ),
       shinyjs::hidden(
+        shinytip::tip(
+          div(
+            class = "action-button snippet-edit-mode-btn col-grey",
+            id = ns("enable_edit"),
+            span(
+              class = "fa-stack",
+              icon("pen", class = "fa-stack-1x"),
+              icon("slash", class = "fa-stack-1x")
+            )
+          ),
+          "Snippet editing disabled. Click to enable",
+          position = "right"
+        ),
         shinytip::tip(
           div(
             class = "action-button snippet-edit-mode-btn col-link",
@@ -209,7 +209,7 @@ page_snippets_server <- function(id) {
       })
 
       can_edit_file <- reactive({
-        if (is.null(selected_snippet())) {
+        if (is.null(selected_snippet()) || !edit_mode()) {
           return(FALSE)
         }
         editable_paths <- unname(unlist(editable_paths_list()))
@@ -230,15 +230,20 @@ page_snippets_server <- function(id) {
         shinyjs::toggleState("continue", condition = !is.null(selected_snippet()))
       })
 
+      init_edit_mode <- .globals$snippets$edit %||% FALSE
+      edit_mode <- reactiveVal(init_edit_mode)
+      observeEvent(edit_mode(), {
+        .globals$snippets$edit <- edit_mode()
+        shinyjs::toggle("enable_edit", condition = !edit_mode())
+        shinyjs::toggle("disable_edit", condition = edit_mode())
+        shinyjs::toggle("editing_btns", condition = edit_mode())
+      })
+
       observeEvent(input$enable_edit, {
-        shinyjs::hide("enable_edit")
-        shinyjs::show("disable_edit")
-        shinyjs::show("editing_btns")
+        edit_mode(TRUE)
       })
       observeEvent(input$disable_edit, {
-        shinyjs::show("enable_edit")
-        shinyjs::hide("disable_edit")
-        shinyjs::hide("editing_btns")
+        edit_mode(FALSE)
       })
 
       observeEvent(input$continue, {
