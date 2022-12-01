@@ -2,7 +2,7 @@ library(tm)
 
 # use the text of The Art of War
 file <- system.file("sample_data", "artofwar.txt", package = "assistDomino")
-text <- readLines(file)
+artofwar <- readLines(file)
 
 # find the most common words used in the book
 corpus <- Corpus(VectorSource(artofwar))
