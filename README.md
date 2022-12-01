@@ -13,7 +13,7 @@ Accelerate routine data science tasks and smoothly interface with the Domino API
 Run the following command inside RStudio:
 
 ```r
-remotes::install_github("dominodatalab/low-code-assistant-rstudio", upgrade = "never")
+remotes::install_github("dominodatalab/low-code-assistant-rstudio")
 ```
 
 This will install *LCA for R* in your current workspace, but the tool will not persist once the workspace is stopped. 
@@ -28,7 +28,7 @@ This will install *LCA for R* in your current workspace, but the tool will not p
 4. Add the following line to the end of the Dockerfile section (but **before** the last `USER ubuntu` command):
 
   ```
-  RUN R -e "remotes::install_github('dominodatalab/low-code-assistant-rstudio', upgrade = 'never')"
+  RUN R -e "remotes::install_github('dominodatalab/low-code-assistant-rstudio', upgrade = 'always')"
   ```
 
 5. Click the "Build" button at the bottom of the page
