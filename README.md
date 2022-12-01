@@ -18,7 +18,9 @@ remotes::install_github("dominodatalab/low-code-assistant-rstudio", upgrade = "n
 
 This will install *LCA for R* in your current workspace, but the tool will not persist once the workspace is stopped. 
 
-### Method 2: Installing in a Domino Compute environment
+*Note: If you encounter an error that includes "Timeout was reached", please make sure that you've selected a harware tier for your Domino Workspace that allows egress. Otherwise, your Workspace will not be able to reach GitHub to download this package.*
+
+### Method 2: Installing in a Domino Compute environment (Recommended)
 
 1. Click on "Environments" on the side navigation bar
 2. Select the environment in which *LCA for R* should be installed
