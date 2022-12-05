@@ -116,7 +116,7 @@ page_snippets_server <- function(id) {
 
       shinycodeviewer::code_viewer_server("file_contents", chunks = file_contents, editable = FALSE, show_chunk_numbers = TRUE)
 
-      snippet_editing <- snippet_edit_mode_server(
+      snippet_edit_mode_server(
         "snippet-edit-buttons",
         selected_snippet = selected_snippet,
         selected_snippet_full = selected_snippet_full,
