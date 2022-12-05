@@ -8,7 +8,7 @@ get_snippets_paths_builtin <- function() {
 }
 
 get_snippets_paths_git <- function() {
-  Sys.glob(file.path(Sys.getenv("DOMINO_IMPORTED_CODE_DIR"),"*", "snippets"))
+  Sys.glob(file.path(get_user_git_dir(),"*", "snippets"))
 }
 
 get_snippets_paths_imported_projects <- function() {
