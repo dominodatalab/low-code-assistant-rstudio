@@ -1,3 +1,7 @@
+# Unreleased version
+
+- Transformations: fix bug where missing values in numeric columns were not treated as missing values
+ 
 # assistDomino 0.2.0 (2022-11-26)
 
 - Add Snippets wizard for inserting code snippets
