@@ -174,7 +174,7 @@ page_xforms_server <- function(id, data_name_in = NULL) {
 
       table <- xforms_table_server("table", result)
 
-      undo_redo <- UndoManager$new(type = TransformationSequence$classname)$reactive()
+      undo_redo <- undomanager::UndoManager$new(type = TransformationSequence$classname)$reactive()
 
       code_section <- shinycodeviewer::code_viewer_server(
         "code",
