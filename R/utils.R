@@ -19,7 +19,7 @@ is_valid_name <- function(s) {
   make.names(s) == s
 }
 
-insert_text <- function(text, newline = TRUE) {
+insert_text <- function(text, newline = TRUE, remove_duplicate_libs = TRUE) {
   id <- rstudioapi::getSourceEditorContext()$id
   if (is.null(id)) {
     id <- rstudioapi::documentNew("")
@@ -35,9 +35,12 @@ insert_text <- function(text, newline = TRUE) {
   }
 
   tryCatch({
-    existing_contents <- rstudioapi::getSourceEditorContext()$contents
-    existing_library_calls <- existing_contents[grepl("^library(.+)$", existing_contents)]
-    text <- remove_duplicate_lines(text, existing_library_calls)
+
+    if (remove_duplicate_libs) {
+      existing_contents <- rstudioapi::getSourceEditorContext()$contents
+      existing_library_calls <- existing_contents[grepl("^library(.+)$", existing_contents)]
+      text <- remove_duplicate_lines(text, existing_library_calls)
+    }
 
     rstudioapi::setCursorPosition(Inf, id = id)
     loc <- rstudioapi::getSourceEditorContext()$selection
