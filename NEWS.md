@@ -1,5 +1,6 @@
 # Unreleased version
 
+- Transformations: fix bug where filtering a column that's an ordered factor (for example, "cut" or "color" in the `ggplot2::diamonds` dataset) was resulting in an error
 - Transformations: fix bug where missing values in numeric columns were not treated as missing values
 - Transformations: when invoking the addin in RStudio, if a variable holding a data frame is selected then that data frame will be used
 - Transformations: allow wizard to be initialized with an existing data frame
