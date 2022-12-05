@@ -36,7 +36,6 @@ page_xforms_ui <- function(id) {
           id = ns("main_section"),
 
           div(
-
             conditionalPanel(
               "input.show_table", ns = ns,
               xforms_table_ui(ns("table")),
@@ -167,9 +166,9 @@ page_xforms_server <- function(id, data_name_in = NULL) {
       })
       xforms_result <- reactive({
         req(xforms())
+
         isolate({
-          assign_to_global(data_name(), main_data())
-          xforms()$run(env = .GlobalEnv)
+          xforms()$run(env = new.env(), data_in = main_data())
         })
       })
       xforms_chunks <- reactive({
@@ -291,17 +290,13 @@ page_xforms_server <- function(id, data_name_in = NULL) {
       # edit/modify/delete
       observeEvent(code_section$modify(), {
         temp_xform <- xforms()$head(code_section$modify() - 1)
-        new_env <- new.env()
-        assign(data_name(), main_data(), envir = new_env)
-        temp_res <- temp_xform$run(new_env)$result
+        temp_res <- temp_xform$run(new.env(), data_in = main_data())$result
         xform_modal$show(data = temp_res, action = "edit", xform = xforms()$transformations[[code_section$modify()]], meta = code_section$modify())
       })
 
       observeEvent(code_section$insert(), {
         temp_xform <- xforms()$head(code_section$insert() - 1)
-        new_env <- new.env()
-        assign(data_name(), main_data(), envir = new_env)
-        temp_res <- temp_xform$run(new_env)$result
+        temp_res <- temp_xform$run(new.env(), data_in = main_data())$result
         xform_modal$show(data = temp_res, action = "insert", meta = code_section$insert())
       })
 
@@ -361,6 +356,7 @@ page_xforms_server <- function(id, data_name_in = NULL) {
 
       observeEvent(input$continue, {
         insert_text(paste0(xforms()$get_code()))
+        xforms()$run(env = .GlobalEnv)
 
         shinymixpanel::mp_track(
           MIXPANEL_EVENT_CODE,

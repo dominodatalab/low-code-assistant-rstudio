@@ -1,6 +1,7 @@
 # Unreleased version
 
 - Snippets: when inserting code snippets, `library()` calls should not be removed (in other LCA wizards, duplicate `library()` calls are removed)  
+- Transformations: Previously, the transformations code was getting executed in the global environment after each transformation was made, which meant that new variables were getting created in the global env even without clicking the "Insert Code" button. Now the code only runs after choosing to "Insert Code".
 - Transformations: fix bug where filtering a column that's an ordered factor (for example, "cut" or "color" in the `ggplot2::diamonds` dataset) was resulting in an error
 - Transformations: fix bug where missing values in numeric columns were not treated as missing values
 - Transformations: when invoking the addin in RStudio, if a variable holding a data frame is selected then that data frame will be used
