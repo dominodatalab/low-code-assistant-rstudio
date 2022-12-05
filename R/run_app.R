@@ -35,10 +35,24 @@ assist_transform <- function(data_name = NULL) {
 
 #' Low Code Assistant - Transformations
 #'
-#' Run the data transformation LCA wizard.
+#' Run the data transformation LCA wizard. If a variable holding a data frame is selected
+#' when invoking the addin in RStudio, that data frame will be used.
 #' @export
 assist_transform_addin <- function() {
-  assist_transform()
+  data_name <- tryCatch({
+    context <- rstudioapi::getActiveDocumentContext()
+    name <- context$selection[[1]]$text
+
+    if (nzchar(name)) {
+      name
+    } else {
+      NULL
+    }
+  }, error = function(err) {
+    NULL
+  })
+
+  assist_transform(data_name = data_name)
 }
 
 #' Low Code Assistant - Visualizations
