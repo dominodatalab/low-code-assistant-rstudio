@@ -1,3 +1,5 @@
+TRANSFORMATIONS_MAX_ROWS_SHOW <- 1000
+
 page_xforms_ui <- function(id) {
   ns <- NS(id)
 
@@ -36,6 +38,7 @@ page_xforms_ui <- function(id) {
           id = ns("main_section"),
 
           div(
+            uiOutput(ns("large_data_warning")),
             conditionalPanel(
               "input.show_table", ns = ns,
               xforms_table_ui(ns("table")),
@@ -148,9 +151,31 @@ page_xforms_server <- function(id, data_name_in = NULL) {
 
       #--- Dealing with the dataset and TransformationsSequence
 
-      main_data <- reactive({
+      main_data_full <- reactive({
         req(data_name())
         get(data_name(), envir = .GlobalEnv)
+      })
+
+      main_data <- reactive({
+        req(main_data_full())
+        utils::head(main_data_full(), TRANSFORMATIONS_MAX_ROWS_SHOW)
+      })
+
+      output$large_data_warning <- renderUI({
+        n_rows <- nrow(main_data_full())
+        if (n_rows <= TRANSFORMATIONS_MAX_ROWS_SHOW) {
+          return(NULL)
+        }
+
+        shinyWidgets::alert(
+          shiny::icon("circle-exclamation"),
+          "Only first",
+          prettyNum(TRANSFORMATIONS_MAX_ROWS_SHOW, big.mark = ","),
+          "rows are shown (original data has",
+          prettyNum(n_rows, big.mark = ","),
+          "rows)",
+          status = "warning", dismissible = TRUE
+        )
       })
 
       observeEvent(data_name(), {
