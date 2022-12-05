@@ -12,7 +12,7 @@ get_snippets_paths_git <- function() {
 }
 
 get_snippets_paths_imported_projects <- function() {
-  file.path(as.character(Sys.getenv()[grepl("^DOMINO_.*_WORKING_DIR$", names(Sys.getenv()))]), "snippets")
+  file.path(get_imported_projects_dirs(), "snippets")
 }
 
 get_snippets_paths_current_project <- function() {

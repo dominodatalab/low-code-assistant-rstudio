@@ -19,6 +19,16 @@ get_user_git_repos <- function() {
   }
 }
 
+get_imported_projects_dirs <- function() {
+  all_envvars <- Sys.getenv()
+  projects_idx <- which(grepl("^DOMINO_.*_WORKING_DIR$", names(all_envvars)))
+  if (length(projects_idx) == 0) {
+    character(0)
+  } else {
+    as.character(all_envvars[projects_idx])
+  }
+}
+
 get_user_upload_dir <- function() {
   git <- (Sys.getenv("DOMINO_IS_GIT_BASED") == "true")
   if (git) {
