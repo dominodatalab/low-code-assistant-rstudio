@@ -1,6 +1,8 @@
 # Unreleased version
 
 - Transformations: fix bug where missing values in numeric columns were not treated as missing values
+- Transformations: allow wizard to be initialized with an existing data frame
+- Transformations: allow wizard to work with reactive data
  
 # assistDomino 0.2.0 (2022-11-26)
 

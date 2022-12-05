@@ -21,11 +21,14 @@ assist_data_addin <- function() {
 #' Low Code Assistant - Transformations
 #'
 #' Run the data transformation LCA wizard.
+#' @param data_name A data frame to use. Can either be a data frame object, the name of
+#' a data frame that exists in your global environment, or a reactive string with the name
+#' of a data frame.
 #' @export
-assist_transform <- function() {
+assist_transform <- function(data_name = NULL) {
   app <- shiny::shinyApp(
     ui = shiny::fluidPage(page_xforms_ui("app")),
-    server = function(input, output, session) page_xforms_server("app")
+    server = function(input, output, session) page_xforms_server("app", data_name_in = data_name)
   )
   shiny::runGadget(app, viewer = shiny::dialogViewer("Domino R Assistant", 1100, 800))
 }

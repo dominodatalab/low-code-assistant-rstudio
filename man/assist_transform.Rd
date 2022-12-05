@@ -4,7 +4,12 @@
 \alias{assist_transform}
 \title{Low Code Assistant - Transformations}
 \usage{
-assist_transform()
+assist_transform(data_name = NULL)
+}
+\arguments{
+\item{data_name}{A data frame to use. Can either be a data frame object, the name of
+a data frame that exists in your global environment, or a reactive string with the name
+of a data frame.}
 }
 \description{
 Run the data transformation LCA wizard.

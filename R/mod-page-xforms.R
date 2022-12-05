@@ -92,6 +92,22 @@ page_xforms_ui <- function(id) {
 }
 
 page_xforms_server <- function(id, data_name_in = NULL) {
+
+  init_data_name <- NULL
+  if (!is.null(data_name_in)) {
+    if (shiny::is.reactive(data_name_in)) {
+      init_data_name <- data_name_in
+    } else if (checkmate::test_data_frame(data_name_in)) {
+      init_data_name <- deparse(substitute(data_name_in))
+    } else if (checkmate::test_string(data_name_in)) {
+      if (exists(data_name_in, envir = .GlobalEnv)) {
+        if (checkmate::test_data_frame(get(data_name_in, envir = .GlobalEnv))) {
+          init_data_name <- data_name_in
+        }
+      }
+    }
+  }
+
   moduleServer(
     id,
     function(input, output, session) {
@@ -109,7 +125,7 @@ page_xforms_server <- function(id, data_name_in = NULL) {
 
       #--- Dealing with the input dataset
 
-      if (is.null(data_name_in)) {
+      if (is.null(init_data_name)) {
         shinyjs::show("data_select")
 
         data_select_mod <- data_environment_server("data_select_mod")
@@ -122,7 +138,7 @@ page_xforms_server <- function(id, data_name_in = NULL) {
           data_select_mod$name()
         })
       } else {
-        data_name_in_r <- make_reactive(data_name_in)
+        data_name_in_r <- make_reactive(init_data_name)
         shinyjs::show("main_section")
 
         data_name <- reactive({
