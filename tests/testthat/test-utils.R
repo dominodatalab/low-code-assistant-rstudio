@@ -9,11 +9,24 @@ test_that("%||% works", {
   expect_equal(NULL %||% c("a", "b"), c("a", "b"))
 })
 
+test_that("cat0 works", {
+  expect_output(cat0("one", "two"), "onetwo")
+  expect_output(cat0("one ", " two"), "one  two")
+})
+
 test_that("firstup works", {
   expect_equal(firstup("one"), "One")
   expect_equal(firstup(".one"), ".one")
   expect_equal(firstup("one two"), "One two")
   expect_equal(firstup("a"), "A")
+})
+
+test_that("assign_to_global works", {
+  rnd_name <- paste0("lca-test-assign-to-global-", sample(10000, 1))
+  rnd_value <- sample(10000, 1)
+  assign_to_global(rnd_name, rnd_value)
+  on.exit(suppressWarnings(rm(list = c(rnd_name), envir = globalenv())), add = TRUE)
+  expect_identical(get(rnd_name, envir = globalenv()), rnd_value)
 })
 
 test_that("is_valid_name works", {
