@@ -1,5 +1,6 @@
 # Unreleased version
 
+- Visualizations wizard is now fully functional and powerful. When invoked from the Addins menu, if a variable holding a data frame is selected then that data frame will be used.
 - Snippets: when inserting code snippets, `library()` calls should not be removed (in other LCA wizards, duplicate `library()` calls are removed)  
 - Transformations: When input data has over 1000 rows, show a warning and only use first 10k rows for performance reasons
 - Transformations: Previously, the transformations code was getting executed in the global environment after each transformation was made, which meant that new variables were getting created in the global env even without clicking the "Insert Code" button. Now the code only runs after choosing to "Insert Code".

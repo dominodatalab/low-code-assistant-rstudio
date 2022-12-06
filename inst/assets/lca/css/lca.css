@@ -1,3 +1,5 @@
+/* General */
+
 .lca-page {
   height: 100%;
 }
@@ -79,9 +81,18 @@
   white-space: nowrap;
 }
 
+/* Visualizations */
+
+.esquisse-container .btn-copy-code {
+  display: none;
+}
+
+/* Snippets */
+
 .snippets-file-name {
   margin-top: 1rem;
   font-size: 2.5rem;
   font-weight: bold;
   color: #666;
 }
+

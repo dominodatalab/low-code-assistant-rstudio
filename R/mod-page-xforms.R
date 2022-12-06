@@ -95,20 +95,7 @@ page_xforms_ui <- function(id) {
 
 page_xforms_server <- function(id, data_name_in = NULL) {
 
-  init_data_name <- NULL
-  if (!is.null(data_name_in)) {
-    try(silent = TRUE, {
-      if (shiny::is.reactive(data_name_in)) {
-        init_data_name <- data_name_in
-      } else if (checkmate::test_data_frame(data_name_in)) {
-        init_data_name <- deparse(substitute(data_name_in))
-      } else if (checkmate::test_string(data_name_in)) {
-        if (checkmate::test_data_frame(get(data_name_in, envir = .GlobalEnv))) {
-          init_data_name <- data_name_in
-        }
-      }
-    })
-  }
+  init_data_name <- get_data_name_str(data_name_in)
 
   moduleServer(
     id,

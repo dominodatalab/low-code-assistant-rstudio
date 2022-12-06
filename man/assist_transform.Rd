@@ -7,9 +7,7 @@
 assist_transform(data_name = NULL)
 }
 \arguments{
-\item{data_name}{A data frame to use. Can either be a data frame object, the name of
-a data frame that exists in your global environment, or a reactive string with the name
-of a data frame.}
+\item{data_name}{The name of a data frame in the global environment. Can be reactive or static.}
 }
 \description{
 Run the data transformation LCA wizard.
