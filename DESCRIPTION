@@ -46,6 +46,9 @@ Imports:
     tools,
     undomanager,
     utils
+Suggests: 
+    mockery,
+    testthat (>= 3.0.0)
 Remotes:
     daattali/shinycodeviewer,
     daattali/shinymixpanel,
@@ -57,6 +60,4 @@ License: file LICENSE
 Encoding: UTF-8
 RoxygenNote: 7.2.1
 Roxygen: list(markdown = TRUE)
-Suggests: 
-    testthat (>= 3.0.0)
 Config/testthat/edition: 3

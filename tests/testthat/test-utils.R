@@ -103,3 +103,23 @@ test_that("remove_duplicate_lines works", {
     "first\n#library(shiny)\nsecond\nlibraray(shiny)\nthird\nfourth\nfifth\nlibrary(shinyjs)\nsixth\n"
   )
 })
+
+test_that("get_data_name_str works", {
+  mock_env <- new.env(parent = emptyenv())
+  mock_env$df1 <- mtcars
+  mock_env$df2 <- iris
+  mock_env$df3 <- "not a data frame"
+
+  mockery::stub(get_data_name_str, 'globalenv', mock_env)
+
+  expect_null(get_data_name_str())
+  expect_null(get_data_name_str(""))
+  expect_null(get_data_name_str(mock_env$df1))
+  expect_null(get_data_name_str("test"))
+
+  reactive_test <- shiny::reactive("test")
+  expect_identical(get_data_name_str(reactive_test), reactive_test)
+  expect_identical(get_data_name_str("df1"), "df1")
+  expect_identical(get_data_name_str("df2"), "df2")
+  expect_null(get_data_name_str("df3"))
+})

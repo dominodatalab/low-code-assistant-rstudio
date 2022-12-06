@@ -84,19 +84,3 @@ input_with_checkbox <- function(input, checkboxId, checkboxLabel, checkboxValue 
   input$children[[input_idx]] <- group
   input
 }
-
-get_data_name_str <- function(x = NULL) {
-  tryCatch({
-    if (is.null(x)) {
-      NULL
-    } else if (shiny::is.reactive(x)) {
-      x
-    } else if (checkmate::test_string(x) && checkmate::test_data_frame(get(x, envir = .GlobalEnv))) {
-      x
-    } else {
-      NULL
-    }
-  }, error = function(err) {
-    NULL
-  })
-}
