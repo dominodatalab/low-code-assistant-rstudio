@@ -39,7 +39,7 @@ Imports:
     shinycodeviewer,
     shinyfilebrowser,
     shinymixpanel,
-    shinyjs,
+    shinyjs (>= 2.1.0.9000),
     shinytip,
     shinyWidgets,
     stats,
@@ -51,6 +51,7 @@ Remotes:
     daattali/shinycodeviewer,
     daattali/shinymixpanel,
     daattali/shinyfilebrowser,
+    daattali/shinyjs,
     daattali/shinytip,
     glin/reactable
 License: file LICENSE
