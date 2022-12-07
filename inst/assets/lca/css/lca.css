@@ -83,7 +83,9 @@
 
 /* Visualizations */
 
-.esquisse-container .btn-copy-code {
+.esquisse-container .btn-copy-code,
+.esquisse-container .esquisse-playpause-btn,
+.esquisse-container .esquisse-export-btn {
   display: none;
 }
 
