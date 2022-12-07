@@ -125,6 +125,12 @@ page_viz_server <- function(id, data_name_in = NULL) {
       )
 
       code <- reactive({
+        if (!nzchar(input$plot_name)) {
+          return("")
+        }
+        if (is.null(plot_module$code_plot)) {
+          return("")
+        }
         paste0("library(ggplot2)\n", input$plot_name, " <- ", plot_module$code_plot)
       })
 
