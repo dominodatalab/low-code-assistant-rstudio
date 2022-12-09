@@ -8,6 +8,7 @@
 - Transformations: when invoking the addin in RStudio, if a variable holding a data frame is selected then that data frame will be used
 - Transformations: allow wizard to be initialized with an existing data frame
 - Transformations: allow wizard to work with reactive data
+- Data module: add penguins demo dataset
  
 # assistDomino 0.2.0 (2022-11-26)
 

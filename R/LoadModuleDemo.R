@@ -32,7 +32,7 @@ LoadModuleDemo <- R6::R6Class(
         glue::glue("datasets::{ private$.dataset }")
       } else if (private$.dataset == "gapminder") {
         "gapminder::gapminder"
-      } else if (private$.dataset == "small_molecule_drugbank") {
+      } else if (private$.dataset %in% c("small_molecule_drugbank", "penguins")) {
         glue::glue('read.csv(system.file("sample_data", "{ private$.dataset }.csv", package = "assistDomino"))')
       }
     },
@@ -54,7 +54,7 @@ LoadModuleDemo <- R6::R6Class(
   )
 )
 
-LoadModuleDemo$DATASETS <- c("gapminder", "iris", "mtcars", "diamonds", "economics", "midwest", "small_molecule_drugbank")
+LoadModuleDemo$DATASETS <- c("gapminder", "iris", "mtcars", "diamonds", "economics", "midwest", "small_molecule_drugbank", "penguins")
 
 LoadModuleDemo$shiny <- list(
 
