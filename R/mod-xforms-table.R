@@ -90,7 +90,7 @@ xforms_table_server <- function(id, data) {
                    return;
                  }
                  let value = rowInfo.row[column.name];
-                 if (value === null || (value === 'NA' && column.type === 'numeric')) {
+                 if (value === null) {
                    Shiny.setInputValue('{{session$ns('missing')}}', `${column.name}`, {priority: 'event'});
                  } else {
                    Shiny.setInputValue('{{session$ns('filter')}}', { col: `${column.name}`, val: `${value}`, missing: true }, {priority: 'event'});

@@ -1,3 +1,5 @@
+TRANSFORMATIONS_MAX_ROWS_SHOW <- 1000
+
 page_xforms_ui <- function(id) {
   ns <- NS(id)
 
@@ -36,7 +38,7 @@ page_xforms_ui <- function(id) {
           id = ns("main_section"),
 
           div(
-
+            uiOutput(ns("large_data_warning")),
             conditionalPanel(
               "input.show_table", ns = ns,
               xforms_table_ui(ns("table")),
@@ -92,6 +94,22 @@ page_xforms_ui <- function(id) {
 }
 
 page_xforms_server <- function(id, data_name_in = NULL) {
+
+  init_data_name <- NULL
+  if (!is.null(data_name_in)) {
+    try(silent = TRUE, {
+      if (shiny::is.reactive(data_name_in)) {
+        init_data_name <- data_name_in
+      } else if (checkmate::test_data_frame(data_name_in)) {
+        init_data_name <- deparse(substitute(data_name_in))
+      } else if (checkmate::test_string(data_name_in)) {
+        if (checkmate::test_data_frame(get(data_name_in, envir = .GlobalEnv))) {
+          init_data_name <- data_name_in
+        }
+      }
+    })
+  }
+
   moduleServer(
     id,
     function(input, output, session) {
@@ -109,7 +127,7 @@ page_xforms_server <- function(id, data_name_in = NULL) {
 
       #--- Dealing with the input dataset
 
-      if (is.null(data_name_in)) {
+      if (is.null(init_data_name)) {
         shinyjs::show("data_select")
 
         data_select_mod <- data_environment_server("data_select_mod")
@@ -122,7 +140,7 @@ page_xforms_server <- function(id, data_name_in = NULL) {
           data_select_mod$name()
         })
       } else {
-        data_name_in_r <- make_reactive(data_name_in)
+        data_name_in_r <- make_reactive(init_data_name)
         shinyjs::show("main_section")
 
         data_name <- reactive({
@@ -133,9 +151,31 @@ page_xforms_server <- function(id, data_name_in = NULL) {
 
       #--- Dealing with the dataset and TransformationsSequence
 
-      main_data <- reactive({
+      main_data_full <- reactive({
         req(data_name())
         get(data_name(), envir = .GlobalEnv)
+      })
+
+      main_data <- reactive({
+        req(main_data_full())
+        utils::head(main_data_full(), TRANSFORMATIONS_MAX_ROWS_SHOW)
+      })
+
+      output$large_data_warning <- renderUI({
+        n_rows <- nrow(main_data_full())
+        if (n_rows <= TRANSFORMATIONS_MAX_ROWS_SHOW) {
+          return(NULL)
+        }
+
+        shinyWidgets::alert(
+          shiny::icon("circle-exclamation"),
+          "Only first",
+          prettyNum(TRANSFORMATIONS_MAX_ROWS_SHOW, big.mark = ","),
+          "rows are shown (original data has",
+          prettyNum(n_rows, big.mark = ","),
+          "rows)",
+          status = "warning", dismissible = TRUE
+        )
       })
 
       observeEvent(data_name(), {
@@ -151,9 +191,9 @@ page_xforms_server <- function(id, data_name_in = NULL) {
       })
       xforms_result <- reactive({
         req(xforms())
+
         isolate({
-          assign_to_global(data_name(), main_data())
-          xforms()$run(env = .GlobalEnv)
+          xforms()$run(env = new.env(), data_in = main_data())
         })
       })
       xforms_chunks <- reactive({
@@ -174,12 +214,12 @@ page_xforms_server <- function(id, data_name_in = NULL) {
 
       table <- xforms_table_server("table", result)
 
-      undo_redo <- UndoManager$new(type = TransformationSequence$classname)$reactive()
+      undo_redo <- undomanager::UndoManager$new(type = TransformationSequence$classname)$reactive()
 
       code_section <- shinycodeviewer::code_viewer_server(
         "code",
         chunks = xforms_chunks,
-        error_line = error_line_num,
+        error_chunk = error_line_num,
         editable = reactive(seq_len(xforms()$size)),
         skip = reactive(length(xforms()$dependencies)),
         auto_actions = FALSE
@@ -275,17 +315,13 @@ page_xforms_server <- function(id, data_name_in = NULL) {
       # edit/modify/delete
       observeEvent(code_section$modify(), {
         temp_xform <- xforms()$head(code_section$modify() - 1)
-        new_env <- new.env()
-        assign(data_name(), main_data(), envir = new_env)
-        temp_res <- temp_xform$run(new_env)$result
+        temp_res <- temp_xform$run(new.env(), data_in = main_data())$result
         xform_modal$show(data = temp_res, action = "edit", xform = xforms()$transformations[[code_section$modify()]], meta = code_section$modify())
       })
 
       observeEvent(code_section$insert(), {
         temp_xform <- xforms()$head(code_section$insert() - 1)
-        new_env <- new.env()
-        assign(data_name(), main_data(), envir = new_env)
-        temp_res <- temp_xform$run(new_env)$result
+        temp_res <- temp_xform$run(new.env(), data_in = main_data())$result
         xform_modal$show(data = temp_res, action = "insert", meta = code_section$insert())
       })
 
@@ -345,6 +381,7 @@ page_xforms_server <- function(id, data_name_in = NULL) {
 
       observeEvent(input$continue, {
         insert_text(paste0(xforms()$get_code()))
+        xforms()$run(env = .GlobalEnv)
 
         shinymixpanel::mp_track(
           MIXPANEL_EVENT_CODE,

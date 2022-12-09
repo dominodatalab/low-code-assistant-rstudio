@@ -41,7 +41,7 @@ TransformationSequence <- R6::R6Class(
 
     name_out = function() {
       if (self$size == 0) {
-        private$.name_in
+        self$name_in
       } else {
         tail(self$transformations, 1)[[1]]$name_out
       }
@@ -108,7 +108,7 @@ TransformationSequence <- R6::R6Class(
     },
 
     get_code_chunks = function(include_setup = TRUE) {
-      name_in <- private$.name_in
+      name_in <- self$name_in
       if (self$size == 0) {
         return(name_in)
       }
@@ -158,7 +158,11 @@ TransformationSequence <- R6::R6Class(
       TransformationSequence$new(transformations = new_xforms, name_in = self$name_in, tidyverse = self$tidyverse)
     },
 
-    run = function(env = parent.frame()) {
+    run = function(env = parent.frame(), data_in = NULL) {
+      if (!is.null(data_in)) {
+        assign(self$name_in, data_in, envir = env)
+      }
+
       setup_chunks <- self$get_setup_chunks()
       result <- tryCatch({
         for (setup_idx in seq_along(setup_chunks)) {

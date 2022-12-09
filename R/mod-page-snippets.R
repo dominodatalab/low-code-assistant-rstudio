@@ -129,7 +129,7 @@ page_snippets_server <- function(id) {
       })
 
       observeEvent(input$continue, {
-        insert_text(paste(file_contents(), collapse = "\n"))
+        insert_text(paste(file_contents(), collapse = "\n"), remove_duplicate_libs = FALSE)
 
         shinymixpanel::mp_track(
           MIXPANEL_EVENT_CODE,

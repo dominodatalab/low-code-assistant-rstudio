@@ -139,3 +139,33 @@ test_that("MissingValuesTransformation works", {
     ignore_attr = TRUE
   )
 })
+
+test_that("printing a transformation", {
+  select_xform <- SelectTransformation$new("var1")
+  drop_xform <- DropTransformation$new("var2", name_out = "mydf", tidyverse = TRUE)
+
+  expect_output(select_xform$print(), "<SelectTransformation>.*df.*base.*var1")
+  expect_output(drop_xform$print(), "<DropTransformation>.*mydf.*tidyverse.*var2")
+})
+
+
+test_that("multiple dependencies get added to the code", {
+  TestTransformation <- R6::R6Class(
+    "TestTransformation",
+    inherit = Transformation,
+
+    private = list(
+      get_dependencies = function() {
+        c("dep1", "dep2")
+      },
+
+      get_full_code = function(name_in) {
+        "1"
+      }
+    )
+  )
+
+  code <- TestTransformation$new()$get_code()
+  expect_match(code, "library(dep1)", fixed = TRUE)
+  expect_match(code, "library(dep2)", fixed = TRUE)
+})

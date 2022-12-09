@@ -118,6 +118,7 @@ FilterTransformation$shiny <- list(
 
         xform <- reactive({
           col_type <- class(data()[[input$filter_col]])
+          col_type <- utils::tail(col_type, 1)
           FilterTransformation$new(col = input$filter_col, op = input$filter_op, value = input$filter_value, type = col_type, name_out = input$filter_name)
         })
 
