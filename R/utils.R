@@ -76,3 +76,37 @@ remove_duplicate_lines <- function(text = "", lines_to_remove = c()) {
   }
   text
 }
+
+is_git_writable <- function(dir) {
+  tryCatch({
+    owd <- setwd(dir)
+    on.exit(setwd(owd), add = TRUE)
+    gitcreds::gitcreds_get(use_cache = FALSE, set_cache = FALSE)
+    processx::run("git", c("push", "--dry-run", "--force", "--no-verify"))
+    TRUE
+  }, error = function(err) FALSE)
+}
+
+get_writable_git_repos <- function() {
+  repos <- get_user_git_repos()
+  writable <- unlist(lapply(repos, is_git_writable))
+  if (length(writable) == 0) {
+    return(character(0))
+  }
+  writable_idx <- which(writable)
+  repos[writable_idx]
+}
+
+make_path <- function(path) {
+  suppressWarnings(normalizePath(path, winslash = "/"))
+}
+
+is_subdir <- function(parent, child) {
+  parent <- make_path(parent)
+  child <- make_path(child)
+  startsWith(child, parent)
+}
+
+get_file_name_no_ext <- function(x) {
+  tools::file_path_sans_ext(basename(x))
+}

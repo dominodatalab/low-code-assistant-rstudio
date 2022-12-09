@@ -10,6 +10,8 @@ PACKAGE_NAME <- "assistDomino"
   }
 }
 
+.globals <- new.env(parent = emptyenv())
+
 # Workaround for https://github.com/rstudio/rstudio/issues/12078
 #' @import miniUI
 NULL

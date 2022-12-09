@@ -1,6 +1,6 @@
 Package: assistDomino
 Title: Low Code Assistant for RStudio
-Version: 0.2.0.9005
+Version: 0.2.0.9006
 Authors@R: c(
     person("Dean", "Attali",
         email = "daattali@gmail.com",
@@ -34,20 +34,26 @@ Imports:
     readxl,
     rstudioapi (>= 0.8),
     shiny (>= 1.5.0),
+    shinyAce,
+    shinyalert (>= 3.0.0),
     shinycodeviewer,
     shinyfilebrowser,
     shinymixpanel,
-    shinyjs,
+    shinyjs (>= 2.1.0.9000),
+    shinytip,
     shinyWidgets,
     stats,
     tidyr,
     tools,
     undomanager,
-    utils
+    utils,
+    waiter
 Remotes:
     daattali/shinycodeviewer,
     daattali/shinymixpanel,
     daattali/shinyfilebrowser,
+    daattali/shinyjs,
+    daattali/shinytip,
     daattali/undomanager,
     glin/reactable
 License: file LICENSE

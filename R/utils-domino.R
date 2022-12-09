@@ -6,6 +6,29 @@ get_user_datasets_dir <- function() {
   Sys.getenv("DOMINO_DATASETS_DIR", getwd())
 }
 
+get_user_git_dir <- function() {
+  Sys.getenv("DOMINO_IMPORTED_CODE_DIR", "")
+}
+
+get_user_git_repos <- function() {
+  dir <- get_user_git_dir()
+  if (dir == "") {
+    character(0)
+  } else {
+    list.dirs(dir, recursive = FALSE)
+  }
+}
+
+get_imported_projects_dirs <- function() {
+  all_envvars <- Sys.getenv()
+  projects_idx <- which(grepl("^DOMINO_.*_WORKING_DIR$", names(all_envvars)))
+  if (length(projects_idx) == 0) {
+    character(0)
+  } else {
+    as.character(all_envvars[projects_idx])
+  }
+}
+
 get_user_upload_dir <- function() {
   git <- (Sys.getenv("DOMINO_IS_GIT_BASED") == "true")
   if (git) {
