@@ -117,8 +117,13 @@ snippet_add_edit_modal <- function(id, editable_paths) {
       })
 
       validated <- reactive({
-        action()
-        nzchar(input$name) && nzchar(input$contents)
+        req(action())
+        if (action() == "edit") {
+          nzchar(trimws(input$contents))
+        } else {
+          nzchar(trimws(input$contents)) && nzchar(trimws(input$name)) &&
+            !grepl("/", input$name, fixed = TRUE)
+        }
       })
 
       observe({

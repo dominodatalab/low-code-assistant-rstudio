@@ -194,6 +194,12 @@ AggregateTransformation$shiny <- list(
           }
         })
 
+        observeEvent(input$aggregate_name, {
+          if (!is_valid_name(input$aggregate_name)) {
+            updateTextInput(session, "aggregate_name", value = make.names(input$aggregate_name))
+          }
+        })
+
         validate <- reactive({
           length(input$aggregate_cols) > 0 && is_valid_name(input$aggregate_name) &&
             length(existing_aggregations() > 0)

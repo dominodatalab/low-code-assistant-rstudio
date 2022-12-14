@@ -113,6 +113,12 @@ MissingValuesTransformation$shiny <- list(
           }
         })
 
+        observeEvent(input$missing_name, {
+          if (!is_valid_name(input$missing_name)) {
+            updateTextInput(session, "missing_name", value = make.names(input$missing_name))
+          }
+        })
+
         validate <- reactive({
           is_valid_name(input$missing_name)
         })

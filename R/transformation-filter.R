@@ -112,6 +112,12 @@ FilterTransformation$shiny <- list(
           }
         })
 
+        observeEvent(input$filter_name, {
+          if (!is_valid_name(input$filter_name)) {
+            updateTextInput(session, "filter_name", value = make.names(input$filter_name))
+          }
+        })
+
         validate <- reactive({
           is_valid_name(input$filter_name)
         })

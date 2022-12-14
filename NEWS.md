@@ -10,6 +10,7 @@
 - Transformations: allow wizard to be initialized with an existing data frame
 - Transformations: allow wizard to work with reactive data
 - Data module: add penguins demo dataset
+- All LCA wizards: when creating a variable name, automatically fix the name if it's invalid. For file names, ensure the name is not empty and contains no slashes.
  
 # assistDomino 0.2.0 (2022-11-26)
 
