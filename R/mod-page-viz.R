@@ -136,6 +136,12 @@ page_viz_server <- function(id, data_name_in = NULL) {
 
       #--- Insert code
 
+      observeEvent(input$plot_name, {
+        if (!is_valid_name(input$plot_name)) {
+          updateTextInput(session, "plot_name", value = make.names(input$plot_name))
+        }
+      })
+
       observe({
         shinyjs::toggleState("continue", condition = nzchar(code()))
       })
