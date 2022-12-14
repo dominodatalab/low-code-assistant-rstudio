@@ -85,7 +85,8 @@
 
 .esquisse-container .btn-copy-code,
 .esquisse-container .esquisse-playpause-btn,
-.esquisse-container .esquisse-export-btn {
+.esquisse-container .esquisse-export-btn,
+div[id^="shiny-notification-esquisse"] {
   display: none;
 }
 
