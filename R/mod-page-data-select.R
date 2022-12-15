@@ -155,12 +155,18 @@ page_data_select_server <- function(id) {
         selected_data_module()$error()
       })
 
+      observeEvent(input$varname, {
+        if (!is_valid_name(input$varname)) {
+          updateTextInput(session, "varname", value = make.names(input$varname))
+        }
+      })
+
       name_out <- reactive({
         req(name_in())
         if (input$custom_name) {
           make.names(input$varname)
         } else {
-          name_in()
+          make.names(name_in())
         }
       })
 
@@ -186,8 +192,12 @@ page_data_select_server <- function(id) {
         utils::head(data(), 5)
       }, striped = TRUE, bordered = TRUE, spacing = "xs")
 
+      validated <- reactive({
+        !is.null(data()) && nrow(data()) > 0 && is_valid_name(name_out())
+      })
+
       observe({
-        shinyjs::toggleState("continue", condition = (!is.null(data()) && nrow(data()) > 0))
+        shinyjs::toggleState("continue", condition = validated())
       })
 
       observeEvent(input$continue, {

@@ -78,6 +78,12 @@ SelectTransformation$shiny <- list(
           }
         })
 
+        observeEvent(input$select_name, {
+          if (!is_valid_name(input$select_name)) {
+            updateTextInput(session, "select_name", value = make.names(input$select_name))
+          }
+        })
+
         validate <- reactive({
           length(input$select_cols) > 0 && is_valid_name(input$select_name)
         })

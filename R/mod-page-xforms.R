@@ -1,4 +1,4 @@
-TRANSFORMATIONS_MAX_ROWS_SHOW <- 1000
+TRANSFORMATIONS_MAX_ROWS_SHOW <- 5000
 
 page_xforms_ui <- function(id) {
   ns <- NS(id)

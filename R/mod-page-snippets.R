@@ -39,6 +39,10 @@ page_snippets_ui <- function(id) {
 
     div(
       class = "page-actions flex flex-gap2",
+
+      snippet_edit_mode_ui(ns("snippet-edit-buttons")),
+
+      div(class = "flex-push"),
       actionButton(
         ns("close"),
         "Close",
@@ -70,37 +74,58 @@ page_snippets_server <- function(id) {
         kill_app()
       })
 
-      all_snippets <- merge_all_snippets()
+      snippets_refresh <- reactive_trigger()
 
-      snippets <- shinyfilebrowser::path_browser_server(
+      all_snippets <- reactive({
+        snippets_refresh$depend()
+        merge_all_snippets()
+      })
+
+      snippet_selector <- shinyfilebrowser::path_browser_server(
         "snippets",
-        all_snippets$short_path,
+        reactive(sort(all_snippets()$short_path)),
+        clear_selection_on_navigate = TRUE,
         show_extension = FALSE,
         text_empty = "No snippets here"
       )
 
+      selected_snippet <- reactive({
+        snippet_selector$selected()
+      })
+
+      selected_snippet_full <- reactive({
+        all_snippets()[all_snippets()$short_path == selected_snippet(), ]$full_path
+      })
+
       output$file_name <- renderText({
-        if (is.null(snippets$selected())) {
+        if (is.null(selected_snippet())) {
           "Please select a snippet to preview"
         } else {
-          tools::file_path_sans_ext(basename(snippets$selected()))
+          get_file_name_no_ext(selected_snippet())
         }
       })
 
       file_contents <- reactive({
-        if (is.null(snippets$selected())) {
+        if (is.null(selected_snippet())) {
           NULL
         } else {
-          snippet_file <- all_snippets[all_snippets$short_path == snippets$selected(), ]$full_path
-          lines <- suppressWarnings(readLines(snippet_file))
+          lines <- suppressWarnings(readLines(selected_snippet_full()))
           lines
         }
       })
 
-      shinycodeviewer::code_viewer_server("file_contents", chunks = file_contents, editable = FALSE)
+      shinycodeviewer::code_viewer_server("file_contents", chunks = file_contents, editable = FALSE, show_chunk_numbers = TRUE)
+
+      snippet_edit_mode_server(
+        "snippet-edit-buttons",
+        selected_snippet = selected_snippet,
+        selected_snippet_full = selected_snippet_full,
+        curwd = reactive(snippet_selector$path()),
+        snippets_refresh = snippets_refresh
+      )
 
       observe({
-        shinyjs::toggleState("continue", condition = !is.null(snippets$selected()))
+        shinyjs::toggleState("continue", condition = !is.null(selected_snippet()))
       })
 
       observeEvent(input$continue, {

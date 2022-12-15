@@ -99,3 +99,22 @@ div[id^="shiny-notification-esquisse"] {
   color: #666;
 }
 
+.snippet-edit-mode-btn {
+  display: inline-block;
+  font-size: 1.5em;
+  border-radius: 4px;
+  transition: background 0.3s;
+}
+.snippet-edit-mode-btn:hover {
+  background:#eaeaea;
+}
+.snippet-edit-mode-btn:active {
+  background:#ccc;
+}
+
+.col-grey {
+  color: #777;
+}
+.col-link {
+  color: #337ab7;
+}

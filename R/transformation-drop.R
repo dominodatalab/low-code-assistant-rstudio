@@ -78,6 +78,12 @@ DropTransformation$shiny <- list(
           }
         })
 
+        observeEvent(input$drop_name, {
+          if (!is_valid_name(input$drop_name)) {
+            updateTextInput(session, "drop_name", value = make.names(input$drop_name))
+          }
+        })
+
         validate <- reactive({
           length(input$drop_cols) > 0 && is_valid_name(input$drop_name)
         })
