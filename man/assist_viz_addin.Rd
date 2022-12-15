@@ -7,5 +7,6 @@
 assist_viz_addin()
 }
 \description{
-Run the data visualizations LCA wizard.
+Run the data visualizations LCA wizard. If a variable holding a data frame is selected
+when invoking the addin in RStudio, that data frame will be used.
 }

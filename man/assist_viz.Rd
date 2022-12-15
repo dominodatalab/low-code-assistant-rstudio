@@ -4,7 +4,10 @@
 \alias{assist_viz}
 \title{Low Code Assistant - Visualizations}
 \usage{
-assist_viz()
+assist_viz(data_name = NULL)
+}
+\arguments{
+\item{data_name}{The name of a data frame in the global environment. Can be reactive or static.}
 }
 \description{
 Run the data visualizations LCA wizard.

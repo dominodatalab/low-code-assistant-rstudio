@@ -1,10 +1,11 @@
 Package: assistDomino
 Title: Low Code Assistant for RStudio
-Version: 0.2.0.9008
+Version: 0.2.0.9009
 Authors@R: c(
     person("Dean", "Attali",
         email = "daattali@gmail.com",
-        role = c("aut", "cre")
+        role = c("aut", "cre"),
+        comment = c(ORCID="0000-0002-5645-3493")
     ))
 Description: The Domino Low Code Assistant (LCA) can help generate code for various tasks.
 URL: https://github.com/dominodatalab/low-code-assistant-rstudio
@@ -16,6 +17,7 @@ Imports:
     cli (>= 2.2.0),
     datasets,
     dplyr,
+    esquisse (>= 1.1.2.9100),
     fontawesome (>= 0.4.0),
     gapminder,
     ggplot2,
@@ -48,6 +50,9 @@ Imports:
     undomanager,
     utils,
     waiter
+Suggests: 
+    mockery,
+    testthat (>= 3.0.0)
 Remotes:
     daattali/shinycodeviewer,
     daattali/shinymixpanel,
@@ -55,11 +60,10 @@ Remotes:
     daattali/shinyjs,
     daattali/shinytip,
     daattali/undomanager,
+    dreamRs/esquisse,
     glin/reactable
 License: file LICENSE
 Encoding: UTF-8
 RoxygenNote: 7.2.1
 Roxygen: list(markdown = TRUE)
-Suggests: 
-    testthat (>= 3.0.0)
 Config/testthat/edition: 3

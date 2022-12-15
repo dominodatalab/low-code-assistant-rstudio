@@ -36,34 +36,12 @@ page_viz_ui <- function(id) {
           id = ns("main_section"),
 
           div(
-            textInput(ns("plot_name"), "Variable name", "plot"),
-            selectInput(ns("plot_type"), "Plot type", c("", "Scatter", "Histogram", "Line")),
-            conditionalPanel(
-              "input.plot_type != ''", ns = ns,
-              fluidRow(
-                column(4,selectInput(ns("var_x"), "X Variable", choices = "")),
-                column(4,     conditionalPanel(
-                  "input.plot_type != 'Histogram'", ns = ns,
-                  selectInput(ns("var_y"), "Y Variable", choices = ""),
-                )),
-                column(4,  selectInput(ns("color"), "Color", choices = ""))
-              ),
-              fluidRow(
-                column(4,shinyWidgets::prettySwitch(ns("log_x"), "Log X-axis", status = "primary", fill = TRUE),
-                       shinyWidgets::prettySwitch(ns("plotly"), "Use plotly", status = "primary", fill = TRUE)),
-                column(4, sliderInput(ns("font"), "Font size", 6, 50, 12)),
-                column(4, selectInput(ns("theme"), "Theme", c("", "classic", "minimal", "grey", "bw", "linedraw", "light", "dark")))
-              ),
-              uiOutput(ns("code")),
-              conditionalPanel(
-                "input.plotly", ns = ns,
-                plotly::plotlyOutput(ns("plot_plotly"), height = 600)
-              ),
-              conditionalPanel(
-                "!input.plotly", ns = ns,
-                plotOutput(ns("plot"), height = 600),
-              )
-            )
+            esquisse::esquisse_ui(
+              ns("plot_module"),
+              header = FALSE,
+              controls = c("labs", "parameters", "appearance", "code")
+            ),
+            br()
           )
         )
       )
@@ -71,25 +49,27 @@ page_viz_ui <- function(id) {
 
     div(
       class = "page-actions flex flex-gap2",
+      textInput(ns("plot_name"), "Variable name", "plot"),
       actionButton(
         ns("close"),
         "Close",
         icon = icon("close"),
         class = "btn-lg"
       ),
-      shinyjs::disabled(
-        actionButton(
-          ns("continue"),
-          "Insert Code",
-          icon = icon("check"),
-          class = "btn-primary btn-lg"
-        )
+      actionButton(
+        ns("continue"),
+        "Insert Code",
+        icon = icon("check"),
+        class = "btn-primary btn-lg"
       )
     )
   )
 }
 
-page_viz_server <- function(id, data_in = NULL, name_in = NULL) {
+page_viz_server <- function(id, data_name_in = NULL) {
+
+  init_data_name <- get_data_name_str(data_name_in)
+
   moduleServer(
     id,
     function(input, output, session) {
@@ -107,7 +87,7 @@ page_viz_server <- function(id, data_in = NULL, name_in = NULL) {
 
       #--- Dealing with the input dataset
 
-      if (is.null(data_in)) {
+      if (is.null(init_data_name)) {
         shinyjs::show("data_select")
 
         data_select_mod <- data_environment_server("data_select_mod")
@@ -116,90 +96,50 @@ page_viz_server <- function(id, data_in = NULL, name_in = NULL) {
           shinyjs::hide("data_select")
           shinyjs::show("main_section")
         })
-        data <- reactive({
-          req(data_select_mod$data())
-          data_select_mod$data()
-        })
-        name <- reactive({
-          req(data_select_mod$name())
+        data_name <- reactive({
           data_select_mod$name()
         })
       } else {
+        data_name_in_r <- make_reactive(init_data_name)
         shinyjs::show("main_section")
 
-        data <- reactive({
-          req(data_in())
-          data_in()
-        })
-        name <- reactive({
-          req(name_in())
-          name_in()
+        data_name <- reactive({
+          req(data_name_in_r())
+          data_name_in_r()
         })
       }
 
-      observeEvent(data(), {
-        updateSelectInput(session, "var_x", choices = c("", names(data())))
-        updateSelectInput(session, "var_y", choices = c("", names(data())))
-        updateSelectInput(session, "color", choices = c("", names(data())))
+      #--- Dealing with the dataset
+
+      main_data <- reactive({
+        req(data_name())
+        get(data_name(), envir = .GlobalEnv)
       })
+
+      plot_module <- esquisse::esquisse_server(
+        "plot_module",
+        main_data,
+        name = data_name,
+        import_from = NULL,
+        default_aes = c("fill", "color", "size", "shape")
+      )
 
       code <- reactive({
-        req(input$var_x, nzchar(input$var_x))
-        if (input$plot_type != "Histogram") {
-          req(input$var_y, nzchar(input$var_y))
+        if (!nzchar(input$plot_name)) {
+          return("")
         }
-
-        yvar <- if (input$plot_type != "Histogram") glue::glue(", y = {input$var_y}") else ""
-        col <- if (nzchar(input$color)) glue::glue(", color = {input$color}, fill = {input$color}") else ""
-        code <- "library(ggplot2)\n"
-        if (input$plotly) {
-          code <- paste0(code, "library(plotly)\n")
+        if (is.null(plot_module$code_plot)) {
+          return("")
         }
-        code <- glue::glue(code, "{input$plot_name} <- ggplot({name()})")
-        code <- paste0(code, " + \n  aes")
-        code <- glue::glue(code, "(x = {input$var_x}{yvar}{col})")
-
-        if (input$plot_type == "Scatter") {
-          code <- glue::glue(code, " + \n  geom_point()")
-        } else if (input$plot_type == "Histogram") {
-          code <- glue::glue(code, " + \n  geom_histogram()")
-        } else if (input$plot_type == "Line") {
-          code <- glue::glue(code, " + \n  geom_line()")
-        }
-
-        if (input$log_x) {
-          code <- paste0(code, " + \n  scale_x_log10()")
-        }
-
-        if (input$theme == "") {
-          code <- glue::glue(code, " + \n  theme(text = element_text(size = {input$font}))")
-        } else {
-          code <- glue::glue(code, " + \n  theme_{input$theme}(base_size = {input$font})")
-        }
-
-        if (input$plotly) {
-          code <- glue::glue(code, "\n{input$plot_name} <- ggplotly({input$plot_name})\n")
-        }
-        code <- paste0(code, "\n", input$plot_name)
-
-        code
+        paste0("library(ggplot2)\n", input$plot_name, " <- ", plot_module$code_plot)
       })
 
-      plot <- reactive({
-        eval(parse(text = code()))
-      })
+      #--- Insert code
 
-      output$plot <- renderPlot({
-        plot()
-      })
-
-      output$plot_plotly <- plotly::renderPlotly({
-        plot()
-      })
-
-      output$code <- renderUI({
-        req(code())
-        tags$pre(code())
+      observeEvent(input$plot_name, {
+        if (!is_valid_name(input$plot_name)) {
+          updateTextInput(session, "plot_name", value = make.names(input$plot_name))
+        }
       })
 
       observe({

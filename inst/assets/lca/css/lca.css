@@ -1,3 +1,5 @@
+/* General */
+
 .lca-page {
   height: 100%;
 }
@@ -78,6 +80,17 @@
   overflow: auto;
   white-space: nowrap;
 }
+
+/* Visualizations */
+
+.esquisse-container .btn-copy-code,
+.esquisse-container .esquisse-playpause-btn,
+.esquisse-container .esquisse-export-btn,
+div[id^="shiny-notification-esquisse"] {
+  display: none;
+}
+
+/* Snippets */
 
 .snippets-file-name {
   margin-top: 1rem;
