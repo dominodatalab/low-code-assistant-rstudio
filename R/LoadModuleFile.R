@@ -40,6 +40,8 @@ LoadModuleFile <- R6::R6Class(
 
   public = list(
     initialize = function(file = NULL) {
+      options(rlib_name_repair_verbosity = "quiet")
+
       # If the file is the result of a failed shiny req() call, treat it as NULL instead of error
       file <- tryCatch(file, error = function(err) NULL)
 
@@ -63,17 +65,17 @@ LoadModuleFile$code_file_type <- function(url) {
   } else if (ext == ".tsv") {
     glue::glue("read.csv({shQuote(url, type = 'cmd')}, sep = '\t')")
   } else if (ext == ".sas7bdat") {
-    glue::glue("haven::read_sas({shQuote(url, type = 'cmd')})")
+    glue::glue("haven::read_sas({shQuote(url, type = 'cmd')}, .name_repair = 'universal')")
   } else if (ext == ".xpt") {
-    glue::glue("haven::read_xpt({shQuote(url, type = 'cmd')})")
+    glue::glue("haven::read_xpt({shQuote(url, type = 'cmd')}, .name_repair = 'universal')")
   } else if (ext == ".sav" || ext == ".zsav") {
-    glue::glue("haven::read_sav({shQuote(url, type = 'cmd')})")
+    glue::glue("haven::read_sav({shQuote(url, type = 'cmd')}, .name_repair = 'universal')")
   } else if (ext == ".dta") {
-    glue::glue("haven::read_dta({shQuote(url, type = 'cmd')})")
+    glue::glue("haven::read_dta({shQuote(url, type = 'cmd')}, .name_repair = 'universal')")
   } else if (ext == ".por") {
-    glue::glue("haven::read_por({shQuote(url, type = 'cmd')})")
+    glue::glue("haven::read_por({shQuote(url, type = 'cmd')}, .name_repair = 'universal')")
   } else if (ext == ".xls" || ext == ".xlsx") {
-    glue::glue("readxl::read_excel({shQuote(url, type = 'cmd')})")
+    glue::glue("readxl::read_excel({shQuote(url, type = 'cmd')}, .name_repair = 'universal')")
   } else {
     stop("Non supported file type: ", ext)
   }
