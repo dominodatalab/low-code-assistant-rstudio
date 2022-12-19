@@ -1,5 +1,6 @@
 # Unreleased version
 
+- LCA now works even when there is no internet connection (e.g. in an air-gapped environment)
 - Visualizations wizard is now fully functional and powerful. When invoked from the Addins menu, if a variable holding a data frame is selected then that data frame will be used.
 - Snippets: support adding snippets, editing snippets, deleting snippets. "Edit mode" for snippets is disabled by default, but enabling it remains "sticky" until the R session is restarted.
 - Snippets: when inserting code snippets, `library()` calls should not be removed (in other LCA wizards, duplicate `library()` calls are removed)  

@@ -62,11 +62,21 @@ get_api_base <- function() {
 }
 
 get_domino_version <- function() {
-  resp <- call_api("/version")
-  resp$version %||% ""
+  version <- tryCatch({
+    resp <- call_api("/version")
+    resp$version
+  }, error = function(err) {
+    "0"
+  })
+  version
 }
 
 get_user_id <- function() {
-  resp <- call_api("/v4/users/self")
-  resp$id %||% ""
+  id <- tryCatch({
+    resp <- call_api("/v4/users/self")
+    resp$id
+  }, error = function(err) {
+    "0"
+  })
+  id
 }
