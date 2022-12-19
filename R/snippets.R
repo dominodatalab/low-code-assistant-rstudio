@@ -57,7 +57,7 @@ get_editable_snippets_paths <- function() {
   git_paths <- get_writable_git_repos()
   paths <- list("Current Project" = get_user_project_dir())
   if (length(git_paths) > 0) {
-    paths[["Git Repos"]] <- setNames(git_paths, basename(git_paths))
+    paths[["Git Repos"]] <- stats::setNames(git_paths, basename(git_paths))
   }
   paths
 }

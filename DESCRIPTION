@@ -29,7 +29,6 @@ Imports:
     jsonlite,
     methods,
     miniUI,
-    plotly,
     processx,
     R6,
     reactable (>= 0.3.0.9000),
