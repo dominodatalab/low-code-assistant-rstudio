@@ -14,7 +14,8 @@ LoadModuleURL$shiny <- list(
         paste(LoadModuleFile$FILE_READ_EXTENSIONS, collapse = ", "),
         status = "info", dismissible = TRUE
       ),
-      textInput(ns("url"), NULL, "", placeholder = "https://path/to/data.csv", width = "100%")
+      textInput(ns("url"), NULL, "", placeholder = "https://path/to/data.csv", width = "100%"),
+      load_file_params_ui(ns("params"))
     )
   },
 
@@ -23,8 +24,10 @@ LoadModuleURL$shiny <- list(
       id,
       function(input, output, session) {
         load <- reactive({
-          LoadModuleURL$new(input$url)
+          LoadModuleURL$new(input$url, params = params())
         })
+
+        params <- load_file_params_server("params", file_path = reactive(input$url))
 
         return(list(
           name = reactive(load()$name),

@@ -14,7 +14,8 @@ LoadModuleUpload$shiny <- list(
         paste(LoadModuleFile$FILE_READ_EXTENSIONS, collapse = ", "),
         status = "info", dismissible = TRUE
       ),
-      fileInput(ns("file"), NULL, multiple = FALSE, accept = LoadModuleFile$FILE_READ_EXTENSIONS, width = "100%")
+      fileInput(ns("file"), NULL, multiple = FALSE, accept = LoadModuleFile$FILE_READ_EXTENSIONS, width = "100%"),
+      load_file_params_ui(ns("params"))
     )
   },
 
@@ -37,8 +38,10 @@ LoadModuleUpload$shiny <- list(
         })
 
         load <- reactive({
-          LoadModuleUpload$new(new_path())
+          LoadModuleUpload$new(new_path(), params = params())
         })
+
+        params <- load_file_params_server("params", file_path = reactive(input$file$name))
 
         return(list(
           name = reactive(load()$name),

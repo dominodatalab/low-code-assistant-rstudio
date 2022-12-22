@@ -9,7 +9,8 @@ LoadModuleDatasets$shiny <- list(
     ns <- NS(id)
     tagList(
       br(),
-      shinyfilebrowser::file_browser_ui(ns("filebrowser"))
+      shinyfilebrowser::file_browser_ui(ns("filebrowser")),
+      load_file_params_ui(ns("params"))
     )
   },
 
@@ -26,8 +27,10 @@ LoadModuleDatasets$shiny <- list(
         )
 
         load <- reactive({
-          LoadModuleDatasets$new(browser$selected())
+          LoadModuleDatasets$new(browser$selected(), params = params())
         })
+
+        params <- load_file_params_server("params", file_path = reactive(browser$selected()))
 
         return(list(
           name = reactive(load()$name),

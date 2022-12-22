@@ -81,6 +81,16 @@
   white-space: nowrap;
 }
 
+/* Load */
+
+.load-file-params-section {
+  align-items: flex-start;
+}
+
+.load-file-params-section .bootstrap-select .filter-option-inner-inner {
+  color: #444 !important;
+}
+
 /* Visualizations */
 
 .esquisse-container .btn-copy-code,
