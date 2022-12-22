@@ -1,4 +1,4 @@
-# Unreleased version
+# 0.3.0
 
 - LCA now works even when there is no internet connection (e.g. in an air-gapped environment)
 - Visualizations wizard is now fully functional and powerful. When invoked from the Addins menu, if a variable holding a data frame is selected then that data frame will be used.
