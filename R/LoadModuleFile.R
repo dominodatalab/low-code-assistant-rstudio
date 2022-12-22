@@ -90,7 +90,7 @@ LoadModuleFile$code_file_type <- function(url, params = list()) {
   }
 
   params_str <- lapply(names(params), function(param) {
-    if (class(params[[param]]) == "character") {
+    if (inherits(params[[param]], "character")) {
       glue::glue(", {param} = {shQuote(params[[param]], type = 'cmd')}")
     } else {
       glue::glue(", {param} = {params[[param]]}")
