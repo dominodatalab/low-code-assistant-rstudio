@@ -10,7 +10,7 @@ LoadModuleUpload$shiny <- list(
     tagList(
       br(),
       shinyWidgets::alert(
-        "Choose a file with one of the following extensions:", br(),
+        "Choose a file with an extension of:",
         paste(LoadModuleFile$FILE_READ_EXTENSIONS, collapse = ", "),
         status = "info", dismissible = TRUE
       ),
