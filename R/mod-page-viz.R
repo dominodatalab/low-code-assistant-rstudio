@@ -131,7 +131,7 @@ page_viz_server <- function(id, data_name_in = NULL) {
         if (is.null(plot_module$code_plot)) {
           return("")
         }
-        paste0("library(ggplot2)\n", input$plot_name, " <- ", plot_module$code_plot)
+        paste0("library(ggplot2)\n", input$plot_name, " <- ", plot_module$code_plot, "\n", input$plot_name)
       })
 
       #--- Insert code
@@ -147,6 +147,11 @@ page_viz_server <- function(id, data_name_in = NULL) {
       })
 
       observeEvent(input$continue, {
+        user_plot <- eval(parse(text = code()))
+        assign_to_global(input$plot_name, user_plot)
+
+        plot(user_plot)
+
         insert_text(paste0(code()))
 
         shinymixpanel::mp_track(
