@@ -169,7 +169,8 @@ snippet_edit_mode_server <- function(id, selected_snippet, selected_snippet_full
           title = "Are you sure you want to delete this snippet?",
           text = get_file_name_no_ext(selected_snippet()),
           showCancelButton = TRUE, cancelButtonText = "Cancel", confirmButtonText = "Delete",
-          inputId = "delete_confirm", closeOnClickOutside = TRUE
+          inputId = "delete_confirm", closeOnClickOutside = TRUE,
+          confirmButtonCol = "#337ab7"
         )
       })
 
@@ -180,9 +181,9 @@ snippet_edit_mode_server <- function(id, selected_snippet, selected_snippet_full
         tryCatch({
           file.remove(selected_snippet_full())
           snippets_refresh$trigger()
-          shinyalert::shinyalert(type = "success", "Snippet deleted")
+          shinyalert::shinyalert(type = "success", "Snippet deleted", confirmButtonCol = "#337ab7")
         }, error = function(err) {
-          shinyalert::shinyalert(type = "error", title = "Error", text = err$message)
+          shinyalert::shinyalert(type = "error", title = "Error", text = err$message, confirmButtonCol = "#337ab7")
         })
       })
 

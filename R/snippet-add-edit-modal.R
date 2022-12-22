@@ -99,9 +99,9 @@ snippet_add_edit_modal <- function(id, editable_paths) {
           writeLines(input$contents, snippet_path)
           removeModal()
           update(update() + 1)
-          shinyalert::shinyalert(type = "success", "Snippet added")
+          shinyalert::shinyalert(type = "success", "Snippet added", confirmButtonCol = "#337ab7")
         }, error = function(err) {
-          shinyalert::shinyalert(type = "error", title = "Error", text = err$message)
+          shinyalert::shinyalert(type = "error", title = "Error", text = err$message, confirmButtonCol = "#337ab7")
         })
       })
 
@@ -110,9 +110,9 @@ snippet_add_edit_modal <- function(id, editable_paths) {
           writeLines(input$contents, snippet())
           removeModal()
           update(update() + 1)
-          shinyalert::shinyalert(type = "success", "Snippet edited")
+          shinyalert::shinyalert(type = "success", "Snippet edited", confirmButtonCol = "#337ab7")
         }, error = function(err) {
-          shinyalert::shinyalert(type = "error", title = "Error", text = err$message)
+          shinyalert::shinyalert(type = "error", title = "Error", text = err$message, confirmButtonCol = "#337ab7")
         })
       })
 
