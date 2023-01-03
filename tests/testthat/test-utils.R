@@ -136,3 +136,14 @@ test_that("get_data_name_str works", {
   expect_identical(get_data_name_str("df2"), "df2")
   expect_null(get_data_name_str("df3"))
 })
+
+test_that("quietly works", {
+  expect_output(print("test"))
+  expect_output(quietly(print("test")), NA)
+
+  expect_message(message("test"))
+  expect_message(quietly(message("test")), NA)
+
+  expect_warning(warning("test"))
+  expect_warning(quietly(print("test")), NA)
+})

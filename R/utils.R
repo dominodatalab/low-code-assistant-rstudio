@@ -126,3 +126,9 @@ get_data_name_str <- function(x = NULL) {
     NULL
   })
 }
+
+quietly <- function(expr) {
+  utils::capture.output(suppressWarnings(suppressMessages(suppressPackageStartupMessages(
+    expr
+  ))))
+}
