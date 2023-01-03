@@ -1,6 +1,6 @@
 Package: assistDomino
 Title: Low Code Assistant for RStudio
-Version: 0.3.0
+Version: 0.3.0.9000
 Authors@R: c(
     person("Dean", "Attali",
         email = "daattali@gmail.com",
@@ -50,8 +50,10 @@ Imports:
     utils,
     waiter
 Suggests: 
+    httptest,
     mockery,
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    withr
 Remotes:
     daattali/shinycodeviewer,
     daattali/shinymixpanel,
