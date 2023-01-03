@@ -1,5 +1,5 @@
 get_snippets_paths_builtin <- function() {
-  path <- system.file("sample_snippets", "snippets", package = "assistDomino")
+  path <- system.file("sample_snippets", "snippets", package = PACKAGE_NAME)
   if (dir.exists(path)) {
     path
   } else {

@@ -33,7 +33,7 @@ LoadModuleDemo <- R6::R6Class(
       } else if (private$.dataset == "gapminder") {
         "gapminder::gapminder"
       } else if (private$.dataset %in% c("small_molecule_drugbank", "penguins")) {
-        glue::glue('read.csv(system.file("sample_data", "{ private$.dataset }.csv", package = "assistDomino"))')
+        glue::glue('read.csv(system.file("sample_data", "{ private$.dataset }.csv", package = "{ PACKAGE_NAME }"))')
       }
     },
 
