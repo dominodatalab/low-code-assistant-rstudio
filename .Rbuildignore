@@ -5,3 +5,4 @@
 ^\.Renviron$
 ^LICENSE\.md$
 ^snippets$
+^.covrignore$
