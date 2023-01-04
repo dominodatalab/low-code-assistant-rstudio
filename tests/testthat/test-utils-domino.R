@@ -151,6 +151,9 @@ test_that("get_api_base works", {
 
 test_that("get_domino_version works", {
   httptest::with_mock_api({
+    withr::local_envvar(c("DOMINO_USER_API_KEY" = "testkey",
+                          "DOMINO_API_HOST" = "https://trial.dominodatalab.com"))
+
     expect_identical(get_domino_version(), "1.2.3")
 
     mockery::stub(get_domino_version, "call_api", function(...) stop("test"))
@@ -162,9 +165,11 @@ test_that("get_domino_version works", {
   expect_identical(httptest::without_internet(get_domino_version()), "0")
 })
 
-
 test_that("get_user_id works", {
   httptest::with_mock_api({
+    withr::local_envvar(c("DOMINO_USER_API_KEY" = "testkey",
+                          "DOMINO_API_HOST" = "https://trial.dominodatalab.com"))
+
     expect_identical(get_user_id(), "123456abcdef")
 
     mockery::stub(get_user_id, "call_api", function(...) stop("test"))

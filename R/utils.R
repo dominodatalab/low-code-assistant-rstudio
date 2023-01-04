@@ -19,7 +19,7 @@ is_valid_name <- function(s) {
   make.names(s) == s
 }
 
-insert_text <- function(text, newline = TRUE, remove_duplicate_libs = TRUE) {
+insert_text <- function(text, newline = TRUE, remove_duplicate_libs = TRUE) { # nocov start
   id <- rstudioapi::getSourceEditorContext()$id
   if (is.null(id)) {
     id <- rstudioapi::documentNew("")
@@ -52,7 +52,7 @@ insert_text <- function(text, newline = TRUE, remove_duplicate_libs = TRUE) {
     rstudioapi::insertText(id = id, text = text)
   }, error = function(e) {})
   invisible(NULL)
-}
+} # nocov end
 
 remove_duplicate_lines <- function(text = "", lines_to_remove = c()) {
   for (line in lines_to_remove) {
