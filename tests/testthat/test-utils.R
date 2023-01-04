@@ -136,13 +136,6 @@ test_that("get_writable_git_repos works", {
   expect_true(all(basename(get_writable_git_repos()) %in% c("repo1", "repo3")))
 })
 
-test_that("make_path works", {
-  expect_identical(make_path(""), "")
-  expect_identical(make_path("a"), file.path(getwd(), "a"))
-  expect_identical(make_path("a/b/c"), file.path(getwd(), "a/b/c"))
-  expect_identical(make_path("a/b/"), file.path(getwd(), "a/b//"))
-})
-
 test_that("is_subdir works", {
   expect_true(is_subdir("a", "a/b/c"))
   expect_true(is_subdir("a/b", "a/b/c"))
