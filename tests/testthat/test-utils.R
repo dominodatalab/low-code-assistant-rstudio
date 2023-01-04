@@ -118,6 +118,10 @@ test_that("remove_duplicate_lines works", {
 })
 
 test_that("get_writable_git_repos works", {
+  mockery::stub(get_writable_git_repos, "get_user_git_repos", c())
+  expect_identical(get_writable_git_repos(), character(0))
+  mockery::stub(get_writable_git_repos, "get_user_git_repos", get_user_git_repos)
+
   mockery::stub(get_writable_git_repos, "get_user_git_dir", depth = 2,
                 system.file("tests_data", "git_repos", package = PACKAGE_NAME))
 
