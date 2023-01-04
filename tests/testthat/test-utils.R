@@ -117,6 +117,47 @@ test_that("remove_duplicate_lines works", {
   )
 })
 
+test_that("get_writable_git_repos works", {
+  mockery::stub(get_writable_git_repos, "get_user_git_dir", depth = 2,
+                system.file("tests_data", "git_repos", package = PACKAGE_NAME))
+
+  mockery::stub(get_writable_git_repos, "is_git_writable", FALSE)
+  expect_identical(get_writable_git_repos(), character(0))
+
+  mockery::stub(get_writable_git_repos, "is_git_writable",
+                function(dir) {
+                  basename(dir) %in% c("repo1", "repo3")
+                })
+  expect_identical(length(get_writable_git_repos()), 2L)
+  expect_true(all(basename(get_writable_git_repos()) %in% c("repo1", "repo3")))
+})
+
+test_that("make_path works", {
+  expect_identical(make_path(""), "")
+  expect_identical(make_path("a"), file.path(getwd(), "a"))
+  expect_identical(make_path("a/b/c"), file.path(getwd(), "a/b/c"))
+  expect_identical(make_path("a/b/"), file.path(getwd(), "a/b//"))
+})
+
+test_that("is_subdir works", {
+  expect_true(is_subdir("a", "a/b/c"))
+  expect_true(is_subdir("a/b", "a/b/c"))
+  expect_true(is_subdir("a/b/c", "a/b/c"))
+  expect_false(is_subdir("a/b/c/d", "a/b/c"))
+  expect_false(is_subdir("a/b/c/d", "a/b/c"))
+  expect_true(is_subdir("", ""))
+  expect_true(is_subdir("", "a"))
+  expect_true(is_subdir("", "a/b"))
+  expect_false(is_subdir("a", ""))
+  expect_false(is_subdir("a/b", ""))
+})
+
+test_that("get_file_name_no_ext works", {
+  expect_equal(get_file_name_no_ext("file"), "file")
+  expect_equal(get_file_name_no_ext("path/file"), "file")
+  expect_equal(get_file_name_no_ext("path/file.txt.gz"), "file.txt")
+})
+
 test_that("get_data_name_str works", {
   mock_env <- new.env(parent = emptyenv())
   mock_env$df1 <- mtcars

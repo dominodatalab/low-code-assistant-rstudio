@@ -77,7 +77,7 @@ remove_duplicate_lines <- function(text = "", lines_to_remove = c()) {
   text
 }
 
-is_git_writable <- function(dir) {
+is_git_writable <- function(dir) { # nocov start
   tryCatch({
     owd <- setwd(dir)
     on.exit(setwd(owd), add = TRUE)
@@ -85,7 +85,7 @@ is_git_writable <- function(dir) {
     processx::run("git", c("push", "--dry-run", "--force", "--no-verify"))
     TRUE
   }, error = function(err) FALSE)
-}
+} # nocov end
 
 get_writable_git_repos <- function() {
   repos <- get_user_git_repos()
