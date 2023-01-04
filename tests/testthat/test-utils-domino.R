@@ -56,7 +56,7 @@ test_that("get_user_git_repos works", {
   mockery::stub(get_user_git_repos, "get_user_git_dir", "")
   expect_identical(get_user_git_repos(), character(0))
 
-  mockery::stub(get_user_git_repos, "get_user_git_dir", "test_git_repos")
+  mockery::stub(get_user_git_repos, "get_user_git_dir", system.file("tests_data", "git_repos", package = PACKAGE_NAME))
   expect_identical(basename(get_user_git_repos()), c("repo1", "repo2", "repo3"))
 })
 
