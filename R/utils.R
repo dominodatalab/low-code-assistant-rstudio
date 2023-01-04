@@ -16,7 +16,7 @@ assign_to_global <- function(name, x, pos = 1L) {
 }
 
 is_valid_name <- function(s) {
-  make.names(s) == s
+  !is.null(s) && make.names(s) == s
 }
 
 insert_text <- function(text, newline = TRUE, remove_duplicate_libs = TRUE) { # nocov start

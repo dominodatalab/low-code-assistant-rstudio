@@ -1,19 +1,3 @@
-get_xform_sel1 <- function() {
-  SelectTransformation$new("col1")
-}
-get_xform_sel2 <- function() {
-  SelectTransformation$new(c("col1", "col2"))
-}
-get_xform_drop1 <- function() {
-  DropTransformation$new("col1")
-}
-get_xform_drop2 <- function() {
-  DropTransformation$new(c("col1", "col2"))
-}
-get_xform_missing <- function() {
-  MissingValuesTransformation$new()
-}
-
 test_that("TransformationSequence needs a list of Transformation objects", {
   expect_error(TransformationSequence$new(name_in = "df"), NA)
   expect_error(TransformationSequence$new(mtcars, name_in = "df"))
@@ -357,10 +341,6 @@ test_that("TransformationSequence tidyverse is set correctly", {
   expect_true(TransformationSequence$new(name_in = "df", tidyverse = TRUE)$tidyverse)
   expect_false(TransformationSequence$new(name_in = "df", tidyverse = FALSE)$tidyverse)
 })
-
-get_tidyverse_status <- function(xformseq) {
-  sapply(xformseq$transformations, function(xform) xform$tidyverse)
-}
 
 test_that("TransformationSequence sets tidyverse correctly on a single transformation when not given tidyverse", {
   expect_equal(
@@ -758,9 +738,7 @@ test_that("TransformationSequence add/insert/remove/head retains tidyverse setti
   )
 })
 
-clean_search_path <- function(init) {
-  sapply(setdiff(search(), init), function(name) detach(name, character.only = TRUE))
-}
+
 
 test_that("TransformationSequence$run() works", {
   init_search <- search()

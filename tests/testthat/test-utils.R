@@ -36,6 +36,7 @@ test_that("is_valid_name works", {
   expect_true(is_valid_name("a5"))
   expect_true(is_valid_name("a_b"))
 
+  expect_false(is_valid_name(NULL))
   expect_false(is_valid_name("5a"))
   expect_false(is_valid_name("_ab"))
   expect_false(is_valid_name("one!"))

@@ -11,9 +11,7 @@ test_that("builtin snippets code don't error", {
 
   init_search <- search()
   sapply(snippet_files, function(file) {
-    # make sure that each snippet is run with a fresh set of packages loaded
-    new_search <- setdiff(search(), init_search)
-    sapply(new_search, function(name) detach(name, character.only = TRUE))
+    clean_search_path(init_search)
 
     expect_error(
       quietly(eval(parse(file = file))),
