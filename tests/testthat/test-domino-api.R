@@ -20,6 +20,9 @@ httptest::with_mock_api({
 
 httptest::with_mock_api({
   test_that("call_api works", {
+    withr::local_envvar(c("DOMINO_USER_API_KEY" = "testkey",
+                          "DOMINO_API_HOST" = "https://trial.dominodatalab.com"))
+
     expect_error(call_api("doesnotexist"))
     expect_error(call_api("/doesnotexist"))
 
