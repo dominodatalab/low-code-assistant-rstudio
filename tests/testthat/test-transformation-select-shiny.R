@@ -27,7 +27,7 @@ test_that("SelectTransformation shiny server", {
   })
 })
 
-testthat::skip_on_cran()
+skip_on_cran()
 
 test_that("SelectTransformation shiny simple", {
   app <- shinyApp(

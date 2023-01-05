@@ -1,0 +1,15 @@
+{
+  "input": {
+    "dataset": "iris",
+    "test-filter_col": "Sepal.Length",
+    "test-filter_name": "iris_df.",
+    "test-filter_op": "==",
+    "test-filter_value": "5.1"
+  },
+  "output": {
+    "xform": "<FilterTransformation> (iris_df. | base R) Sepal.Length == 5.1 (numeric)"
+  },
+  "export": {
+
+  }
+}

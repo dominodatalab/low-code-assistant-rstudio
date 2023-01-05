@@ -1,0 +1,15 @@
+{
+  "input": {
+    "dataset": "mtcars",
+    "test-filter_col": "hp",
+    "test-filter_name": "mtcars_df",
+    "test-filter_op": ">=",
+    "test-filter_value": "21"
+  },
+  "output": {
+    "xform": "<FilterTransformation> (mtcars_df | base R) hp >= 21 (numeric)"
+  },
+  "export": {
+
+  }
+}

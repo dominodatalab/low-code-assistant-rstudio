@@ -7,6 +7,11 @@ test_that("MissingValuesTransformation works", {
     ignore_attr = TRUE
   )
   expect_identical(
+    run_xform(dfin, MissingValuesTransformation$new("a", tidyverse = TRUE)),
+    dfin[c(2, 3), ],
+    ignore_attr = TRUE
+  )
+  expect_identical(
     run_xform(dfin, MissingValuesTransformation$new("b")),
     dfin[c(1, 3), ],
     ignore_attr = TRUE
@@ -21,6 +26,11 @@ test_that("MissingValuesTransformation works", {
   )
   expect_identical(
     run_xform(dfin, MissingValuesTransformation$new()),
+    dfin[3, ],
+    ignore_attr = TRUE
+  )
+  expect_identical(
+    run_xform(dfin, MissingValuesTransformation$new(tidyverse = TRUE)),
     dfin[3, ],
     ignore_attr = TRUE
   )

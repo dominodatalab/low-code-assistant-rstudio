@@ -1,0 +1,14 @@
+{
+  "input": {
+    "dataset": "iris",
+    "test-missing_col": "Sepal.Length",
+    "test-missing_name": "iris_df",
+    "test-missing_type": "all"
+  },
+  "output": {
+    "xform": "<MissingValuesTransformation> (iris_df | base R) Any rows with missing values"
+  },
+  "export": {
+
+  }
+}

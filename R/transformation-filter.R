@@ -94,7 +94,7 @@ FilterTransformation$shiny <- list(
     )
   },
 
-  server = function(id, data, old_xform) {
+  server = function(id, data = reactive(NULL), old_xform = reactive(NULL)) {
     moduleServer(
       id,
       function(input, output, session) {
@@ -123,6 +123,7 @@ FilterTransformation$shiny <- list(
         })
 
         xform <- reactive({
+          req(input$filter_col)
           col_type <- class(data()[[input$filter_col]])
           col_type <- utils::tail(col_type, 1)
           FilterTransformation$new(col = input$filter_col, op = input$filter_op, value = input$filter_value, type = col_type, name_out = input$filter_name)

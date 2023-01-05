@@ -1,0 +1,14 @@
+{
+  "input": {
+    "dataset": "mtcars",
+    "test-missing_col": "mpg",
+    "test-missing_name": "mtcars_df",
+    "test-missing_type": "column"
+  },
+  "output": {
+    "xform": "<MissingValuesTransformation> (mtcars_df | base R) Rows where column `mpg` is missing"
+  },
+  "export": {
+
+  }
+}
