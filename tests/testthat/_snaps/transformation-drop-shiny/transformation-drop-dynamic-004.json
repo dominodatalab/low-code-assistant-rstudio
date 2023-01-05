@@ -1,0 +1,16 @@
+{
+  "input": {
+    "dataset": "mtcars",
+    "test-drop_cols": [
+      "hp",
+      "qsec"
+    ],
+    "test-drop_name": "myname"
+  },
+  "output": {
+    "xform": "<DropTransformation> (myname | base R) Columns: hp, qsec"
+  },
+  "export": {
+
+  }
+}

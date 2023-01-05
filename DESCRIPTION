@@ -52,6 +52,7 @@ Imports:
 Suggests: 
     httptest,
     mockery,
+    shinytest2,
     testthat (>= 3.0.0),
     withr
 Remotes:

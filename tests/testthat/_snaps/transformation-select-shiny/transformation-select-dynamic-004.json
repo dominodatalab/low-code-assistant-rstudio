@@ -1,0 +1,16 @@
+{
+  "input": {
+    "dataset": "mtcars",
+    "test-select_cols": [
+      "hp",
+      "qsec"
+    ],
+    "test-select_name": "myname"
+  },
+  "output": {
+    "xform": "<SelectTransformation> (myname | base R) Columns: hp, qsec"
+  },
+  "export": {
+
+  }
+}

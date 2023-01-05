@@ -9,6 +9,9 @@ test_that("builtin snippets code don't error", {
   skip_on_ci()
   skip_on_cran()
 
+  # skip the tests if in an environment where one of the snippet packages isn't installed
+  skip_if_not(nzchar(system.file(package = "Biostrings")))
+
   init_search <- search()
   sapply(snippet_files, function(file) {
     clean_search_path(init_search)

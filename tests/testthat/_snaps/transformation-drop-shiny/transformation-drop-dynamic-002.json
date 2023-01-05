@@ -1,0 +1,16 @@
+{
+  "input": {
+    "dataset": "iris",
+    "test-drop_cols": [
+      "Sepal.Length",
+      "Sepal.Width"
+    ],
+    "test-drop_name": "iris_df"
+  },
+  "output": {
+    "xform": "<DropTransformation> (iris_df | base R) Columns: Sepal.Length, Sepal.Width"
+  },
+  "export": {
+
+  }
+}

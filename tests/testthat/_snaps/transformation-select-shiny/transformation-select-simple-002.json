@@ -1,0 +1,15 @@
+{
+  "input": {
+    "test-select_cols": [
+      "mpg",
+      "wt"
+    ],
+    "test-select_name": "bad.name"
+  },
+  "output": {
+
+  },
+  "export": {
+
+  }
+}
