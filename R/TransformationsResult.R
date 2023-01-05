@@ -5,8 +5,6 @@
 # This could happen if you have a list of TransformationSequence objects, with
 # each one storing its own result.
 
-# TODO add tests
-
 TransformationsResult <- R6::R6Class(
   "TransformationsResult",
   cloneable = FALSE,

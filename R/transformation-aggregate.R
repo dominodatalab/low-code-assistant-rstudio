@@ -152,6 +152,7 @@ AggregateTransformation$shiny <- list(
     ns <- NS(id)
 
     tagList(
+      shinyjs::useShinyjs(),
       shiny::singleton(tags$head(tags$style(
         ".aggregate_existing_ui .row {position: relative; margin-bottom: 3px;}
              .aggregate_existing_ui .row .remove-btn { cursor: pointer; position: absolute; left: 15px; right: 15px; top: 0; bottom: 0; align-items: center; justify-content: center; z-index: 1; background: #fbe9e9; font-weight: bold; display: none; }
@@ -170,7 +171,7 @@ AggregateTransformation$shiny <- list(
     )
   },
 
-  server = function(id, data, old_xform) {
+  server = function(id, data = reactive(NULL), old_xform = reactive(NULL)) {
     moduleServer(
       id,
       function(input, output, session) {

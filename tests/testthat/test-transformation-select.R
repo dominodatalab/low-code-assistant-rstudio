@@ -6,7 +6,16 @@ test_that("SelectTransformation works", {
     dfin["a"]
   )
   expect_identical(
+    run_xform(dfin, SelectTransformation$new("a", tidyverse = TRUE)),
+    dfin["a"]
+  )
+
+  expect_identical(
     run_xform(dfin, SelectTransformation$new(c("a", "b"))),
+    dfin[c("a", "b")]
+  )
+  expect_identical(
+    run_xform(dfin, SelectTransformation$new(c("a", "b"), tidyverse = TRUE)),
     dfin[c("a", "b")]
   )
 })

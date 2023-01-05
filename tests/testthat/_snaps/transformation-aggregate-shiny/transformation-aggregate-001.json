@@ -1,0 +1,22 @@
+{
+  "input": {
+    "dataset": "mtcars",
+    "test-aggregate_aggregator": "",
+    "test-aggregate_col_agg": "",
+    "test-aggregate_cols": "cyl",
+    "test-aggregate_existing": "[{\"mpg\":[\"max\"]}]",
+    "test-aggregate_name": "mtcars_df"
+  },
+  "output": {
+    "test-aggregate_existing_ui": {
+      "html": "<div class=\"row\">\n  <div class=\"remove-btn\" onclick=\"Shiny.setInputValue(&#39;test-aggregate_remove&#39;, 1, {priority: &#39;event&#39;})\">Remove<\/div>\n  <div class=\"col-sm-6\">\n    <input value=\"mpg\" type=\"text\" disabled class=\"form-control\"/>\n  <\/div>\n  <div class=\"col-sm-6\">\n    <input value=\"max\" type=\"text\" disabled class=\"form-control\"/>\n  <\/div>\n<\/div>",
+      "deps": [
+
+      ]
+    },
+    "xform": "<AggregateTransformation> (mtcars_df | base R) \n    Group by: cyl\n    Aggregate by: mpg=max"
+  },
+  "export": {
+
+  }
+}

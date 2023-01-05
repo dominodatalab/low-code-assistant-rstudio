@@ -8,11 +8,25 @@ test_that("FilterTransformation works", {
     run_xform(dfin, FilterTransformation$new("a", "==", "A", "character")),
     dfin[ dfin$a == "A", ]
   )
+  expect_identical(
+    run_xform(dfin, FilterTransformation$new("a", "==", "A", "character", tidyverse = TRUE)),
+    dfin[ dfin$a == "A", ]
+  )
+
   expect_error(
     run_xform(dfin, FilterTransformation$new("a", "==", "B"))
   )
+  expect_error(
+    run_xform(dfin, FilterTransformation$new("a", "==", "B", tidyverse = TRUE))
+  )
+
   expect_identical(
     run_xform(dfin, FilterTransformation$new("a", "!=", "A", "character")),
+    dfin[ dfin$a != "A", ],
+    ignore_attr = TRUE
+  )
+  expect_identical(
+    run_xform(dfin, FilterTransformation$new("a", "!=", "A", "character", tidyverse = TRUE)),
     dfin[ dfin$a != "A", ],
     ignore_attr = TRUE
   )
@@ -23,7 +37,18 @@ test_that("FilterTransformation works", {
     ignore_attr = TRUE
   )
   expect_identical(
+    run_xform(dfin, FilterTransformation$new("b", "==", 2, tidyverse = TRUE)),
+    dfin[ dfin$b == 2, ],
+    ignore_attr = TRUE
+  )
+
+  expect_identical(
     run_xform(dfin, FilterTransformation$new("b", ">=", 2)),
+    dfin[ dfin$b >= 2, ],
+    ignore_attr = TRUE
+  )
+  expect_identical(
+    run_xform(dfin, FilterTransformation$new("b", ">=", 2, tidyverse = TRUE)),
     dfin[ dfin$b >= 2, ],
     ignore_attr = TRUE
   )
