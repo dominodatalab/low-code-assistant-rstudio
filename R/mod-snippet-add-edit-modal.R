@@ -1,3 +1,7 @@
+# @param editable_paths (reactive) Vector of paths that the user has write pemission to
+# @return List of two:
+#   - show: A function that can be called to trigger the modal to show
+#   - update: A reactive that triggers every time the snippet is added/edited
 snippet_add_edit_modal <- function(id, editable_paths) {
 
   moduleServer(
@@ -48,6 +52,9 @@ snippet_add_edit_modal <- function(id, editable_paths) {
         )
       )
 
+      # @param action Whether to show the snippet add or snippet edit modal
+      # @param folder The directory path where a new snippet will be created
+      # @param snippet When editing a snippet, path to the snippet
       show <- function(action = c("add", "edit"), folder, snippet = NULL) {
         action <- match.arg(action)
 
@@ -90,13 +97,8 @@ snippet_add_edit_modal <- function(id, editable_paths) {
 
       observeEvent(input$add, {
         tryCatch({
-          snippet_file_name <- paste0(input$name, ".R")
-          snippet_dir <- file.path(input$repo, "snippets", folder())
-          if (!dir.exists(snippet_dir)) {
-            dir.create(snippet_dir, showWarnings = FALSE, recursive = TRUE)
-          }
-          snippet_path <- file.path(snippet_dir, snippet_file_name)
-          writeLines(input$contents, snippet_path)
+          add_snippet(contents = input$contents, name = input$name,
+                      repo = input$repo, local_folder = folder())
           removeModal()
           update(update() + 1)
           shinyalert::shinyalert(type = "success", "Snippet added", confirmButtonCol = "#337ab7")
@@ -107,7 +109,7 @@ snippet_add_edit_modal <- function(id, editable_paths) {
 
       observeEvent(input$edit, {
         tryCatch({
-          writeLines(input$contents, snippet())
+          edit_snippet(contents = input$contents, file = snippet())
           removeModal()
           update(update() + 1)
           shinyalert::shinyalert(type = "success", "Snippet edited", confirmButtonCol = "#337ab7")

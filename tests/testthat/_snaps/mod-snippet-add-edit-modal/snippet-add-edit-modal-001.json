@@ -1,0 +1,13 @@
+{
+  "input": {
+    "test-add": 0,
+    "test-contents": "x <- 5",
+    "test-edit": 0,
+    "test-name": "snippet",
+    "test-repo": "C:/Users/Dean-X1C/Documents/R/AttaliTech/c1130-domino/low-code-assistant-rstudio/inst"
+  },
+  "output": {
+    "test-dir": "a/b/c",
+    "test-title": "Add"
+  }
+}

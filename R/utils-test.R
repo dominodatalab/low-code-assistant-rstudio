@@ -25,3 +25,15 @@ get_xform_drop2 <- function() {
 get_xform_missing <- function() {
   MissingValuesTransformation$new()
 }
+
+is_shiny_exists <- function(driver, id) {
+  driver$get_js(paste0("!!document.getElementById('", id, "')"))
+}
+
+is_shiny_enabled <- function(driver, id) {
+  driver$get_js(paste0("!document.getElementById('", id, "').hasAttribute('disabled')"))
+}
+
+is_shiny_visible <- function(driver, id) {
+  driver$get_js(paste0("window.getComputedStyle(document.getElementById('", id, "')).display != 'none'"))
+}
