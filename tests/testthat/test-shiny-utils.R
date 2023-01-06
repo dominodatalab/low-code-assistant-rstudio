@@ -47,6 +47,35 @@ test_that("reactiveValEvent invalidates every time, even if the value hasn't cha
   })
 })
 
+test_that("reactive_trigger works", {
+   server <- function(input, output, session) {
+    rxt <- reactive_trigger()
+    num <- reactiveVal(0)
+    observeEvent(input$go1, {
+      rxt$trigger()
+    })
+    observeEvent(input$go2, {
+      rxt$trigger()
+    })
+    observeEvent(rxt$depend(), {
+      num(num() + 1)
+    })
+  }
+
+   testServer(server, {
+     session$setInputs("go1" = 1)
+     expect_equal(num(), 1)
+     session$setInputs("go1" = 2)
+     expect_equal(num(), 2)
+     session$setInputs("go1" = 3)
+     expect_equal(num(), 3)
+     session$setInputs("go2" = 1)
+     expect_equal(num(), 4)
+     session$setInputs("go2" = 2)
+     expect_equal(num(), 5)
+   })
+})
+
 test_that("input_with_checkbox works", {
   expect_error(input_with_checkbox("notag", checkboxId = "chx", checkboxLabel = "lbl"), "shiny.tag")
   expect_error(input_with_checkbox(div(), checkboxId = "chx", checkboxLabel = "lbl"), "<input> tag")
