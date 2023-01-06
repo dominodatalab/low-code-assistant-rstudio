@@ -1,3 +1,5 @@
+# nocov start
+
 #' Low Code Assistant - Data selection
 #'
 #' Run the data selection LCA wizard.
@@ -107,3 +109,5 @@ assist_snippets <- function() {
 assist_snippets_addin <- function() {
   assist_snippets()
 }
+
+# nocov end

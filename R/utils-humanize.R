@@ -20,7 +20,7 @@ natural_num <- function(value) {
     }
   }
   # gigantic values
-  return(format(value, scientific = FALSE))  # nocov
+  return(format(value, scientific = FALSE))
 }
 
 
@@ -44,6 +44,6 @@ natural_size <- function(bytes) {
     }
   }
 
-  out_val <- sprintf(fmt, (base * bytes / unit))   # nocov
-  return(glue::glue("{out_val} {suffix[[length(suffix)]]}"))   # nocov
+  out_val <- sprintf(fmt, (base * bytes / unit))
+  return(glue::glue("{out_val} {suffix[[length(suffix)]]}"))
 }
