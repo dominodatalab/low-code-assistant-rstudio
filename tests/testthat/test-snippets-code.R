@@ -4,7 +4,7 @@ test_that("builtin snippets code don't error", {
     pattern = ".R", recursive = TRUE, full.names = TRUE
   )
 
-  expect_equal(length(snippet_files), 27)
+  expect_length(snippet_files, 27)
 
   skip_on_ci()
   skip_on_cran()

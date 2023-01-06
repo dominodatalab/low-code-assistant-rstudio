@@ -133,7 +133,7 @@ test_that("get_writable_git_repos works", {
                 function(dir) {
                   basename(dir) %in% c("repo1", "repo3")
                 })
-  expect_identical(length(get_writable_git_repos()), 2L)
+  expect_length(get_writable_git_repos(), 2)
   expect_true(all(basename(get_writable_git_repos()) %in% c("repo1", "repo3")))
 })
 

@@ -185,7 +185,7 @@ test_that("AggregateTransformation works", {
 test_that("AggregateTransormation parameters error correctly", {
   expect_error(AggregateTransformation$new())
   expect_error(AggregateTransformation$new(cols = list()))
-  expect_error(AggregateTransformation$new(aggregations = list()))
+  expect_error(AggregateTransformation$new(cols = "var1", aggregations = list()))
   expect_error(AggregateTransformation$new(c("var1", "var2")))
   expect_error(AggregateTransformation$new(aggregations = c("col1" = "sum", "col2" = "min")))
   expect_error(AggregateTransformation$new(c("var1", "var2"), aggregations = c("col1" = "sum", "col2" = "min")), NA)
