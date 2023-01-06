@@ -3,7 +3,6 @@ library(shiny)
 skip_on_cran()
 
 test_that("snippet-add-edit-modal works", {
-  dir <- system.file(package = PACKAGE_NAME)
   app <- shinyApp(
     ui <- fluidPage(
       shinyjs::useShinyjs(),
@@ -11,7 +10,7 @@ test_that("snippet-add-edit-modal works", {
       actionButton("show_edit", "show edit")
     ),
     server = function(input, output, session) {
-      modal <- assistDomino:::snippet_add_edit_modal("test", reactive(dir))
+      modal <- assistDomino:::snippet_add_edit_modal("test", reactive(getwd()))
 
       observeEvent(input$show_add, {
         modal$show("add", "a/b/c")
@@ -36,7 +35,7 @@ test_that("snippet-add-edit-modal works", {
   driver$run_js("$(document.getElementById('test-contents')).data('aceEditor').setValue('x <- 5')")
   driver$wait_for_idle()
   expect_true(is_shiny_enabled(driver, "test-add"))
-  driver$expect_values(output = TRUE, input = c("test-add", "test-contents", "test-edit", "test-name", "test-repo"))
+  driver$expect_values(output = TRUE, input = c("test-add", "test-contents", "test-edit", "test-name"))
 
   driver$set_inputs("test-name" = "snippet/s")
   driver$wait_for_idle()
