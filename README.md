@@ -35,6 +35,17 @@ This will install *LCA for R* in your current workspace, but the tool will not p
 
 This will install *LCA for R* in every workspace that uses the given Domino environment.
 
+### Method 3: Installing from source (Advanced)
+
+If you're in a situation where you cannot run `remotes::install_github()` because your environment won't allow you to connect to GitHub, you can install LCA *from source*. To install from source:
+
+1. Clone this Git repository to any computer that has access to GitHub and has R installed (eg. `git clone <URL>`)
+2. Open an R session inside the root of this project (eg. `cd low-code-assistant-rstudio`)
+3. Make sure the {devtools} R package is installed: `install.packages("devtools")`
+4. Build the package: `devtools::build()`
+5. This should have created a file named `assistDomino_<version>.tar.gz` in the parent directory. Copy this file to your Domino project.
+6. In Domino, you can now use this file to install: `remotes::install_local("path/to/assistDomino_<version>.tar.gz)"`
+
 ## How to run
 
 In RStudio, click the "Addins" menu.
