@@ -37,6 +37,7 @@ test_that("snippet-add-edit-modal adding snippet works", {
   expect_false(is_shiny_enabled(driver, "test-add"))
   driver$run_js("$(document.getElementById('test-contents')).data('aceEditor').setValue('x <- 5')")
   driver$wait_for_idle()
+  driver$wait_for_value(input = "test-contents")
   expect_true(is_shiny_enabled(driver, "test-add"))
   driver$expect_values(output = TRUE, input = c("show_add", "test-add", "test-contents", "test-edit", "test-name", "test-repo"))
 
@@ -48,9 +49,11 @@ test_that("snippet-add-edit-modal adding snippet works", {
   expect_true(is_shiny_enabled(driver, "test-add"))
   driver$run_js("$(document.getElementById('test-contents')).data('aceEditor').setValue('')")
   driver$wait_for_idle()
+  driver$wait_for_value(input = "test-contents")
   expect_false(is_shiny_enabled(driver, "test-add"))
   driver$run_js("$(document.getElementById('test-contents')).data('aceEditor').setValue('y <- x')")
   driver$wait_for_idle()
+  driver$wait_for_value(input = "test-contents")
   expect_true(is_shiny_enabled(driver, "test-add"))
   driver$expect_values(output = TRUE, input = c("show_add", "test-add", "test-contents", "test-edit", "test-name", "test-repo"))
 
@@ -72,6 +75,7 @@ test_that("snippet-add-edit-modal adding snippet works", {
   driver$set_inputs("test-name" = "newsnippet", "test-repo" = "dir2")
   driver$run_js("$(document.getElementById('test-contents')).data('aceEditor').setValue('y2 <- x2')")
   driver$wait_for_idle()
+  driver$wait_for_value(input = "test-contents")
   expect_true(is_shiny_enabled(driver, "test-add"))
   driver$expect_values(output = TRUE, input = c("show_add", "test-add", "test-contents", "test-edit", "test-name", "test-repo"))
 

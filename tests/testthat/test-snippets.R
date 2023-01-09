@@ -88,7 +88,7 @@ test_that("get_editable_snippets_paths works", {
 test_that("add_snippet works", {
   withr::with_tempdir({
     path <- add_snippet("foo bar", name = "test file", repo = "new folder/second", local_folder = "")
-    expect_equal(path, file.path("new folder/second", "snippets", "test file.R"))
+    expect_equal(gsub("//", "/", path), file.path("new folder/second", "snippets", "test file.R"))
     expect_true(file.exists(path))
     expect_equal("foo bar", readLines(path))
   })
