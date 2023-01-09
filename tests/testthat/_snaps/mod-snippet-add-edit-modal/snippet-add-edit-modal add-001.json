@@ -1,9 +1,11 @@
 {
   "input": {
+    "show_add": 1,
     "test-add": 0,
     "test-contents": "x <- 5",
     "test-edit": 0,
-    "test-name": "snippet"
+    "test-name": "snippet",
+    "test-repo": "dir1"
   },
   "output": {
     "test-dir": "a/b/c",

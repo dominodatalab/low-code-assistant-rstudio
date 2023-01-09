@@ -1,0 +1,14 @@
+{
+  "input": {
+    "show_edit": 2,
+    "test-add": 0,
+    "test-contents": "foo2 <- bar2",
+    "test-edit": 0,
+    "test-name": "foo",
+    "test-repo": "dir2"
+  },
+  "output": {
+    "test-dir": "a/b/c",
+    "test-title": "Edit"
+  }
+}

@@ -84,3 +84,27 @@ test_that("get_editable_snippets_paths works", {
                 list.dirs(system.file("tests_data", "git_repos", package = PACKAGE_NAME), recursive = FALSE))
   expect_length(unlist(get_editable_snippets_paths()), 4)
 })
+
+test_that("add_snippet works", {
+  withr::with_tempdir({
+    path <- add_snippet("foo bar", name = "test file", repo = "new folder/second", local_folder = "")
+    expect_equal(path, file.path("new folder/second", "snippets", "test file.R"))
+    expect_true(file.exists(path))
+    expect_equal("foo bar", readLines(path))
+  })
+
+  withr::with_tempdir({
+    path <- add_snippet("foo bar2", name = "test file2", repo = "another folder/second", local_folder = "a/b/c")
+    expect_equal(path, file.path("another folder/second", "snippets", "a/b/c", "test file2.R"))
+    expect_true(file.exists(path))
+    expect_equal("foo bar2", readLines(path))
+  })
+})
+
+test_that("edit_snippet works", {
+  withr::with_file("snippet.R", {
+    writeLines("some code", "snippet.R")
+    edit_snippet("different code", "snippet.R")
+    expect_equal("different code", readLines("snippet.R"))
+  })
+})

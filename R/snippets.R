@@ -70,6 +70,7 @@ add_snippet <- function(contents, name, repo, local_folder) {
   }
   snippet_path <- file.path(snippet_dir, snippet_file_name)
   writeLines(contents, snippet_path)
+  snippet_path
 }
 
 edit_snippet <- function(contents, file) {

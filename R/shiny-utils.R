@@ -74,7 +74,7 @@ input_with_checkbox <- function(input, checkboxId, checkboxLabel, checkboxValue 
   } else if (side == "right") {
     group <- tags$div(class = "input-group", input_tag, checkbox)
   } else {
-    stop("Invalid 'side'")
+    stop("Invalid 'side'")  # nocov
   }
 
   input$children[[input_idx]] <- group

@@ -1,0 +1,14 @@
+{
+  "input": {
+    "show_add": 2,
+    "test-add": 0,
+    "test-contents": "y2 <- x2",
+    "test-edit": 0,
+    "test-name": "newsnippet",
+    "test-repo": "dir2"
+  },
+  "output": {
+    "test-dir": "a/b/c",
+    "test-title": "Add"
+  }
+}
