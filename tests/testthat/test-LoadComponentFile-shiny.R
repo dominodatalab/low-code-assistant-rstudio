@@ -5,11 +5,14 @@ skip_on_cran()
 test_that("LoadComponentFile load_file_params shiny module works", {
   app <- shinyApp(
     ui = fluidPage(
-      selectInput("data", "data", c("cars.csv", "cars.xlsx", "cars.sav")),
+      selectInput("data", "data", c("cars.csv", "cars.xlsx", "cars.sav", "")),
       assistDomino:::load_file_params_ui("test")
     ),
     server = function(input, output, session) {
       file <- reactive({
+        if (input$data == "") {
+          return()
+        }
         system.file("tests_data", "load_data", input$data, package = "assistDomino")
       })
       params <- assistDomino:::load_file_params_server("test", file)
@@ -63,6 +66,15 @@ test_that("LoadComponentFile load_file_params shiny module works", {
   driver$expect_values()
 
   driver$set_inputs(data = "cars.sav")
+  driver$wait_for_idle()
+  driver$expect_values()
+  expect_false(is_shiny_visible(driver, "test-header"))
+  expect_false(is_shiny_visible(driver, "test-sep"))
+  expect_false(is_shiny_visible(driver, "test-dec"))
+  expect_false(is_shiny_visible(driver, "test-col_names"))
+  expect_false(is_shiny_visible(driver, "test-sheet"))
+
+  driver$set_inputs(data = "")
   driver$wait_for_idle()
   driver$expect_values()
   expect_false(is_shiny_visible(driver, "test-header"))
