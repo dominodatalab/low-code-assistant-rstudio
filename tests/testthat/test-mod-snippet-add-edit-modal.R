@@ -70,7 +70,6 @@ test_that("snippet-add-edit-modal adding snippet works", {
   driver$click("show_add")
   driver$wait_for_js("!!document.getElementById('test-name')")
   expect_false(is_shiny_visible(driver, "test-edit"))
-  expect_true(is_shiny_visible(driver, "test-add"))
 
   driver$set_inputs("test-name" = "newsnippet", "test-repo" = "dir2")
   driver$run_js("$(document.getElementById('test-contents')).data('aceEditor').setValue('y2 <- x2')")

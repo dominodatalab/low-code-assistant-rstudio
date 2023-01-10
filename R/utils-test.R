@@ -31,15 +31,9 @@ is_shiny_exists <- function(driver, id) {
 }
 
 is_shiny_enabled <- function(driver, id) {
-  if (!is_shiny_exists(driver, id)) {
-    return()  # nocov
-  }
-  driver$get_js(paste0("!document.getElementById('", id, "').hasAttribute('disabled')"))
+  driver$get_js(paste0("!$('#", id, "').is(':disabled')"))
 }
 
 is_shiny_visible <- function(driver, id) {
-  if (!is_shiny_exists(driver, id)) {
-    return() # nocov
-  }
-  driver$get_js(paste0("window.getComputedStyle(document.getElementById('", id, "')).display != 'none'"))
+  driver$get_js(paste0("$('#", id, "').is(':visible')"))
 }
