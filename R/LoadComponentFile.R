@@ -24,11 +24,56 @@ LoadComponentFile <- R6::R6Class(
     },
 
     get_code = function() {
-      LoadComponentFile$code_file_type(private$.file, params = private$.params)
+      private$code_by_file_type()
     },
 
     get_data = function() {
       suppressWarnings(eval(parse(text = private$.code)))
+    },
+
+    code_by_file_type = function() {
+      url <- private$.file
+      params <- private$.params
+
+      ext <- tolower(paste0(".", tools::file_ext(url)))
+      if (ext == ".") {
+        stop("File must have an extension")
+      }
+
+      file_param <- shQuote(url, type = 'cmd')
+      if (ext == ".csv" || ext == ".txt") {
+        fxn <- "read.csv"
+      } else if (ext == ".sas7bdat") {
+        fxn <- "haven::read_sas"
+        params[[".name_repair"]] <- "universal"
+      } else if (ext == ".xpt") {
+        fxn <- "haven::read_xpt"
+        params[[".name_repair"]] <- "universal"
+      } else if (ext == ".sav" || ext == ".zsav") {
+        fxn <- "haven::read_sav"
+        params[[".name_repair"]] <- "universal"
+      } else if (ext == ".dta") {
+        fxn <- "haven::read_dta"
+        params[[".name_repair"]] <- "universal"
+      } else if (ext == ".por") {
+        fxn <- "haven::read_por"
+        params[[".name_repair"]] <- "universal"
+      } else if (ext == ".xls" || ext == ".xlsx") {
+        fxn <- "readxl::read_excel"
+        params[[".name_repair"]] <- "universal"
+      } else {
+        stop("Non supported file type: ", ext)
+      }
+
+      params_str <- lapply(names(params), function(param) {
+        if (inherits(params[[param]], "character")) {
+          glue::glue(", {param} = {shQuote(params[[param]], type = 'cmd')}")
+        } else {
+          glue::glue(", {param} = {params[[param]]}")
+        }
+      })
+      params_str <- paste(params_str, collapse = "")
+      glue::glue("{fxn}({file_param}{params_str})")
     }
   ),
 
@@ -57,48 +102,6 @@ LoadComponentFile <- R6::R6Class(
 LoadComponentFile$FILE_READ_EXTENSIONS <- c(
   ".csv", ".txt", ".sas7bdat", ".xpt", ".sav", ".zsav", ".dta", ".por", ".xls", ".xlsx"
 )
-
-LoadComponentFile$code_file_type <- function(url, params = list()) {
-  ext <- tolower(paste0(".", tools::file_ext(url)))
-  if (ext == ".") {
-    stop("File must have an extension")
-  }
-
-  file_param <- shQuote(url, type = 'cmd')
-  if (ext == ".csv" || ext == ".txt") {
-    fxn <- "read.csv"
-  } else if (ext == ".sas7bdat") {
-    fxn <- "haven::read_sas"
-    params[[".name_repair"]] <- "universal"
-  } else if (ext == ".xpt") {
-    fxn <- "haven::read_xpt"
-    params[[".name_repair"]] <- "universal"
-  } else if (ext == ".sav" || ext == ".zsav") {
-    fxn <- "haven::read_sav"
-    params[[".name_repair"]] <- "universal"
-  } else if (ext == ".dta") {
-    fxn <- "haven::read_dta"
-    params[[".name_repair"]] <- "universal"
-  } else if (ext == ".por") {
-    fxn <- "haven::read_por"
-    params[[".name_repair"]] <- "universal"
-  } else if (ext == ".xls" || ext == ".xlsx") {
-    fxn <- "readxl::read_excel"
-    params[[".name_repair"]] <- "universal"
-  } else {
-    stop("Non supported file type: ", ext)
-  }
-
-  params_str <- lapply(names(params), function(param) {
-    if (inherits(params[[param]], "character")) {
-      glue::glue(", {param} = {shQuote(params[[param]], type = 'cmd')}")
-    } else {
-      glue::glue(", {param} = {params[[param]]}")
-    }
-  })
-  params_str <- paste(params_str, collapse = "")
-  glue::glue("{fxn}({file_param}{params_str})")
-}
 
 load_file_params_ui <- function(id) {
   ns <- NS(id)
@@ -129,7 +132,7 @@ load_file_params_ui <- function(id) {
   )
 }
 
-#' @param file_path (reactive string) Path to a file.
+# @param file_path (reactive string) Path to a file.
 load_file_params_server <- function(id, file_path) {
 
   FILE_TYPE_PARAMS <- list(
