@@ -1,4 +1,4 @@
-MIXPANEL_TOKEN <- "c7c62b2aa8085f53d86952350a13b64a"
+MIXPANEL_TOKEN <- "a442c4dbf420b59cdac95cfb07f57cbb"
 MIXPANEL_CONFIG <- list("property_blacklist" = c('$current_url', '$referrer', '$initial_referrer'))
 MIXPANEL_TEST_TOKEN <- "3aef1937b53691cfad358cbe583c0aa6"
 MIXPANEL_TEST_DOMAINS <- c('localhost', '127.0.0.1', '0.0.0.0', '.dominodatalab.com', 'team-sandbox.domino.tech', 'eval.domino.tech', 'domino-eval.com', 'domino-pilot.com', 'dominohackathon.com', 'dominodata.science', 'gurudomino.com', 'dominoai1.com')
