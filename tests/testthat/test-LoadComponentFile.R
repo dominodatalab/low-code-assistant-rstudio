@@ -11,6 +11,12 @@ test_that("LoadComponentFile basic works", {
   expect_null(file$error)
   expect_null(file$file)
 
+  file <- LoadComponentFile$new(shiny::req(FALSE))
+  expect_null(file$data)
+  expect_null(file$code)
+  expect_null(file$error)
+  expect_null(file$file)
+
   file$file <- "somefile"
   expect_equal(file$file, "somefile")
   expect_false(is.null(file$error))

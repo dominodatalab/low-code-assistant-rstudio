@@ -1,0 +1,7 @@
+{
+  "export": {
+    "code": "ggplot2::economics",
+    "error": null,
+    "name": "economics"
+  }
+}
