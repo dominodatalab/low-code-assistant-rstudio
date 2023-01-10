@@ -1,6 +1,6 @@
-LoadModuleDemo <- R6::R6Class(
-  "LoadModuleDemo",
-  inherit = LoadModule,
+LoadComponentDemo <- R6::R6Class(
+  "LoadComponentDemo",
+  inherit = LoadComponent,
 
   private = list(
     .dataset = NULL,
@@ -23,7 +23,7 @@ LoadModuleDemo <- R6::R6Class(
     },
 
     get_code = function() {
-      if (!private$.dataset %in% LoadModuleDemo$DATASETS) {
+      if (!private$.dataset %in% LoadComponentDemo$DATASETS) {
         stop("Unknown dataset: ", private$.dataset)
       }
       if (private$.dataset %in% c("diamonds", "economics", "midwest")) {
@@ -54,9 +54,9 @@ LoadModuleDemo <- R6::R6Class(
   )
 )
 
-LoadModuleDemo$DATASETS <- c("gapminder", "iris", "mtcars", "diamonds", "economics", "midwest", "small_molecule_drugbank", "penguins")
+LoadComponentDemo$DATASETS <- c("gapminder", "iris", "mtcars", "diamonds", "economics", "midwest", "small_molecule_drugbank", "penguins")
 
-LoadModuleDemo$shiny <- list(
+LoadComponentDemo$shiny <- list(
 
   ui = function(id) {
     ns <- NS(id)
@@ -72,10 +72,10 @@ LoadModuleDemo$shiny <- list(
       function(input, output, session) {
         datasets <- shinyfilebrowser::list_selector_server(
           "datasets",
-          LoadModuleDemo$DATASETS
+          LoadComponentDemo$DATASETS
         )
         load <- reactive({
-          LoadModuleDemo$new(datasets())
+          LoadComponentDemo$new(datasets())
         })
 
         return(list(

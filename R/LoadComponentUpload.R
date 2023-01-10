@@ -1,9 +1,9 @@
-LoadModuleUpload <- R6::R6Class(
-  "LoadModuleUpload",
-  inherit = LoadModuleFile
+LoadComponentUpload <- R6::R6Class(
+  "LoadComponentUpload",
+  inherit = LoadComponentFile
 )
 
-LoadModuleUpload$shiny <- list(
+LoadComponentUpload$shiny <- list(
 
   ui = function(id) {
     ns <- NS(id)
@@ -11,10 +11,10 @@ LoadModuleUpload$shiny <- list(
       br(),
       shinyWidgets::alert(
         "Choose a file with an extension of:",
-        paste(LoadModuleFile$FILE_READ_EXTENSIONS, collapse = ", "),
+        paste(LoadComponentFile$FILE_READ_EXTENSIONS, collapse = ", "),
         status = "info", dismissible = TRUE
       ),
-      fileInput(ns("file"), NULL, multiple = FALSE, accept = LoadModuleFile$FILE_READ_EXTENSIONS, width = "100%"),
+      fileInput(ns("file"), NULL, multiple = FALSE, accept = LoadComponentFile$FILE_READ_EXTENSIONS, width = "100%"),
       load_file_params_ui(ns("params"))
     )
   },
@@ -38,7 +38,7 @@ LoadModuleUpload$shiny <- list(
         })
 
         load <- reactive({
-          LoadModuleUpload$new(new_path(), params = params())
+          LoadComponentUpload$new(new_path(), params = params())
         })
 
         params <- load_file_params_server("params", file_path = reactive(input$file$name))

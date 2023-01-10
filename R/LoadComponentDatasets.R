@@ -1,9 +1,9 @@
-LoadModuleDatasets <- R6::R6Class(
-  "LoadModuleDatasets",
-  inherit = LoadModuleFile
+LoadComponentDatasets <- R6::R6Class(
+  "LoadComponentDatasets",
+  inherit = LoadComponentFile
 )
 
-LoadModuleDatasets$shiny <- list(
+LoadComponentDatasets$shiny <- list(
 
   ui = function(id) {
     ns <- NS(id)
@@ -21,13 +21,13 @@ LoadModuleDatasets$shiny <- list(
         browser <- shinyfilebrowser::file_browser_server(
           "filebrowser",
           path = get_user_datasets_dir(),
-          extensions = LoadModuleFile$FILE_READ_EXTENSIONS,
+          extensions = LoadComponentFile$FILE_READ_EXTENSIONS,
           root = get_user_datasets_dir(),
           include_empty = FALSE
         )
 
         load <- reactive({
-          LoadModuleDatasets$new(browser$selected(), params = params())
+          LoadComponentDatasets$new(browser$selected(), params = params())
         })
 
         params <- load_file_params_server("params", file_path = reactive(browser$selected()))

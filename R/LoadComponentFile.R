@@ -1,6 +1,6 @@
-LoadModuleFile <- R6::R6Class(
-  "LoadModuleFile",
-  inherit = LoadModule,
+LoadComponentFile <- R6::R6Class(
+  "LoadComponentFile",
+  inherit = LoadComponent,
 
   private = list(
     .file = NULL,
@@ -24,7 +24,7 @@ LoadModuleFile <- R6::R6Class(
     },
 
     get_code = function() {
-      LoadModuleFile$code_file_type(private$.file, params = private$.params)
+      LoadComponentFile$code_file_type(private$.file, params = private$.params)
     },
 
     get_data = function() {
@@ -54,11 +54,11 @@ LoadModuleFile <- R6::R6Class(
   )
 )
 
-LoadModuleFile$FILE_READ_EXTENSIONS <- c(
+LoadComponentFile$FILE_READ_EXTENSIONS <- c(
   ".csv", ".txt", ".sas7bdat", ".xpt", ".sav", ".zsav", ".dta", ".por", ".xls", ".xlsx"
 )
 
-LoadModuleFile$code_file_type <- function(url, params = list()) {
+LoadComponentFile$code_file_type <- function(url, params = list()) {
   ext <- tolower(paste0(".", tools::file_ext(url)))
   if (ext == ".") {
     stop("File must have an extension")

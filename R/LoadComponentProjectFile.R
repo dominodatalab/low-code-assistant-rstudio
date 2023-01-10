@@ -1,9 +1,9 @@
-LoadModuleProjectFile <- R6::R6Class(
-  "LoadModuleProjectFile",
-  inherit = LoadModuleFile
+LoadComponentProjectFile <- R6::R6Class(
+  "LoadComponentProjectFile",
+  inherit = LoadComponentFile
 )
 
-LoadModuleProjectFile$shiny <- list(
+LoadComponentProjectFile$shiny <- list(
 
   ui = function(id) {
     ns <- NS(id)
@@ -21,13 +21,13 @@ LoadModuleProjectFile$shiny <- list(
         browser <- shinyfilebrowser::file_browser_server(
           "filebrowser",
           path = get_user_project_dir(),
-          extensions = LoadModuleFile$FILE_READ_EXTENSIONS,
+          extensions = LoadComponentFile$FILE_READ_EXTENSIONS,
           root = get_user_project_dir(),
           include_empty = FALSE
         )
 
         load <- reactive({
-          LoadModuleProjectFile$new(browser$selected(), params = params())
+          LoadComponentProjectFile$new(browser$selected(), params = params())
         })
 
         params <- load_file_params_server("params", file_path = reactive(browser$selected()))

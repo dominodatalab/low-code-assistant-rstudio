@@ -1,9 +1,9 @@
-LoadModuleURL <- R6::R6Class(
-  "LoadModuleURL",
-  inherit = LoadModuleFile
+LoadComponentURL <- R6::R6Class(
+  "LoadComponentURL",
+  inherit = LoadComponentFile
 )
 
-LoadModuleURL$shiny <- list(
+LoadComponentURL$shiny <- list(
 
   ui = function(id) {
     ns <- NS(id)
@@ -11,7 +11,7 @@ LoadModuleURL$shiny <- list(
       br(),
       shinyWidgets::alert(
         "Enter the URL of a file with an extension of:",
-        paste(LoadModuleFile$FILE_READ_EXTENSIONS, collapse = ", "),
+        paste(LoadComponentFile$FILE_READ_EXTENSIONS, collapse = ", "),
         status = "info", dismissible = TRUE
       ),
       textInput(ns("url"), NULL, "", placeholder = "https://path/to/data.csv", width = "100%"),
@@ -24,7 +24,7 @@ LoadModuleURL$shiny <- list(
       id,
       function(input, output, session) {
         load <- reactive({
-          LoadModuleURL$new(input$url, params = params())
+          LoadComponentURL$new(input$url, params = params())
         })
 
         params <- load_file_params_server("params", file_path = reactive(input$url))

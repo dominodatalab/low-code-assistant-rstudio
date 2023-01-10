@@ -1,6 +1,6 @@
 # A subclass must implement: private$get_name(), private$get_code(), private$get_data()
-LoadModule <- R6::R6Class(
-  "LoadModule",
+LoadComponent <- R6::R6Class(
+  "LoadComponent",
   cloneable = FALSE,
 
   private = list(
@@ -36,9 +36,9 @@ LoadModule <- R6::R6Class(
 
     print = function() {
       if (!is.null(private$.error)) {
-        cat(glue::glue("<LoadModule> Error: { private$.error }\n"))
+        cat(glue::glue("<LoadComponent> Error: { private$.error }\n"))
       } else {
-        cat("<LoadModule>\n")
+        cat("<LoadComponent>\n")
         cat0("Name: ", private$.name, "\n")
         cat0("Code: ", private$.code, "\n")
         str(private$.data)
