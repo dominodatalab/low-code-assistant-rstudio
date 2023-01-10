@@ -1,5 +1,5 @@
 get_snippets_paths_builtin <- function() {
-  path <- system.file("sample_snippets", "snippets", package = "assistDomino")
+  path <- system.file("sample_snippets", "snippets", package = PACKAGE_NAME)
   if (dir.exists(path)) {
     path
   } else {
@@ -60,4 +60,19 @@ get_editable_snippets_paths <- function() {
     paths[["Git Repos"]] <- stats::setNames(git_paths, basename(git_paths))
   }
   paths
+}
+
+add_snippet <- function(contents, name, repo, local_folder) {
+  snippet_file_name <- paste0(name, ".R")
+  snippet_dir <- file.path(repo, "snippets", local_folder)
+  if (!dir.exists(snippet_dir)) {
+    dir.create(snippet_dir, showWarnings = FALSE, recursive = TRUE)
+  }
+  snippet_path <- file.path(snippet_dir, snippet_file_name)
+  writeLines(contents, snippet_path)
+  snippet_path
+}
+
+edit_snippet <- function(contents, file) {
+  writeLines(contents, file)
 }

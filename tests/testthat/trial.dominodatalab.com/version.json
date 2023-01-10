@@ -1,0 +1,8 @@
+{
+    "buildId": "123456",
+    "buildUrl": "https://circleci.com/gh/user/domino/123456",
+    "commitId": "1a2b3c4d5e6f",
+    "commitUrl": "https://github.com/user/domino/commit/1a2b3c4d5e6f",
+    "timestamp": "2022-10-28T20:52:15Z",
+    "version": "1.2.3"
+}

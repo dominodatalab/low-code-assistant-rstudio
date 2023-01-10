@@ -1,0 +1,19 @@
+{
+  "input": {
+    "data": "cars.csv",
+    "test-col_names": true,
+    "test-dec": ".",
+    "test-header": false,
+    "test-sep": "",
+    "test-sheet": 1
+  },
+  "output": {
+
+  },
+  "export": {
+    "params": {
+      "header": false,
+      "sep": ""
+    }
+  }
+}

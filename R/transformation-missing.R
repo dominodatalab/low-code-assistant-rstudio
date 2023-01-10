@@ -92,7 +92,7 @@ MissingValuesTransformation$shiny <- list(
     )
   },
 
-  server = function(id, data, old_xform) {
+  server = function(id, data = reactive(NULL), old_xform = reactive(NULL)) {
     moduleServer(
       id,
       function(input, output, session) {

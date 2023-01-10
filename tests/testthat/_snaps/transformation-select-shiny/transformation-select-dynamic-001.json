@@ -1,0 +1,16 @@
+{
+  "input": {
+    "dataset": "mtcars",
+    "test-select_cols": [
+      "mpg",
+      "cyl"
+    ],
+    "test-select_name": "mtcars_df"
+  },
+  "output": {
+    "xform": "<SelectTransformation> (mtcars_df | base R) Columns: mpg, cyl"
+  },
+  "export": {
+
+  }
+}

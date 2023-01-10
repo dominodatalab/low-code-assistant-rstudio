@@ -1,0 +1,15 @@
+{
+  "input": {
+    "test-drop_cols": [
+      "mpg",
+      "wt"
+    ],
+    "test-drop_name": "bad.name"
+  },
+  "output": {
+
+  },
+  "export": {
+
+  }
+}

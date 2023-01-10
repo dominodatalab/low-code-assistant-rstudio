@@ -1,3 +1,4 @@
+# @param cols Columns to drop (at least one)
 DropTransformation <- R6::R6Class(
   "DropTransformation",
   inherit = Transformation,
@@ -62,7 +63,9 @@ DropTransformation$shiny <- list(
     )
   },
 
-  server = function(id, data, old_xform) {
+  # @param data (reactive) A data frame
+  # @param old_xform (reactive) A transformation to pre-populate the fields, or `NULL`
+  server = function(id, data = reactive(NULL), old_xform = reactive(NULL)) {
     moduleServer(
       id,
       function(input, output, session) {

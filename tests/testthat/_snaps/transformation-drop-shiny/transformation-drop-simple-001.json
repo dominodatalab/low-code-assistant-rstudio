@@ -1,0 +1,12 @@
+{
+  "input": {
+    "test-drop_cols": "cyl",
+    "test-drop_name": "mydf"
+  },
+  "output": {
+
+  },
+  "export": {
+
+  }
+}

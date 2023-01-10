@@ -30,31 +30,31 @@ page_data_select_ui <- function(id) {
           "Upload",
           value = "upload",
           icon = icon("upload"),
-          LoadModuleUpload$shiny$ui(ns("upload"))
+          LoadComponentUpload$shiny$ui(ns("upload"))
         ),
         tabPanel(
           "URL",
           value = "url",
           icon = icon("link"),
-          LoadModuleURL$shiny$ui(ns("url"))
+          LoadComponentURL$shiny$ui(ns("url"))
         ),
         tabPanel(
           "Datasets",
           value = "dataset",
           icon = icon("table"),
-          LoadModuleDatasets$shiny$ui(ns("datasets"))
+          LoadComponentDatasets$shiny$ui(ns("datasets"))
         ),
         tabPanel(
           "Project Files",
           value = "file",
           icon = icon("folder-open"),
-          LoadModuleProjectFile$shiny$ui(ns("project_files"))
+          LoadComponentProjectFile$shiny$ui(ns("project_files"))
         ),
         tabPanel(
           "Demo Data",
           value = "demo",
           icon = icon("file"),
-          LoadModuleDemo$shiny$ui(ns("demo"))
+          LoadComponentDemo$shiny$ui(ns("demo"))
         )
       ),
       tags$script(glue::glue("$('#{ns(\"import_modules\")}').addClass('nav-justified');")),
@@ -132,11 +132,11 @@ page_data_select_server <- function(id) {
       })
 
       data_modules <- list(
-        upload = LoadModuleUpload$shiny$server("upload", upload_dir = get_user_upload_dir()),
-        url = LoadModuleURL$shiny$server("url"),
-        dataset = LoadModuleDatasets$shiny$server("datasets"),
-        file = LoadModuleProjectFile$shiny$server("project_files"),
-        demo = LoadModuleDemo$shiny$server("demo")
+        upload = LoadComponentUpload$shiny$server("upload", upload_dir = get_user_upload_dir()),
+        url = LoadComponentURL$shiny$server("url"),
+        dataset = LoadComponentDatasets$shiny$server("datasets"),
+        file = LoadComponentProjectFile$shiny$server("project_files"),
+        demo = LoadComponentDemo$shiny$server("demo")
       )
 
       selected_data_module <- reactive({

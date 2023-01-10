@@ -36,6 +36,7 @@ test_that("is_valid_name works", {
   expect_true(is_valid_name("a5"))
   expect_true(is_valid_name("a_b"))
 
+  expect_false(is_valid_name(NULL))
   expect_false(is_valid_name("5a"))
   expect_false(is_valid_name("_ab"))
   expect_false(is_valid_name("one!"))
@@ -117,6 +118,44 @@ test_that("remove_duplicate_lines works", {
   )
 })
 
+test_that("get_writable_git_repos works", {
+  mockery::stub(get_writable_git_repos, "get_user_git_repos", c())
+  expect_identical(get_writable_git_repos(), character(0))
+  mockery::stub(get_writable_git_repos, "get_user_git_repos", get_user_git_repos)
+
+  mockery::stub(get_writable_git_repos, "get_user_git_dir", depth = 2,
+                system.file("tests_data", "git_repos", package = PACKAGE_NAME))
+
+  mockery::stub(get_writable_git_repos, "is_git_writable", FALSE)
+  expect_identical(get_writable_git_repos(), character(0))
+
+  mockery::stub(get_writable_git_repos, "is_git_writable",
+                function(dir) {
+                  basename(dir) %in% c("repo1", "repo3")
+                })
+  expect_length(get_writable_git_repos(), 2)
+  expect_true(all(basename(get_writable_git_repos()) %in% c("repo1", "repo3")))
+})
+
+test_that("is_subdir works", {
+  expect_true(is_subdir("a", "a/b/c"))
+  expect_true(is_subdir("a/b", "a/b/c"))
+  expect_true(is_subdir("a/b/c", "a/b/c"))
+  expect_false(is_subdir("a/b/c/d", "a/b/c"))
+  expect_false(is_subdir("a/b/c/d", "a/b/c"))
+  expect_true(is_subdir("", ""))
+  expect_true(is_subdir("", "a"))
+  expect_true(is_subdir("", "a/b"))
+  expect_false(is_subdir("a", ""))
+  expect_false(is_subdir("a/b", ""))
+})
+
+test_that("get_file_name_no_ext works", {
+  expect_equal(get_file_name_no_ext("file"), "file")
+  expect_equal(get_file_name_no_ext("path/file"), "file")
+  expect_equal(get_file_name_no_ext("path/file.txt.gz"), "file.txt")
+})
+
 test_that("get_data_name_str works", {
   mock_env <- new.env(parent = emptyenv())
   mock_env$df1 <- mtcars
@@ -135,4 +174,15 @@ test_that("get_data_name_str works", {
   expect_identical(get_data_name_str("df1"), "df1")
   expect_identical(get_data_name_str("df2"), "df2")
   expect_null(get_data_name_str("df3"))
+})
+
+test_that("quietly works", {
+  expect_output(print("test"))
+  expect_output(quietly(print("test")), NA)
+
+  expect_message(message("test"))
+  expect_message(quietly(message("test")), NA)
+
+  expect_warning(warning("test"))
+  expect_warning(quietly(print("test")), NA)
 })

@@ -50,8 +50,11 @@ Imports:
     utils,
     waiter
 Suggests: 
+    httptest,
     mockery,
-    testthat (>= 3.0.0)
+    shinytest2,
+    testthat (>= 3.0.0),
+    withr
 Remotes:
     daattali/shinycodeviewer,
     daattali/shinymixpanel,

@@ -1,19 +1,89 @@
-get_xform_sel1 <- function() {
-  SelectTransformation$new("col1")
-}
-get_xform_sel2 <- function() {
-  SelectTransformation$new(c("col1", "col2"))
-}
-get_xform_drop1 <- function() {
-  DropTransformation$new("col1")
-}
-get_xform_drop2 <- function() {
-  DropTransformation$new(c("col1", "col2"))
-}
+test_that("TransformationSequence needs a list of Transformation objects", {
+  expect_error(TransformationSequence$new(name_in = "df"), NA)
+  expect_error(TransformationSequence$new(mtcars, name_in = "df"))
+  expect_error(TransformationSequence$new("test", name_in = "df"))
+  expect_error(TransformationSequence$new(list(get_xform_sel1()), name_in = "df"), NA)
+  expect_error(TransformationSequence$new(list(get_xform_sel1(), get_xform_sel2()), name_in = "df"), NA)
+  expect_error(TransformationSequence$new(list(get_xform_sel1(), "test"), name_in = "df"))
+})
 
 test_that("TransformationSequence needs a name_in", {
   expect_error(TransformationSequence$new())
   expect_error(TransformationSequence$new(name_in = "df"), NA)
+})
+
+test_that("Printing a TransformationSequence", {
+  xforms <- TransformationSequence$new(name_in = "df", list(get_xform_sel1(), get_xform_drop1()))
+  expect_output(xforms$print(), "<TransformationSequence>.*2 transformations")
+})
+
+test_that("TransformationSequence$get_code() works", {
+  xforms <- TransformationSequence$new(name_in = "df", list(get_xform_sel1(), get_xform_drop1()))
+  expect_identical(
+    xforms$get_code(),
+    "df <- df[c(\"col1\")]\ndf <- df[, !(names(df) %in% c(\"col1\")), drop = FALSE]"
+  )
+  expect_identical(
+    xforms$get_code(include_setup = FALSE),
+    "df <- df[c(\"col1\")]\ndf <- df[, !(names(df) %in% c(\"col1\")), drop = FALSE]"
+  )
+
+  xforms <- TransformationSequence$new(tidyverse = TRUE, name_in = "df", list(get_xform_sel1(), get_xform_drop1()))
+  expect_identical(
+    xforms$get_code(),
+    "library(dplyr)\ndf <- df %>% select(c(\"col1\"))\ndf <- df %>% select(-c(\"col1\"))"
+  )
+  expect_identical(
+    xforms$get_code(include_setup = FALSE),
+    "df <- df %>% select(c(\"col1\"))\ndf <- df %>% select(-c(\"col1\"))"
+  )
+})
+
+test_that("TransformationSequence$get_setup_chunks() works", {
+  xforms <- TransformationSequence$new(name_in = "df")
+  expect_identical(xforms$get_setup_chunks(), list())
+
+  xforms <- TransformationSequence$new(name_in = "df", list(get_xform_sel1()))
+  expect_identical(xforms$get_setup_chunks(), list())
+
+  xforms <- TransformationSequence$new(name_in = "df", list(get_xform_sel1()), tidyverse = TRUE)
+  expect_identical(xforms$get_setup_chunks(), list("library(dplyr)"))
+
+  xforms <- TransformationSequence$new(name_in = "df", list(get_xform_sel1(), get_xform_drop1()), tidyverse = TRUE)
+  expect_identical(xforms$get_setup_chunks(), list("library(dplyr)"))
+
+  xforms <- TransformationSequence$new(name_in = "df", list(get_xform_sel1(), get_xform_missing()), tidyverse = TRUE)
+  expect_identical(xforms$get_setup_chunks(), list("library(dplyr)", "library(tidyr)"))
+})
+
+test_that("TransformationSequence$get_code_chunks() works", {
+  xforms <- TransformationSequence$new(name_in = "df")
+  expect_identical(xforms$get_code_chunks(), "df")
+
+  xforms <- TransformationSequence$new(name_in = "df", list(get_xform_sel1()))
+  expect_identical(xforms$get_code_chunks(), list("df <- df[c(\"col1\")]"))
+  expect_identical(xforms$get_code_chunks(include_setup = FALSE), list("df <- df[c(\"col1\")]"))
+
+  xforms <- TransformationSequence$new(name_in = "df", list(get_xform_sel1()), tidyverse = TRUE)
+  expect_identical(xforms$get_code_chunks(), list(
+    "library(dplyr)",
+    "df <- df %>% select(c(\"col1\"))"
+  ))
+  expect_identical(xforms$get_code_chunks(include_setup = FALSE), list(
+    "df <- df %>% select(c(\"col1\"))"
+  ))
+
+  xforms <- TransformationSequence$new(name_in = "df", list(get_xform_sel1(), get_xform_missing()), tidyverse = TRUE)
+  expect_identical(xforms$get_code_chunks(), list(
+    "library(dplyr)",
+    "library(tidyr)",
+    "df <- df %>% select(c(\"col1\"))",
+    "df <- df %>% drop_na()"
+  ))
+  expect_identical(xforms$get_code_chunks(include_setup = FALSE), list(
+    "df <- df %>% select(c(\"col1\"))",
+    "df <- df %>% drop_na()"
+  ))
 })
 
 test_that("TransformationSequence has the correct name_out", {
@@ -271,10 +341,6 @@ test_that("TransformationSequence tidyverse is set correctly", {
   expect_true(TransformationSequence$new(name_in = "df", tidyverse = TRUE)$tidyverse)
   expect_false(TransformationSequence$new(name_in = "df", tidyverse = FALSE)$tidyverse)
 })
-
-get_tidyverse_status <- function(xformseq) {
-  sapply(xformseq$transformations, function(xform) xform$tidyverse)
-}
 
 test_that("TransformationSequence sets tidyverse correctly on a single transformation when not given tidyverse", {
   expect_equal(
@@ -670,4 +736,121 @@ test_that("TransformationSequence add/insert/remove/head retains tidyverse setti
     ),
     c(TRUE, TRUE)
   )
+})
+
+
+
+test_that("TransformationSequence$run() works", {
+  init_search <- search()
+
+  local({
+    expect_error(TransformationSequence$new(name_in = "mydf")$run())
+
+    mydf <- mtcars
+    expect_identical(
+      TransformationSequence$new(name_in = "mydf")$run(),
+      TransformationsResult$new(result = mtcars)
+    )
+    expect_identical(
+      TransformationSequence$new(name_in = "mydf")$run(data_in = iris),
+      TransformationsResult$new(result = iris)
+    )
+
+    clean_search_path(init_search)
+  })
+
+  local({
+    expect_error(TransformationSequence$new(name_in = "mydf")$run())
+
+    expect_identical(
+      TransformationSequence$new(name_in = "mydf")$run(data_in = mtcars),
+      TransformationsResult$new(result = mtcars)
+    )
+    expect_identical(
+      TransformationSequence$new(name_in = "mydf")$run(data_in = iris),
+      TransformationsResult$new(result = iris)
+    )
+
+    clean_search_path(init_search)
+  })
+
+  local({
+    expect_error(TransformationSequence$new(name_in = "mydf")$run())
+
+    testenv <- new.env()
+    testenv$mydf <- cars
+    expect_identical(
+      TransformationSequence$new(name_in = "mydf")$run(env = testenv),
+      TransformationsResult$new(result = cars)
+    )
+
+    clean_search_path(init_search)
+  })
+
+  local({
+    mydf <- mtcars
+
+    expect_identical(
+      TransformationSequence$new(
+        name_in = "mydf", tidyverse = TRUE,
+        FilterTransformation$new("cyl", "==", 6)
+      )$run(),
+      TransformationsResult$new(result = subset(mtcars, cyl == 6))
+    )
+    clean_search_path(init_search)
+  })
+
+  local({
+    mydf <- mtcars
+
+    xforms <- TransformationSequence$new(
+      name_in = "mydf", tidyverse = TRUE,
+      FilterTransformation$new("cyl", "==", 6)
+    )
+    mockery::stub(xforms$run, "self$get_setup_chunks", list("library(badpackage)"))
+    res <- xforms$run()
+
+    expect_null(res$result)
+    expect_equal(res$error_line_num, 0L)
+    expect_match(res$error, "badpackage")
+    expect_match(res$error_line, "library.*badpackage")
+
+    clean_search_path(init_search)
+  })
+
+  local({
+    mydf <- mtcars
+
+    res <- TransformationSequence$new(name_in = "mydf", list(SelectTransformation$new("badcol")))$run()
+    expect_identical(res$result, mtcars)
+    expect_equal(res$error_line_num, 1L)
+    expect_match(res$error, "undefined")
+    expect_match(res$error_line, "badcol")
+
+    clean_search_path(init_search)
+  })
+
+  local({
+    mydf <- mtcars
+
+    res <- TransformationSequence$new(name_in = "mydf", list(DropTransformation$new(c("cyl", "wt")), SelectTransformation$new("badcol")))$run()
+    expect_identical(res$result, subset(mtcars, select = -c(cyl, wt)))
+    expect_equal(res$error_line_num, 2L)
+    expect_match(res$error, "undefined")
+    expect_match(res$error_line, "badcol")
+
+    clean_search_path(init_search)
+  })
+
+  local({
+    mydf <- mtcars
+
+    res <- TransformationSequence$new(name_in = "mydf", list(DropTransformation$new(c("cyl", "wt")), SelectTransformation$new("am")))$run()
+    expect_identical(res$result, subset(mtcars, select = am))
+    expect_null(res$error_line_num)
+    expect_null(res$error)
+    expect_null(res$error_line)
+
+    clean_search_path(init_search)
+  })
 })

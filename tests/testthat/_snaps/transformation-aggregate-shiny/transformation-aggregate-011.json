@@ -1,0 +1,28 @@
+{
+  "input": {
+    "dataset": "mtcars",
+    "test-aggregate_aggregator": "",
+    "test-aggregate_col_agg": "",
+    "test-aggregate_cols": [
+      "cyl",
+      "am"
+    ],
+    "test-aggregate_existing": "[]",
+    "test-aggregate_name": "mtcars_df",
+    "test-aggregate_remove": 1
+  },
+  "output": {
+    "test-aggregate_existing_ui": null,
+    "xform": {
+      "message": "",
+      "call": "NULL",
+      "type": [
+        "shiny.silent.error",
+        "validation"
+      ]
+    }
+  },
+  "export": {
+
+  }
+}

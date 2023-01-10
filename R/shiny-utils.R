@@ -35,10 +35,6 @@ reactiveValEvent <- function(data = NULL) {
   }
 }
 
-inelineUI <- function(tag) {
-  htmltools::tagAppendAttributes(tag, style = "display: inline-block")
-}
-
 kill_app <- function(session = shiny::getDefaultReactiveDomain()) {
   session$sendCustomMessage("lca-close-window", TRUE)
   shiny::stopApp()
@@ -66,8 +62,8 @@ input_with_checkbox <- function(input, checkboxId, checkboxLabel, checkboxValue 
     tags$span(checkboxLabel, style = "vertical-align: middle")
   )
 
-  input_idx <- which(sapply(input$children, function(x) x$name == "input"))
-  if (length(input_idx) != 1) {
+  input_idx <- try(which(sapply(input$children, function(x) x$name == "input")), silent = TRUE)
+  if (inherits(input_idx, "try-error") || length(input_idx) != 1) {
     stop("Can't find the <input> tag")
   }
 
@@ -78,7 +74,7 @@ input_with_checkbox <- function(input, checkboxId, checkboxLabel, checkboxValue 
   } else if (side == "right") {
     group <- tags$div(class = "input-group", input_tag, checkbox)
   } else {
-    stop("Invalid 'side'")
+    stop("Invalid 'side'")  # nocov
   }
 
   input$children[[input_idx]] <- group

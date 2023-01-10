@@ -16,10 +16,10 @@ assign_to_global <- function(name, x, pos = 1L) {
 }
 
 is_valid_name <- function(s) {
-  make.names(s) == s
+  !is.null(s) && make.names(s) == s
 }
 
-insert_text <- function(text, newline = TRUE, remove_duplicate_libs = TRUE) {
+insert_text <- function(text, newline = TRUE, remove_duplicate_libs = TRUE) { # nocov start
   id <- rstudioapi::getSourceEditorContext()$id
   if (is.null(id)) {
     id <- rstudioapi::documentNew("")
@@ -52,7 +52,7 @@ insert_text <- function(text, newline = TRUE, remove_duplicate_libs = TRUE) {
     rstudioapi::insertText(id = id, text = text)
   }, error = function(e) {})
   invisible(NULL)
-}
+} # nocov end
 
 remove_duplicate_lines <- function(text = "", lines_to_remove = c()) {
   for (line in lines_to_remove) {
@@ -77,7 +77,7 @@ remove_duplicate_lines <- function(text = "", lines_to_remove = c()) {
   text
 }
 
-is_git_writable <- function(dir) {
+is_git_writable <- function(dir) { # nocov start
   tryCatch({
     owd <- setwd(dir)
     on.exit(setwd(owd), add = TRUE)
@@ -85,7 +85,7 @@ is_git_writable <- function(dir) {
     processx::run("git", c("push", "--dry-run", "--force", "--no-verify"))
     TRUE
   }, error = function(err) FALSE)
-}
+} # nocov end
 
 get_writable_git_repos <- function() {
   repos <- get_user_git_repos()
@@ -125,4 +125,10 @@ get_data_name_str <- function(x = NULL) {
   }, error = function(err) {
     NULL
   })
+}
+
+quietly <- function(expr) {
+  utils::capture.output(suppressWarnings(suppressMessages(suppressPackageStartupMessages(
+    expr
+  ))))
 }
